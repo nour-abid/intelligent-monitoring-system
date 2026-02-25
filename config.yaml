@@ -1,0 +1,39 @@
+camera:
+  rtsp_url: "rtsp://admin:admin1234@169.254.77.55:554/Streaming/Channels/102"
+
+recognition:
+  sim_threshold: 0.55
+  margin: 0.18
+
+liveness:
+  real_threshold: 0.75
+
+tracking:
+  max_age: 30
+
+database:
+  path: "data/db/attendances.db"
+
+tuning:
+  max_faces: 5
+  det_score_thr: 0.40          # was too strict
+  det_score_thr_strict: 0.50   # lower from 0.65 for testing
+
+  min_face_size: 40            # lower for detection
+  min_face_size_live: 60       # lower from 90 for testing
+
+  min_face_aspect: 0.50        # wider tolerance
+  max_face_aspect: 1.90
+
+  min_face_area_ratio: 0.005   # lower from 0.015 (very strict)
+  blur_threshold: 10.0         # lower from 20.0
+
+
+  rec_min_sim: 0.55
+  rec_min_margin: 0.02
+  anti_spoof_every_n_frames: 5
+  smooth_window: 10
+  spoof_window: 10
+  absent_after_sec: 2.0
+  min_hits: 3
+  present_after_sec: 1.0
