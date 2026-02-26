@@ -2438,3 +2438,1826 @@ cv2.error: OpenCV(4.13.0) D:\a\opencv-python\opencv-python\opencv\modules\dnn\sr
 2026-02-23 14:38:04,661 - root - INFO - Ctrl+C detected. Shutting down gracefully...
 2026-02-23 14:38:04,662 - root - INFO - Cleaning up...
 2026-02-23 14:38:04,671 - root - INFO - Done.
+2026-02-26 11:21:19,798 - root - INFO - STARTING attendance (RTSP + InsightFace + DeepSORT + MiniFASNet)
+2026-02-26 11:21:19,800 - root - INFO - ROOT: C:\Users\BH RENOVATIONS\intelligent-monitoring-system
+2026-02-26 11:21:19,800 - root - INFO - EMB_DIR: C:\Users\BH RENOVATIONS\intelligent-monitoring-system\models\embeddings
+2026-02-26 11:21:19,801 - root - INFO - DB: C:\Users\BH RENOVATIONS\intelligent-monitoring-system\data\db\attendances.db
+2026-02-26 11:21:19,804 - root - INFO - Loaded 2 known embeddings (dim=512)
+2026-02-26 11:21:19,804 - root - INFO - Known identities: ['Amir', 'Nour']
+2026-02-26 11:21:19,814 - root - INFO - Loading InsightFace model (buffalo_l)...
+2026-02-26 11:21:22,043 - root - INFO - InsightFace initialized with CUDA provider.
+2026-02-26 11:21:22,044 - deep_sort_realtime.deepsort_tracker - INFO - DeepSort Tracker initialised
+2026-02-26 11:21:22,045 - deep_sort_realtime.deepsort_tracker - INFO - - max age: 30
+2026-02-26 11:21:22,045 - deep_sort_realtime.deepsort_tracker - INFO - - appearance threshold: 0.4
+2026-02-26 11:21:22,045 - deep_sort_realtime.deepsort_tracker - INFO - - nms threshold: OFF
+2026-02-26 11:21:22,046 - deep_sort_realtime.deepsort_tracker - INFO - - max num of appearance features: 100
+2026-02-26 11:21:22,046 - deep_sort_realtime.deepsort_tracker - INFO - - overriding track class : No
+2026-02-26 11:21:22,046 - deep_sort_realtime.deepsort_tracker - INFO - - today given : No
+2026-02-26 11:21:22,047 - deep_sort_realtime.deepsort_tracker - INFO - - in-build embedder : No
+2026-02-26 11:21:22,047 - deep_sort_realtime.deepsort_tracker - INFO - - polygon detections : No
+2026-02-26 11:21:22,047 - root - INFO - DeepSORT tracker initialized.
+2026-02-26 11:21:22,504 - root - INFO - MiniFASNet loaded on cuda: 2.7_80x80_MiniFASNetV2.pth, 4_0_0_80x80_MiniFASNetV1SE.pth
+2026-02-26 11:21:22,505 - root - INFO - MiniFASNet classes imported from: C:\Users\BH RENOVATIONS\intelligent-monitoring-system\src\model_lib\MiniFASNet.py
+2026-02-26 11:21:22,505 - root - INFO - Anti-spoofing ENABLED (MiniFASNet ensemble + CropImage patches).
+2026-02-26 11:21:22,505 - root - INFO - Pipeline: InsightFace -> DeepSORT -> CropImage -> MiniFASNet -> Attendance
+2026-02-26 11:21:23,838 - root - INFO - RTSP open: True
+2026-02-26 11:21:27,260 - root - DEBUG - [MATCH] Similarities: Nour=0.635, Amir=-0.026, margin=0.661 ✓ RECOGNIZED
+2026-02-26 11:21:27,320 - root - DEBUG - [MATCH] Similarities: Nour=0.682, Amir=-0.046, margin=0.728 ✓ RECOGNIZED
+2026-02-26 11:21:27,762 - root - DEBUG - [MATCH] Similarities: Nour=0.720, Amir=-0.055, margin=0.776 ✓ RECOGNIZED
+2026-02-26 11:21:27,830 - root - DEBUG - [MATCH] Similarities: Nour=0.718, Amir=-0.009, margin=0.727 ✓ RECOGNIZED
+2026-02-26 11:21:27,891 - root - DEBUG - [MATCH] Similarities: Nour=0.713, Amir=-0.029, margin=0.743 ✓ RECOGNIZED
+2026-02-26 11:21:27,952 - root - DEBUG - [MATCH] Similarities: Nour=0.724, Amir=-0.046, margin=0.770 ✓ RECOGNIZED
+2026-02-26 11:21:28,015 - root - DEBUG - [MATCH] Similarities: Nour=0.730, Amir=-0.017, margin=0.747 ✓ RECOGNIZED
+2026-02-26 11:21:28,255 - root - DEBUG - [MATCH] Similarities: Nour=0.706, Amir=-0.010, margin=0.716 ✓ RECOGNIZED
+2026-02-26 11:21:28,314 - root - DEBUG - [MATCH] Similarities: Nour=0.702, Amir=-0.019, margin=0.721 ✓ RECOGNIZED
+2026-02-26 11:21:28,378 - root - DEBUG - [MATCH] Similarities: Nour=0.741, Amir=-0.023, margin=0.765 ✓ RECOGNIZED
+2026-02-26 11:21:28,439 - root - DEBUG - [MATCH] Similarities: Nour=0.687, Amir=-0.072, margin=0.760 ✓ RECOGNIZED
+2026-02-26 11:21:28,501 - root - DEBUG - [MATCH] Similarities: Nour=0.685, Amir=-0.049, margin=0.734 ✓ RECOGNIZED
+2026-02-26 11:21:28,741 - root - DEBUG - [MATCH] Similarities: Nour=0.696, Amir=-0.047, margin=0.743 ✓ RECOGNIZED
+2026-02-26 11:21:28,811 - root - DEBUG - [MATCH] Similarities: Nour=0.712, Amir=0.004, margin=0.708 ✓ RECOGNIZED
+2026-02-26 11:21:28,874 - root - DEBUG - [MATCH] Similarities: Nour=0.715, Amir=-0.024, margin=0.739 ✓ RECOGNIZED
+2026-02-26 11:21:28,938 - root - DEBUG - [MATCH] Similarities: Nour=0.771, Amir=-0.036, margin=0.807 ✓ RECOGNIZED
+2026-02-26 11:21:28,942 - root - INFO - 2026-02-26 11:21:28 | Nour -> check_in
+2026-02-26 11:21:29,012 - root - DEBUG - [MATCH] Similarities: Nour=0.775, Amir=-0.031, margin=0.806 ✓ RECOGNIZED
+2026-02-26 11:21:29,245 - root - DEBUG - [MATCH] Similarities: Nour=0.782, Amir=-0.058, margin=0.840 ✓ RECOGNIZED
+2026-02-26 11:21:29,306 - root - DEBUG - [MATCH] Similarities: Nour=0.768, Amir=-0.014, margin=0.782 ✓ RECOGNIZED
+2026-02-26 11:21:29,367 - root - DEBUG - [MATCH] Similarities: Nour=0.774, Amir=-0.026, margin=0.800 ✓ RECOGNIZED
+2026-02-26 11:21:29,429 - root - DEBUG - [MATCH] Similarities: Nour=0.768, Amir=-0.025, margin=0.794 ✓ RECOGNIZED
+2026-02-26 11:21:29,491 - root - DEBUG - [MATCH] Similarities: Nour=0.759, Amir=-0.011, margin=0.770 ✓ RECOGNIZED
+2026-02-26 11:21:29,719 - root - DEBUG - [MATCH] Similarities: Nour=0.768, Amir=-0.010, margin=0.778 ✓ RECOGNIZED
+2026-02-26 11:21:29,781 - root - DEBUG - [MATCH] Similarities: Nour=0.760, Amir=-0.024, margin=0.784 ✓ RECOGNIZED
+2026-02-26 11:21:29,845 - root - DEBUG - [MATCH] Similarities: Nour=0.756, Amir=-0.029, margin=0.785 ✓ RECOGNIZED
+2026-02-26 11:21:29,905 - root - DEBUG - [MATCH] Similarities: Nour=0.760, Amir=-0.014, margin=0.774 ✓ RECOGNIZED
+2026-02-26 11:21:29,971 - root - DEBUG - [MATCH] Similarities: Nour=0.760, Amir=-0.017, margin=0.777 ✓ RECOGNIZED
+2026-02-26 11:21:30,209 - root - DEBUG - [MATCH] Similarities: Nour=0.758, Amir=-0.044, margin=0.802 ✓ RECOGNIZED
+2026-02-26 11:21:30,278 - root - DEBUG - [MATCH] Similarities: Nour=0.740, Amir=-0.022, margin=0.762 ✓ RECOGNIZED
+2026-02-26 11:21:30,339 - root - DEBUG - [MATCH] Similarities: Nour=0.743, Amir=-0.015, margin=0.758 ✓ RECOGNIZED
+2026-02-26 11:21:30,402 - root - DEBUG - [MATCH] Similarities: Nour=0.734, Amir=-0.016, margin=0.750 ✓ RECOGNIZED
+2026-02-26 11:21:30,465 - root - DEBUG - [MATCH] Similarities: Nour=0.744, Amir=-0.019, margin=0.763 ✓ RECOGNIZED
+2026-02-26 11:21:30,693 - root - DEBUG - [MATCH] Similarities: Nour=0.751, Amir=-0.016, margin=0.767 ✓ RECOGNIZED
+2026-02-26 11:21:30,755 - root - DEBUG - [MATCH] Similarities: Nour=0.752, Amir=-0.036, margin=0.788 ✓ RECOGNIZED
+2026-02-26 11:21:30,818 - root - DEBUG - [MATCH] Similarities: Nour=0.784, Amir=-0.037, margin=0.821 ✓ RECOGNIZED
+2026-02-26 11:21:30,879 - root - DEBUG - [MATCH] Similarities: Nour=0.757, Amir=-0.030, margin=0.787 ✓ RECOGNIZED
+2026-02-26 11:21:30,940 - root - DEBUG - [MATCH] Similarities: Nour=0.755, Amir=-0.042, margin=0.796 ✓ RECOGNIZED
+2026-02-26 11:21:31,168 - root - DEBUG - [MATCH] Similarities: Nour=0.762, Amir=-0.037, margin=0.799 ✓ RECOGNIZED
+2026-02-26 11:21:31,230 - root - DEBUG - [MATCH] Similarities: Nour=0.756, Amir=-0.041, margin=0.797 ✓ RECOGNIZED
+2026-02-26 11:21:31,294 - root - DEBUG - [MATCH] Similarities: Nour=0.765, Amir=-0.037, margin=0.801 ✓ RECOGNIZED
+2026-02-26 11:21:31,355 - root - DEBUG - [MATCH] Similarities: Nour=0.759, Amir=-0.030, margin=0.789 ✓ RECOGNIZED
+2026-02-26 11:21:31,418 - root - DEBUG - [MATCH] Similarities: Nour=0.772, Amir=-0.031, margin=0.803 ✓ RECOGNIZED
+2026-02-26 11:21:31,752 - root - DEBUG - [MATCH] Similarities: Nour=0.757, Amir=-0.053, margin=0.810 ✓ RECOGNIZED
+2026-02-26 11:21:31,812 - root - DEBUG - [MATCH] Similarities: Nour=0.757, Amir=-0.034, margin=0.791 ✓ RECOGNIZED
+2026-02-26 11:21:31,871 - root - DEBUG - [MATCH] Similarities: Nour=0.760, Amir=-0.037, margin=0.797 ✓ RECOGNIZED
+2026-02-26 11:21:31,933 - root - DEBUG - [MATCH] Similarities: Nour=0.765, Amir=-0.027, margin=0.793 ✓ RECOGNIZED
+2026-02-26 11:21:31,994 - root - DEBUG - [MATCH] Similarities: Nour=0.763, Amir=-0.029, margin=0.792 ✓ RECOGNIZED
+2026-02-26 11:21:32,226 - root - DEBUG - [MATCH] Similarities: Nour=0.748, Amir=-0.035, margin=0.782 ✓ RECOGNIZED
+2026-02-26 11:21:32,285 - root - DEBUG - [MATCH] Similarities: Nour=0.767, Amir=-0.020, margin=0.787 ✓ RECOGNIZED
+2026-02-26 11:21:32,352 - root - DEBUG - [MATCH] Similarities: Nour=0.762, Amir=-0.022, margin=0.784 ✓ RECOGNIZED
+2026-02-26 11:21:32,410 - root - DEBUG - [MATCH] Similarities: Nour=0.746, Amir=-0.018, margin=0.764 ✓ RECOGNIZED
+2026-02-26 11:21:32,472 - root - DEBUG - [MATCH] Similarities: Nour=0.745, Amir=-0.026, margin=0.771 ✓ RECOGNIZED
+2026-02-26 11:21:32,712 - root - DEBUG - [MATCH] Similarities: Nour=0.757, Amir=-0.022, margin=0.778 ✓ RECOGNIZED
+2026-02-26 11:21:32,782 - root - DEBUG - [MATCH] Similarities: Nour=0.760, Amir=-0.027, margin=0.787 ✓ RECOGNIZED
+2026-02-26 11:21:32,846 - root - DEBUG - [MATCH] Similarities: Nour=0.755, Amir=-0.025, margin=0.780 ✓ RECOGNIZED
+2026-02-26 11:21:32,906 - root - DEBUG - [MATCH] Similarities: Nour=0.756, Amir=-0.024, margin=0.780 ✓ RECOGNIZED
+2026-02-26 11:21:32,968 - root - DEBUG - [MATCH] Similarities: Nour=0.752, Amir=-0.046, margin=0.797 ✓ RECOGNIZED
+2026-02-26 11:21:33,199 - root - DEBUG - [MATCH] Similarities: Nour=0.748, Amir=-0.035, margin=0.783 ✓ RECOGNIZED
+2026-02-26 11:21:33,262 - root - DEBUG - [MATCH] Similarities: Nour=0.751, Amir=-0.040, margin=0.791 ✓ RECOGNIZED
+2026-02-26 11:21:33,324 - root - DEBUG - [MATCH] Similarities: Nour=0.754, Amir=-0.034, margin=0.788 ✓ RECOGNIZED
+2026-02-26 11:21:33,386 - root - DEBUG - [MATCH] Similarities: Nour=0.757, Amir=-0.028, margin=0.785 ✓ RECOGNIZED
+2026-02-26 11:21:33,448 - root - DEBUG - [MATCH] Similarities: Nour=0.757, Amir=-0.026, margin=0.783 ✓ RECOGNIZED
+2026-02-26 11:21:33,686 - root - DEBUG - [MATCH] Similarities: Nour=0.758, Amir=-0.035, margin=0.793 ✓ RECOGNIZED
+2026-02-26 11:21:33,744 - root - DEBUG - [MATCH] Similarities: Nour=0.739, Amir=-0.044, margin=0.783 ✓ RECOGNIZED
+2026-02-26 11:21:33,807 - root - DEBUG - [MATCH] Similarities: Nour=0.732, Amir=-0.060, margin=0.792 ✓ RECOGNIZED
+2026-02-26 11:21:33,869 - root - DEBUG - [MATCH] Similarities: Nour=0.737, Amir=-0.048, margin=0.784 ✓ RECOGNIZED
+2026-02-26 11:21:33,929 - root - DEBUG - [MATCH] Similarities: Nour=0.734, Amir=-0.040, margin=0.774 ✓ RECOGNIZED
+2026-02-26 11:21:34,170 - root - DEBUG - [MATCH] Similarities: Nour=0.732, Amir=-0.036, margin=0.768 ✓ RECOGNIZED
+2026-02-26 11:21:34,239 - root - DEBUG - [MATCH] Similarities: Nour=0.732, Amir=-0.035, margin=0.767 ✓ RECOGNIZED
+2026-02-26 11:21:34,298 - root - DEBUG - [MATCH] Similarities: Nour=0.755, Amir=-0.041, margin=0.796 ✓ RECOGNIZED
+2026-02-26 11:21:34,363 - root - DEBUG - [MATCH] Similarities: Nour=0.742, Amir=-0.044, margin=0.786 ✓ RECOGNIZED
+2026-02-26 11:21:34,426 - root - DEBUG - [MATCH] Similarities: Nour=0.751, Amir=-0.043, margin=0.794 ✓ RECOGNIZED
+2026-02-26 11:21:34,661 - root - DEBUG - [MATCH] Similarities: Nour=0.737, Amir=-0.026, margin=0.763 ✓ RECOGNIZED
+2026-02-26 11:21:34,717 - root - DEBUG - [MATCH] Similarities: Nour=0.746, Amir=-0.046, margin=0.791 ✓ RECOGNIZED
+2026-02-26 11:21:34,783 - root - DEBUG - [MATCH] Similarities: Nour=0.751, Amir=-0.020, margin=0.771 ✓ RECOGNIZED
+2026-02-26 11:21:34,844 - root - DEBUG - [MATCH] Similarities: Nour=0.746, Amir=-0.019, margin=0.765 ✓ RECOGNIZED
+2026-02-26 11:21:34,907 - root - DEBUG - [MATCH] Similarities: Nour=0.755, Amir=-0.011, margin=0.766 ✓ RECOGNIZED
+2026-02-26 11:21:35,170 - root - DEBUG - [MATCH] Similarities: Nour=0.745, Amir=-0.010, margin=0.755 ✓ RECOGNIZED
+2026-02-26 11:21:35,232 - root - DEBUG - [MATCH] Similarities: Nour=0.747, Amir=-0.026, margin=0.773 ✓ RECOGNIZED
+2026-02-26 11:21:35,293 - root - DEBUG - [MATCH] Similarities: Nour=0.754, Amir=-0.007, margin=0.762 ✓ RECOGNIZED
+2026-02-26 11:21:35,357 - root - DEBUG - [MATCH] Similarities: Nour=0.762, Amir=-0.028, margin=0.790 ✓ RECOGNIZED
+2026-02-26 11:21:35,418 - root - DEBUG - [MATCH] Similarities: Nour=0.750, Amir=-0.022, margin=0.772 ✓ RECOGNIZED
+2026-02-26 11:21:35,646 - root - DEBUG - [MATCH] Similarities: Nour=0.748, Amir=-0.022, margin=0.770 ✓ RECOGNIZED
+2026-02-26 11:21:35,715 - root - DEBUG - [MATCH] Similarities: Nour=0.738, Amir=-0.008, margin=0.746 ✓ RECOGNIZED
+2026-02-26 11:21:35,782 - root - DEBUG - [MATCH] Similarities: Nour=0.745, Amir=-0.030, margin=0.775 ✓ RECOGNIZED
+2026-02-26 11:21:35,837 - root - DEBUG - [MATCH] Similarities: Nour=0.755, Amir=-0.029, margin=0.784 ✓ RECOGNIZED
+2026-02-26 11:21:35,901 - root - DEBUG - [MATCH] Similarities: Nour=0.737, Amir=-0.052, margin=0.789 ✓ RECOGNIZED
+2026-02-26 11:21:36,137 - root - DEBUG - [MATCH] Similarities: Nour=0.755, Amir=-0.043, margin=0.798 ✓ RECOGNIZED
+2026-02-26 11:21:36,206 - root - DEBUG - [MATCH] Similarities: Nour=0.732, Amir=-0.040, margin=0.772 ✓ RECOGNIZED
+2026-02-26 11:21:36,269 - root - DEBUG - [MATCH] Similarities: Nour=0.741, Amir=-0.039, margin=0.780 ✓ RECOGNIZED
+2026-02-26 11:21:36,331 - root - DEBUG - [MATCH] Similarities: Nour=0.711, Amir=-0.075, margin=0.785 ✓ RECOGNIZED
+2026-02-26 11:21:36,394 - root - DEBUG - [MATCH] Similarities: Nour=0.728, Amir=-0.054, margin=0.782 ✓ RECOGNIZED
+2026-02-26 11:21:36,719 - root - DEBUG - [MATCH] Similarities: Nour=0.748, Amir=-0.058, margin=0.806 ✓ RECOGNIZED
+2026-02-26 11:21:36,774 - root - DEBUG - [MATCH] Similarities: Nour=0.721, Amir=-0.046, margin=0.766 ✓ RECOGNIZED
+2026-02-26 11:21:36,837 - root - DEBUG - [MATCH] Similarities: Nour=0.743, Amir=-0.049, margin=0.792 ✓ RECOGNIZED
+2026-02-26 11:21:36,897 - root - DEBUG - [MATCH] Similarities: Nour=0.737, Amir=-0.064, margin=0.801 ✓ RECOGNIZED
+2026-02-26 11:21:36,961 - root - DEBUG - [MATCH] Similarities: Nour=0.722, Amir=-0.081, margin=0.804 ✓ RECOGNIZED
+2026-02-26 11:21:37,197 - root - DEBUG - [MATCH] Similarities: Nour=0.727, Amir=-0.027, margin=0.754 ✓ RECOGNIZED
+2026-02-26 11:21:37,268 - root - DEBUG - [MATCH] Similarities: Nour=0.721, Amir=-0.026, margin=0.747 ✓ RECOGNIZED
+2026-02-26 11:21:37,332 - root - DEBUG - [MATCH] Similarities: Nour=0.725, Amir=-0.011, margin=0.735 ✓ RECOGNIZED
+2026-02-26 11:21:37,391 - root - DEBUG - [MATCH] Similarities: Nour=0.736, Amir=-0.015, margin=0.751 ✓ RECOGNIZED
+2026-02-26 11:21:37,451 - root - DEBUG - [MATCH] Similarities: Nour=0.716, Amir=0.007, margin=0.709 ✓ RECOGNIZED
+2026-02-26 11:21:37,687 - root - DEBUG - [MATCH] Similarities: Nour=0.705, Amir=-0.002, margin=0.707 ✓ RECOGNIZED
+2026-02-26 11:21:37,743 - root - DEBUG - [MATCH] Similarities: Nour=0.728, Amir=-0.019, margin=0.748 ✓ RECOGNIZED
+2026-02-26 11:21:37,811 - root - DEBUG - [MATCH] Similarities: Nour=0.718, Amir=-0.024, margin=0.741 ✓ RECOGNIZED
+2026-02-26 11:21:37,868 - root - DEBUG - [MATCH] Similarities: Nour=0.732, Amir=-0.030, margin=0.762 ✓ RECOGNIZED
+2026-02-26 11:21:37,931 - root - DEBUG - [MATCH] Similarities: Nour=0.735, Amir=-0.025, margin=0.760 ✓ RECOGNIZED
+2026-02-26 11:21:38,219 - root - DEBUG - [MATCH] Similarities: Nour=0.741, Amir=-0.024, margin=0.765 ✓ RECOGNIZED
+2026-02-26 11:21:38,281 - root - DEBUG - [MATCH] Similarities: Nour=0.738, Amir=-0.001, margin=0.739 ✓ RECOGNIZED
+2026-02-26 11:21:38,345 - root - DEBUG - [MATCH] Similarities: Nour=0.728, Amir=-0.024, margin=0.752 ✓ RECOGNIZED
+2026-02-26 11:21:38,406 - root - DEBUG - [MATCH] Similarities: Nour=0.717, Amir=-0.044, margin=0.761 ✓ RECOGNIZED
+2026-02-26 11:21:38,473 - root - DEBUG - [MATCH] Similarities: Nour=0.739, Amir=-0.021, margin=0.760 ✓ RECOGNIZED
+2026-02-26 11:21:38,721 - root - DEBUG - [MATCH] Similarities: Nour=0.734, Amir=-0.023, margin=0.756 ✓ RECOGNIZED
+2026-02-26 11:21:38,788 - root - DEBUG - [MATCH] Similarities: Nour=0.726, Amir=-0.015, margin=0.741 ✓ RECOGNIZED
+2026-02-26 11:21:38,851 - root - DEBUG - [MATCH] Similarities: Nour=0.723, Amir=-0.050, margin=0.773 ✓ RECOGNIZED
+2026-02-26 11:21:38,914 - root - DEBUG - [MATCH] Similarities: Nour=0.742, Amir=-0.023, margin=0.765 ✓ RECOGNIZED
+2026-02-26 11:21:38,975 - root - DEBUG - [MATCH] Similarities: Nour=0.740, Amir=-0.039, margin=0.779 ✓ RECOGNIZED
+2026-02-26 11:21:39,206 - root - DEBUG - [MATCH] Similarities: Nour=0.726, Amir=-0.052, margin=0.778 ✓ RECOGNIZED
+2026-02-26 11:21:39,266 - root - DEBUG - [MATCH] Similarities: Nour=0.751, Amir=-0.032, margin=0.783 ✓ RECOGNIZED
+2026-02-26 11:21:39,329 - root - DEBUG - [MATCH] Similarities: Nour=0.761, Amir=-0.009, margin=0.770 ✓ RECOGNIZED
+2026-02-26 11:21:39,395 - root - DEBUG - [MATCH] Similarities: Nour=0.741, Amir=-0.007, margin=0.748 ✓ RECOGNIZED
+2026-02-26 11:21:39,453 - root - DEBUG - [MATCH] Similarities: Nour=0.748, Amir=-0.017, margin=0.765 ✓ RECOGNIZED
+2026-02-26 11:21:39,684 - root - DEBUG - [MATCH] Similarities: Nour=0.726, Amir=-0.025, margin=0.751 ✓ RECOGNIZED
+2026-02-26 11:21:39,743 - root - DEBUG - [MATCH] Similarities: Nour=0.749, Amir=-0.035, margin=0.784 ✓ RECOGNIZED
+2026-02-26 11:21:39,804 - root - DEBUG - [MATCH] Similarities: Nour=0.736, Amir=-0.033, margin=0.769 ✓ RECOGNIZED
+2026-02-26 11:21:39,869 - root - DEBUG - [MATCH] Similarities: Nour=0.728, Amir=-0.027, margin=0.755 ✓ RECOGNIZED
+2026-02-26 11:21:39,931 - root - DEBUG - [MATCH] Similarities: Nour=0.748, Amir=-0.015, margin=0.763 ✓ RECOGNIZED
+2026-02-26 11:21:40,168 - root - DEBUG - [MATCH] Similarities: Nour=0.751, Amir=-0.035, margin=0.786 ✓ RECOGNIZED
+2026-02-26 11:21:40,224 - root - DEBUG - [MATCH] Similarities: Nour=0.753, Amir=-0.022, margin=0.774 ✓ RECOGNIZED
+2026-02-26 11:21:40,288 - root - DEBUG - [MATCH] Similarities: Nour=0.744, Amir=-0.014, margin=0.758 ✓ RECOGNIZED
+2026-02-26 11:21:40,350 - root - DEBUG - [MATCH] Similarities: Nour=0.747, Amir=-0.043, margin=0.790 ✓ RECOGNIZED
+2026-02-26 11:21:40,420 - root - DEBUG - [MATCH] Similarities: Nour=0.738, Amir=-0.052, margin=0.790 ✓ RECOGNIZED
+2026-02-26 11:21:40,750 - root - DEBUG - [MATCH] Similarities: Nour=0.738, Amir=-0.051, margin=0.790 ✓ RECOGNIZED
+2026-02-26 11:21:40,812 - root - DEBUG - [MATCH] Similarities: Nour=0.733, Amir=-0.033, margin=0.765 ✓ RECOGNIZED
+2026-02-26 11:21:40,877 - root - DEBUG - [MATCH] Similarities: Nour=0.753, Amir=-0.016, margin=0.769 ✓ RECOGNIZED
+2026-02-26 11:21:40,938 - root - DEBUG - [MATCH] Similarities: Nour=0.724, Amir=-0.028, margin=0.752 ✓ RECOGNIZED
+2026-02-26 11:21:41,000 - root - DEBUG - [MATCH] Similarities: Nour=0.724, Amir=-0.021, margin=0.745 ✓ RECOGNIZED
+2026-02-26 11:21:41,324 - root - DEBUG - [MATCH] Similarities: Nour=0.732, Amir=-0.052, margin=0.784 ✓ RECOGNIZED
+2026-02-26 11:21:41,384 - root - DEBUG - [MATCH] Similarities: Nour=0.739, Amir=-0.031, margin=0.771 ✓ RECOGNIZED
+2026-02-26 11:21:41,446 - root - DEBUG - [MATCH] Similarities: Nour=0.729, Amir=-0.031, margin=0.760 ✓ RECOGNIZED
+2026-02-26 11:21:41,510 - root - DEBUG - [MATCH] Similarities: Nour=0.738, Amir=-0.030, margin=0.769 ✓ RECOGNIZED
+2026-02-26 11:21:41,572 - root - DEBUG - [MATCH] Similarities: Nour=0.749, Amir=-0.015, margin=0.764 ✓ RECOGNIZED
+2026-02-26 11:21:41,815 - root - DEBUG - [MATCH] Similarities: Nour=0.752, Amir=-0.029, margin=0.781 ✓ RECOGNIZED
+2026-02-26 11:21:41,880 - root - DEBUG - [MATCH] Similarities: Nour=0.744, Amir=-0.023, margin=0.767 ✓ RECOGNIZED
+2026-02-26 11:21:41,943 - root - DEBUG - [MATCH] Similarities: Nour=0.735, Amir=-0.031, margin=0.766 ✓ RECOGNIZED
+2026-02-26 11:21:42,001 - root - DEBUG - [MATCH] Similarities: Nour=0.772, Amir=-0.030, margin=0.802 ✓ RECOGNIZED
+2026-02-26 11:21:42,066 - root - DEBUG - [MATCH] Similarities: Nour=0.781, Amir=-0.016, margin=0.797 ✓ RECOGNIZED
+2026-02-26 11:21:42,306 - root - DEBUG - [MATCH] Similarities: Nour=0.778, Amir=-0.041, margin=0.819 ✓ RECOGNIZED
+2026-02-26 11:21:42,372 - root - DEBUG - [MATCH] Similarities: Nour=0.767, Amir=-0.028, margin=0.794 ✓ RECOGNIZED
+2026-02-26 11:21:42,432 - root - DEBUG - [MATCH] Similarities: Nour=0.772, Amir=-0.020, margin=0.792 ✓ RECOGNIZED
+2026-02-26 11:21:42,495 - root - DEBUG - [MATCH] Similarities: Nour=0.770, Amir=-0.020, margin=0.790 ✓ RECOGNIZED
+2026-02-26 11:21:42,556 - root - DEBUG - [MATCH] Similarities: Nour=0.773, Amir=-0.058, margin=0.830 ✓ RECOGNIZED
+2026-02-26 11:21:42,792 - root - DEBUG - [MATCH] Similarities: Nour=0.764, Amir=-0.060, margin=0.824 ✓ RECOGNIZED
+2026-02-26 11:21:42,847 - root - DEBUG - [MATCH] Similarities: Nour=0.768, Amir=-0.038, margin=0.806 ✓ RECOGNIZED
+2026-02-26 11:21:42,911 - root - DEBUG - [MATCH] Similarities: Nour=0.754, Amir=-0.021, margin=0.774 ✓ RECOGNIZED
+2026-02-26 11:21:42,971 - root - DEBUG - [MATCH] Similarities: Nour=0.778, Amir=-0.040, margin=0.818 ✓ RECOGNIZED
+2026-02-26 11:21:43,034 - root - DEBUG - [MATCH] Similarities: Nour=0.770, Amir=-0.065, margin=0.835 ✓ RECOGNIZED
+2026-02-26 11:21:43,307 - root - DEBUG - [MATCH] Similarities: Nour=0.760, Amir=-0.048, margin=0.808 ✓ RECOGNIZED
+2026-02-26 11:21:43,373 - root - DEBUG - [MATCH] Similarities: Nour=0.781, Amir=-0.028, margin=0.810 ✓ RECOGNIZED
+2026-02-26 11:21:43,435 - root - DEBUG - [MATCH] Similarities: Nour=0.781, Amir=-0.031, margin=0.812 ✓ RECOGNIZED
+2026-02-26 11:21:43,498 - root - DEBUG - [MATCH] Similarities: Nour=0.763, Amir=-0.025, margin=0.788 ✓ RECOGNIZED
+2026-02-26 11:21:43,563 - root - DEBUG - [MATCH] Similarities: Nour=0.766, Amir=-0.026, margin=0.792 ✓ RECOGNIZED
+2026-02-26 11:21:43,822 - root - DEBUG - [MATCH] Similarities: Nour=0.754, Amir=-0.019, margin=0.773 ✓ RECOGNIZED
+2026-02-26 11:21:43,880 - root - DEBUG - [MATCH] Similarities: Nour=0.766, Amir=-0.032, margin=0.798 ✓ RECOGNIZED
+2026-02-26 11:21:43,945 - root - DEBUG - [MATCH] Similarities: Nour=0.767, Amir=-0.028, margin=0.795 ✓ RECOGNIZED
+2026-02-26 11:21:44,005 - root - DEBUG - [MATCH] Similarities: Nour=0.763, Amir=-0.036, margin=0.799 ✓ RECOGNIZED
+2026-02-26 11:21:44,067 - root - DEBUG - [MATCH] Similarities: Nour=0.767, Amir=-0.007, margin=0.774 ✓ RECOGNIZED
+2026-02-26 11:21:44,301 - root - DEBUG - [MATCH] Similarities: Nour=0.761, Amir=-0.024, margin=0.785 ✓ RECOGNIZED
+2026-02-26 11:21:44,362 - root - DEBUG - [MATCH] Similarities: Nour=0.767, Amir=-0.020, margin=0.786 ✓ RECOGNIZED
+2026-02-26 11:21:44,422 - root - DEBUG - [MATCH] Similarities: Nour=0.764, Amir=-0.020, margin=0.784 ✓ RECOGNIZED
+2026-02-26 11:21:44,484 - root - DEBUG - [MATCH] Similarities: Nour=0.752, Amir=-0.024, margin=0.776 ✓ RECOGNIZED
+2026-02-26 11:21:44,547 - root - DEBUG - [MATCH] Similarities: Nour=0.752, Amir=-0.009, margin=0.761 ✓ RECOGNIZED
+2026-02-26 11:21:44,776 - root - DEBUG - [MATCH] Similarities: Nour=0.763, Amir=-0.028, margin=0.791 ✓ RECOGNIZED
+2026-02-26 11:21:44,840 - root - DEBUG - [MATCH] Similarities: Nour=0.759, Amir=-0.017, margin=0.776 ✓ RECOGNIZED
+2026-02-26 11:21:44,901 - root - DEBUG - [MATCH] Similarities: Nour=0.753, Amir=-0.023, margin=0.776 ✓ RECOGNIZED
+2026-02-26 11:21:44,964 - root - DEBUG - [MATCH] Similarities: Nour=0.762, Amir=-0.023, margin=0.785 ✓ RECOGNIZED
+2026-02-26 11:21:45,023 - root - DEBUG - [MATCH] Similarities: Nour=0.764, Amir=-0.025, margin=0.789 ✓ RECOGNIZED
+2026-02-26 11:21:45,266 - root - DEBUG - [MATCH] Similarities: Nour=0.756, Amir=-0.026, margin=0.782 ✓ RECOGNIZED
+2026-02-26 11:21:45,320 - root - DEBUG - [MATCH] Similarities: Nour=0.761, Amir=-0.034, margin=0.794 ✓ RECOGNIZED
+2026-02-26 11:21:45,383 - root - DEBUG - [MATCH] Similarities: Nour=0.767, Amir=-0.027, margin=0.794 ✓ RECOGNIZED
+2026-02-26 11:21:45,443 - root - DEBUG - [MATCH] Similarities: Nour=0.769, Amir=-0.032, margin=0.801 ✓ RECOGNIZED
+2026-02-26 11:21:45,507 - root - DEBUG - [MATCH] Similarities: Nour=0.764, Amir=-0.028, margin=0.793 ✓ RECOGNIZED
+2026-02-26 11:21:45,771 - root - DEBUG - [MATCH] Similarities: Nour=0.755, Amir=-0.037, margin=0.792 ✓ RECOGNIZED
+2026-02-26 11:21:45,830 - root - DEBUG - [MATCH] Similarities: Nour=0.758, Amir=-0.040, margin=0.798 ✓ RECOGNIZED
+2026-02-26 11:21:45,892 - root - DEBUG - [MATCH] Similarities: Nour=0.751, Amir=-0.033, margin=0.784 ✓ RECOGNIZED
+2026-02-26 11:21:45,956 - root - DEBUG - [MATCH] Similarities: Nour=0.764, Amir=-0.038, margin=0.802 ✓ RECOGNIZED
+2026-02-26 11:21:46,019 - root - DEBUG - [MATCH] Similarities: Nour=0.763, Amir=-0.037, margin=0.801 ✓ RECOGNIZED
+2026-02-26 11:21:46,353 - root - DEBUG - [MATCH] Similarities: Nour=0.759, Amir=-0.038, margin=0.797 ✓ RECOGNIZED
+2026-02-26 11:21:46,416 - root - DEBUG - [MATCH] Similarities: Nour=0.760, Amir=-0.040, margin=0.800 ✓ RECOGNIZED
+2026-02-26 11:21:46,479 - root - DEBUG - [MATCH] Similarities: Nour=0.762, Amir=-0.033, margin=0.795 ✓ RECOGNIZED
+2026-02-26 11:21:46,541 - root - DEBUG - [MATCH] Similarities: Nour=0.773, Amir=-0.029, margin=0.802 ✓ RECOGNIZED
+2026-02-26 11:21:46,603 - root - DEBUG - [MATCH] Similarities: Nour=0.760, Amir=-0.033, margin=0.793 ✓ RECOGNIZED
+2026-02-26 11:21:46,846 - root - DEBUG - [MATCH] Similarities: Nour=0.766, Amir=-0.031, margin=0.798 ✓ RECOGNIZED
+2026-02-26 11:21:46,913 - root - DEBUG - [MATCH] Similarities: Nour=0.719, Amir=-0.043, margin=0.763 ✓ RECOGNIZED
+2026-02-26 11:21:46,975 - root - DEBUG - [MATCH] Similarities: Nour=0.731, Amir=-0.045, margin=0.777 ✓ RECOGNIZED
+2026-02-26 11:21:47,035 - root - DEBUG - [MATCH] Similarities: Nour=0.724, Amir=-0.048, margin=0.771 ✓ RECOGNIZED
+2026-02-26 11:21:47,099 - root - DEBUG - [MATCH] Similarities: Nour=0.694, Amir=-0.037, margin=0.731 ✓ RECOGNIZED
+2026-02-26 11:21:47,333 - root - DEBUG - [MATCH] Similarities: Nour=0.698, Amir=-0.048, margin=0.746 ✓ RECOGNIZED
+2026-02-26 11:21:47,389 - root - DEBUG - [MATCH] Similarities: Nour=0.676, Amir=-0.056, margin=0.733 ✓ RECOGNIZED
+2026-02-26 11:21:47,451 - root - DEBUG - [MATCH] Similarities: Nour=0.675, Amir=-0.087, margin=0.762 ✓ RECOGNIZED
+2026-02-26 11:21:47,514 - root - DEBUG - [MATCH] Similarities: Nour=0.633, Amir=-0.092, margin=0.725 ✓ RECOGNIZED
+2026-02-26 11:21:47,576 - root - DEBUG - [MATCH] Similarities: Nour=0.584, Amir=-0.104, margin=0.689 ✓ RECOGNIZED
+2026-02-26 11:21:47,809 - root - DEBUG - [MATCH] Similarities: Nour=0.556, Amir=-0.115, margin=0.672 ✓ RECOGNIZED
+2026-02-26 11:21:47,871 - root - DEBUG - [MATCH] Similarities: Nour=0.571, Amir=-0.093, margin=0.664 ✓ RECOGNIZED
+2026-02-26 11:21:47,932 - root - DEBUG - [MATCH] Similarities: Nour=0.604, Amir=-0.080, margin=0.684 ✓ RECOGNIZED
+2026-02-26 11:21:47,994 - root - DEBUG - [MATCH] Similarities: Nour=0.626, Amir=-0.063, margin=0.689 ✓ RECOGNIZED
+2026-02-26 11:21:48,058 - root - DEBUG - [MATCH] Similarities: Nour=0.632, Amir=-0.053, margin=0.685 ✓ RECOGNIZED
+2026-02-26 11:21:48,308 - root - DEBUG - [MATCH] Similarities: Nour=0.618, Amir=-0.020, margin=0.638 ✓ RECOGNIZED
+2026-02-26 11:21:48,364 - root - DEBUG - [MATCH] Similarities: Nour=0.694, Amir=-0.074, margin=0.768 ✓ RECOGNIZED
+2026-02-26 11:21:48,425 - root - DEBUG - [MATCH] Similarities: Nour=0.686, Amir=-0.058, margin=0.744 ✓ RECOGNIZED
+2026-02-26 11:21:48,487 - root - DEBUG - [MATCH] Similarities: Nour=0.674, Amir=-0.043, margin=0.717 ✓ RECOGNIZED
+2026-02-26 11:21:48,551 - root - DEBUG - [MATCH] Similarities: Nour=0.681, Amir=-0.042, margin=0.723 ✓ RECOGNIZED
+2026-02-26 11:21:48,781 - root - DEBUG - [MATCH] Similarities: Nour=0.682, Amir=-0.058, margin=0.740 ✓ RECOGNIZED
+2026-02-26 11:21:48,841 - root - DEBUG - [MATCH] Similarities: Nour=0.689, Amir=-0.075, margin=0.763 ✓ RECOGNIZED
+2026-02-26 11:21:48,905 - root - DEBUG - [MATCH] Similarities: Nour=0.696, Amir=-0.077, margin=0.774 ✓ RECOGNIZED
+2026-02-26 11:21:48,966 - root - DEBUG - [MATCH] Similarities: Nour=0.702, Amir=-0.068, margin=0.770 ✓ RECOGNIZED
+2026-02-26 11:21:49,028 - root - DEBUG - [MATCH] Similarities: Nour=0.690, Amir=-0.071, margin=0.760 ✓ RECOGNIZED
+2026-02-26 11:21:49,264 - root - DEBUG - [MATCH] Similarities: Nour=0.668, Amir=-0.076, margin=0.744 ✓ RECOGNIZED
+2026-02-26 11:21:49,324 - root - DEBUG - [MATCH] Similarities: Nour=0.693, Amir=-0.076, margin=0.769 ✓ RECOGNIZED
+2026-02-26 11:21:49,385 - root - DEBUG - [MATCH] Similarities: Nour=0.673, Amir=-0.088, margin=0.762 ✓ RECOGNIZED
+2026-02-26 11:21:49,444 - root - DEBUG - [MATCH] Similarities: Nour=0.680, Amir=-0.083, margin=0.764 ✓ RECOGNIZED
+2026-02-26 11:21:49,505 - root - DEBUG - [MATCH] Similarities: Nour=0.671, Amir=-0.083, margin=0.754 ✓ RECOGNIZED
+2026-02-26 11:21:49,744 - root - DEBUG - [MATCH] Similarities: Nour=0.664, Amir=-0.049, margin=0.714 ✓ RECOGNIZED
+2026-02-26 11:21:49,811 - root - DEBUG - [MATCH] Similarities: Nour=0.628, Amir=-0.069, margin=0.698 ✓ RECOGNIZED
+2026-02-26 11:21:49,872 - root - DEBUG - [MATCH] Similarities: Nour=0.655, Amir=-0.073, margin=0.728 ✓ RECOGNIZED
+2026-02-26 11:21:49,932 - root - DEBUG - [MATCH] Similarities: Nour=0.641, Amir=-0.058, margin=0.698 ✓ RECOGNIZED
+2026-02-26 11:21:49,996 - root - DEBUG - [MATCH] Similarities: Nour=0.648, Amir=-0.040, margin=0.688 ✓ RECOGNIZED
+2026-02-26 11:21:50,243 - root - DEBUG - [MATCH] Similarities: Nour=0.632, Amir=-0.025, margin=0.657 ✓ RECOGNIZED
+2026-02-26 11:21:50,307 - root - DEBUG - [MATCH] Similarities: Nour=0.544, Amir=-0.073, margin=0.617 ✗ REJECTED (sim 0.544 < threshold 0.55)
+2026-02-26 11:21:50,368 - root - DEBUG - [MATCH] Similarities: Nour=0.579, Amir=-0.048, margin=0.627 ✓ RECOGNIZED
+2026-02-26 11:21:50,430 - root - DEBUG - [MATCH] Similarities: Nour=0.627, Amir=-0.072, margin=0.699 ✓ RECOGNIZED
+2026-02-26 11:21:50,492 - root - DEBUG - [MATCH] Similarities: Nour=0.656, Amir=-0.046, margin=0.702 ✓ RECOGNIZED
+2026-02-26 11:21:50,819 - root - DEBUG - [MATCH] Similarities: Nour=0.676, Amir=-0.036, margin=0.713 ✓ RECOGNIZED
+2026-02-26 11:21:50,874 - root - DEBUG - [MATCH] Similarities: Nour=0.676, Amir=-0.045, margin=0.721 ✓ RECOGNIZED
+2026-02-26 11:21:50,936 - root - DEBUG - [MATCH] Similarities: Nour=0.690, Amir=-0.071, margin=0.761 ✓ RECOGNIZED
+2026-02-26 11:21:50,997 - root - DEBUG - [MATCH] Similarities: Nour=0.663, Amir=-0.072, margin=0.735 ✓ RECOGNIZED
+2026-02-26 11:21:51,061 - root - DEBUG - [MATCH] Similarities: Nour=0.685, Amir=-0.077, margin=0.763 ✓ RECOGNIZED
+2026-02-26 11:21:51,317 - root - DEBUG - [MATCH] Similarities: Nour=0.692, Amir=-0.064, margin=0.756 ✓ RECOGNIZED
+2026-02-26 11:21:51,385 - root - DEBUG - [MATCH] Similarities: Nour=0.715, Amir=-0.053, margin=0.768 ✓ RECOGNIZED
+2026-02-26 11:21:51,445 - root - DEBUG - [MATCH] Similarities: Nour=0.732, Amir=-0.067, margin=0.799 ✓ RECOGNIZED
+2026-02-26 11:21:51,508 - root - DEBUG - [MATCH] Similarities: Nour=0.720, Amir=-0.054, margin=0.774 ✓ RECOGNIZED
+2026-02-26 11:21:51,569 - root - DEBUG - [MATCH] Similarities: Nour=0.734, Amir=-0.069, margin=0.803 ✓ RECOGNIZED
+2026-02-26 11:21:51,830 - root - DEBUG - [MATCH] Similarities: Nour=0.738, Amir=-0.052, margin=0.791 ✓ RECOGNIZED
+2026-02-26 11:21:51,893 - root - DEBUG - [MATCH] Similarities: Nour=0.740, Amir=-0.050, margin=0.790 ✓ RECOGNIZED
+2026-02-26 11:21:51,954 - root - DEBUG - [MATCH] Similarities: Nour=0.723, Amir=-0.065, margin=0.787 ✓ RECOGNIZED
+2026-02-26 11:21:52,015 - root - DEBUG - [MATCH] Similarities: Nour=0.655, Amir=-0.019, margin=0.673 ✓ RECOGNIZED
+2026-02-26 11:21:52,083 - root - DEBUG - [MATCH] Similarities: Nour=0.670, Amir=-0.038, margin=0.708 ✓ RECOGNIZED
+2026-02-26 11:21:52,327 - root - DEBUG - [MATCH] Similarities: Nour=0.664, Amir=-0.059, margin=0.723 ✓ RECOGNIZED
+2026-02-26 11:21:52,385 - root - DEBUG - [MATCH] Similarities: Nour=0.694, Amir=-0.068, margin=0.762 ✓ RECOGNIZED
+2026-02-26 11:21:52,448 - root - DEBUG - [MATCH] Similarities: Nour=0.696, Amir=-0.059, margin=0.755 ✓ RECOGNIZED
+2026-02-26 11:21:52,508 - root - DEBUG - [MATCH] Similarities: Nour=0.693, Amir=-0.080, margin=0.773 ✓ RECOGNIZED
+2026-02-26 11:21:52,574 - root - DEBUG - [MATCH] Similarities: Nour=0.699, Amir=-0.062, margin=0.761 ✓ RECOGNIZED
+2026-02-26 11:21:52,835 - root - DEBUG - [MATCH] Similarities: Nour=0.701, Amir=-0.067, margin=0.767 ✓ RECOGNIZED
+2026-02-26 11:21:52,896 - root - DEBUG - [MATCH] Similarities: Nour=0.689, Amir=-0.078, margin=0.767 ✓ RECOGNIZED
+2026-02-26 11:21:52,959 - root - DEBUG - [MATCH] Similarities: Nour=0.718, Amir=-0.061, margin=0.780 ✓ RECOGNIZED
+2026-02-26 11:21:53,021 - root - DEBUG - [MATCH] Similarities: Nour=0.702, Amir=-0.083, margin=0.785 ✓ RECOGNIZED
+2026-02-26 11:21:53,083 - root - DEBUG - [MATCH] Similarities: Nour=0.689, Amir=-0.066, margin=0.755 ✓ RECOGNIZED
+2026-02-26 11:21:53,316 - root - DEBUG - [MATCH] Similarities: Nour=0.711, Amir=-0.058, margin=0.769 ✓ RECOGNIZED
+2026-02-26 11:21:53,375 - root - DEBUG - [MATCH] Similarities: Nour=0.703, Amir=-0.067, margin=0.770 ✓ RECOGNIZED
+2026-02-26 11:21:53,439 - root - DEBUG - [MATCH] Similarities: Nour=0.719, Amir=-0.058, margin=0.777 ✓ RECOGNIZED
+2026-02-26 11:21:53,501 - root - DEBUG - [MATCH] Similarities: Nour=0.733, Amir=-0.051, margin=0.785 ✓ RECOGNIZED
+2026-02-26 11:21:53,564 - root - DEBUG - [MATCH] Similarities: Nour=0.753, Amir=-0.055, margin=0.807 ✓ RECOGNIZED
+2026-02-26 11:21:53,839 - root - DEBUG - [MATCH] Similarities: Nour=0.754, Amir=-0.050, margin=0.804 ✓ RECOGNIZED
+2026-02-26 11:21:53,900 - root - DEBUG - [MATCH] Similarities: Nour=0.739, Amir=-0.042, margin=0.782 ✓ RECOGNIZED
+2026-02-26 11:21:53,965 - root - DEBUG - [MATCH] Similarities: Nour=0.729, Amir=-0.050, margin=0.779 ✓ RECOGNIZED
+2026-02-26 11:21:54,025 - root - DEBUG - [MATCH] Similarities: Nour=0.744, Amir=-0.019, margin=0.763 ✓ RECOGNIZED
+2026-02-26 11:21:54,088 - root - DEBUG - [MATCH] Similarities: Nour=0.739, Amir=-0.040, margin=0.779 ✓ RECOGNIZED
+2026-02-26 11:21:54,350 - root - DEBUG - [MATCH] Similarities: Nour=0.738, Amir=-0.049, margin=0.787 ✓ RECOGNIZED
+2026-02-26 11:21:54,412 - root - DEBUG - [MATCH] Similarities: Nour=0.750, Amir=-0.031, margin=0.780 ✓ RECOGNIZED
+2026-02-26 11:21:54,474 - root - DEBUG - [MATCH] Similarities: Nour=0.740, Amir=-0.056, margin=0.797 ✓ RECOGNIZED
+2026-02-26 11:21:54,535 - root - DEBUG - [MATCH] Similarities: Nour=0.728, Amir=-0.059, margin=0.787 ✓ RECOGNIZED
+2026-02-26 11:21:54,599 - root - DEBUG - [MATCH] Similarities: Nour=0.733, Amir=-0.052, margin=0.785 ✓ RECOGNIZED
+2026-02-26 11:21:54,828 - root - DEBUG - [MATCH] Similarities: Nour=0.730, Amir=-0.057, margin=0.787 ✓ RECOGNIZED
+2026-02-26 11:21:54,919 - root - DEBUG - [MATCH] Similarities: Nour=0.727, Amir=-0.024, margin=0.750 ✓ RECOGNIZED
+2026-02-26 11:21:55,013 - root - DEBUG - [MATCH] Similarities: Nour=0.722, Amir=-0.040, margin=0.761 ✓ RECOGNIZED
+2026-02-26 11:21:55,102 - root - DEBUG - [MATCH] Similarities: Nour=0.711, Amir=-0.058, margin=0.769 ✓ RECOGNIZED
+2026-02-26 11:21:55,196 - root - DEBUG - [MATCH] Similarities: Nour=0.711, Amir=-0.032, margin=0.743 ✓ RECOGNIZED
+2026-02-26 11:21:55,459 - root - DEBUG - [MATCH] Similarities: Nour=0.702, Amir=-0.030, margin=0.732 ✓ RECOGNIZED
+2026-02-26 11:21:55,548 - root - DEBUG - [MATCH] Similarities: Nour=0.711, Amir=-0.040, margin=0.751 ✓ RECOGNIZED
+2026-02-26 11:21:55,639 - root - DEBUG - [MATCH] Similarities: Nour=0.711, Amir=-0.041, margin=0.752 ✓ RECOGNIZED
+2026-02-26 11:21:55,731 - root - DEBUG - [MATCH] Similarities: Nour=0.727, Amir=-0.049, margin=0.777 ✓ RECOGNIZED
+2026-02-26 11:21:55,823 - root - DEBUG - [MATCH] Similarities: Nour=0.741, Amir=-0.042, margin=0.783 ✓ RECOGNIZED
+2026-02-26 11:21:56,197 - root - DEBUG - [MATCH] Similarities: Nour=0.735, Amir=-0.015, margin=0.750 ✓ RECOGNIZED
+2026-02-26 11:21:56,374 - root - DEBUG - [MATCH] Similarities: Nour=0.694, Amir=-0.022, margin=0.716 ✓ RECOGNIZED
+2026-02-26 11:21:56,453 - root - DEBUG - [MATCH] Similarities: Nour=0.744, Amir=-0.027, margin=0.771 ✓ RECOGNIZED
+2026-02-26 11:21:56,454 - root - DEBUG - [MATCH] Similarities: Nour=0.628, Amir=-0.011, margin=0.638 ✓ RECOGNIZED
+2026-02-26 11:21:56,545 - root - DEBUG - [MATCH] Similarities: Nour=0.734, Amir=-0.038, margin=0.772 ✓ RECOGNIZED
+2026-02-26 11:21:56,546 - root - DEBUG - [MATCH] Similarities: Nour=0.673, Amir=-0.032, margin=0.705 ✓ RECOGNIZED
+2026-02-26 11:21:56,635 - root - DEBUG - [MATCH] Similarities: Nour=0.713, Amir=-0.040, margin=0.754 ✓ RECOGNIZED
+2026-02-26 11:21:56,635 - root - DEBUG - [MATCH] Similarities: Nour=0.679, Amir=-0.028, margin=0.708 ✓ RECOGNIZED
+2026-02-26 11:21:56,729 - root - DEBUG - [MATCH] Similarities: Nour=0.715, Amir=-0.033, margin=0.748 ✓ RECOGNIZED
+2026-02-26 11:21:56,729 - root - DEBUG - [MATCH] Similarities: Nour=0.682, Amir=-0.007, margin=0.689 ✓ RECOGNIZED
+2026-02-26 11:21:57,000 - root - DEBUG - [MATCH] Similarities: Nour=0.718, Amir=-0.030, margin=0.748 ✓ RECOGNIZED
+2026-02-26 11:21:57,175 - root - DEBUG - [MATCH] Similarities: Nour=0.686, Amir=0.003, margin=0.683 ✓ RECOGNIZED
+2026-02-26 11:21:57,269 - root - DEBUG - [MATCH] Similarities: Nour=0.732, Amir=-0.041, margin=0.773 ✓ RECOGNIZED
+2026-02-26 11:21:57,269 - root - DEBUG - [MATCH] Similarities: Nour=0.676, Amir=-0.021, margin=0.698 ✓ RECOGNIZED
+2026-02-26 11:21:57,363 - root - DEBUG - [MATCH] Similarities: Nour=0.731, Amir=-0.036, margin=0.767 ✓ RECOGNIZED
+2026-02-26 11:21:57,363 - root - DEBUG - [MATCH] Similarities: Nour=0.641, Amir=-0.007, margin=0.648 ✓ RECOGNIZED
+2026-02-26 11:21:57,454 - root - DEBUG - [MATCH] Similarities: Nour=0.746, Amir=-0.036, margin=0.782 ✓ RECOGNIZED
+2026-02-26 11:21:57,454 - root - DEBUG - [MATCH] Similarities: Nour=0.640, Amir=-0.001, margin=0.641 ✓ RECOGNIZED
+2026-02-26 11:21:57,547 - root - DEBUG - [MATCH] Similarities: Nour=0.747, Amir=-0.041, margin=0.788 ✓ RECOGNIZED
+2026-02-26 11:21:57,547 - root - DEBUG - [MATCH] Similarities: Nour=0.655, Amir=-0.029, margin=0.684 ✓ RECOGNIZED
+2026-02-26 11:21:57,816 - root - DEBUG - [MATCH] Similarities: Nour=0.724, Amir=-0.009, margin=0.732 ✓ RECOGNIZED
+2026-02-26 11:21:57,989 - root - DEBUG - [MATCH] Similarities: Nour=0.677, Amir=-0.024, margin=0.702 ✓ RECOGNIZED
+2026-02-26 11:21:58,069 - root - DEBUG - [MATCH] Similarities: Nour=0.740, Amir=-0.004, margin=0.745 ✓ RECOGNIZED
+2026-02-26 11:21:58,069 - root - DEBUG - [MATCH] Similarities: Nour=0.686, Amir=-0.027, margin=0.713 ✓ RECOGNIZED
+2026-02-26 11:21:58,162 - root - DEBUG - [MATCH] Similarities: Nour=0.751, Amir=-0.024, margin=0.775 ✓ RECOGNIZED
+2026-02-26 11:21:58,163 - root - DEBUG - [MATCH] Similarities: Nour=0.636, Amir=-0.047, margin=0.683 ✓ RECOGNIZED
+2026-02-26 11:21:58,254 - root - DEBUG - [MATCH] Similarities: Nour=0.747, Amir=-0.029, margin=0.775 ✓ RECOGNIZED
+2026-02-26 11:21:58,255 - root - DEBUG - [MATCH] Similarities: Nour=0.747, Amir=-0.029, margin=0.775 ✓ RECOGNIZED
+2026-02-26 11:21:58,348 - root - DEBUG - [MATCH] Similarities: Nour=0.744, Amir=-0.020, margin=0.764 ✓ RECOGNIZED
+2026-02-26 11:21:58,348 - root - DEBUG - [MATCH] Similarities: Nour=0.612, Amir=-0.015, margin=0.627 ✓ RECOGNIZED
+2026-02-26 11:21:58,617 - root - DEBUG - [MATCH] Similarities: Nour=0.755, Amir=-0.025, margin=0.781 ✓ RECOGNIZED
+2026-02-26 11:21:58,795 - root - DEBUG - [MATCH] Similarities: Nour=0.688, Amir=-0.026, margin=0.714 ✓ RECOGNIZED
+2026-02-26 11:21:58,887 - root - DEBUG - [MATCH] Similarities: Nour=0.743, Amir=-0.023, margin=0.766 ✓ RECOGNIZED
+2026-02-26 11:21:58,888 - root - DEBUG - [MATCH] Similarities: Nour=0.651, Amir=-0.015, margin=0.667 ✓ RECOGNIZED
+2026-02-26 11:21:58,978 - root - DEBUG - [MATCH] Similarities: Nour=0.742, Amir=-0.016, margin=0.757 ✓ RECOGNIZED
+2026-02-26 11:21:58,978 - root - DEBUG - [MATCH] Similarities: Nour=0.672, Amir=0.011, margin=0.661 ✓ RECOGNIZED
+2026-02-26 11:21:59,072 - root - DEBUG - [MATCH] Similarities: Nour=0.756, Amir=-0.028, margin=0.784 ✓ RECOGNIZED
+2026-02-26 11:21:59,074 - root - DEBUG - [MATCH] Similarities: Nour=0.756, Amir=-0.028, margin=0.784 ✓ RECOGNIZED
+2026-02-26 11:21:59,139 - root - DEBUG - [MATCH] Similarities: Nour=0.712, Amir=-0.046, margin=0.758 ✓ RECOGNIZED
+2026-02-26 11:21:59,139 - root - DEBUG - [MATCH] Similarities: Nour=0.712, Amir=-0.046, margin=0.758 ✓ RECOGNIZED
+2026-02-26 11:21:59,368 - root - DEBUG - [MATCH] Similarities: Nour=0.697, Amir=-0.044, margin=0.741 ✓ RECOGNIZED
+2026-02-26 11:21:59,544 - root - DEBUG - [MATCH] Similarities: Nour=0.697, Amir=-0.044, margin=0.741 ✓ RECOGNIZED
+2026-02-26 11:21:59,600 - root - DEBUG - [MATCH] Similarities: Nour=0.717, Amir=-0.036, margin=0.753 ✓ RECOGNIZED
+2026-02-26 11:21:59,600 - root - DEBUG - [MATCH] Similarities: Nour=0.717, Amir=-0.036, margin=0.753 ✓ RECOGNIZED
+2026-02-26 11:21:59,664 - root - DEBUG - [MATCH] Similarities: Nour=0.713, Amir=-0.023, margin=0.735 ✓ RECOGNIZED
+2026-02-26 11:21:59,665 - root - DEBUG - [MATCH] Similarities: Nour=0.713, Amir=-0.023, margin=0.735 ✓ RECOGNIZED
+2026-02-26 11:21:59,724 - root - DEBUG - [MATCH] Similarities: Nour=0.687, Amir=-0.007, margin=0.694 ✓ RECOGNIZED
+2026-02-26 11:21:59,725 - root - DEBUG - [MATCH] Similarities: Nour=0.687, Amir=-0.007, margin=0.694 ✓ RECOGNIZED
+2026-02-26 11:21:59,787 - root - DEBUG - [MATCH] Similarities: Nour=0.712, Amir=-0.026, margin=0.738 ✓ RECOGNIZED
+2026-02-26 11:21:59,788 - root - DEBUG - [MATCH] Similarities: Nour=0.712, Amir=-0.026, margin=0.738 ✓ RECOGNIZED
+2026-02-26 11:22:00,119 - root - DEBUG - [MATCH] Similarities: Nour=0.698, Amir=-0.048, margin=0.745 ✓ RECOGNIZED
+2026-02-26 11:22:00,291 - root - DEBUG - [MATCH] Similarities: Nour=0.698, Amir=-0.048, margin=0.745 ✓ RECOGNIZED
+2026-02-26 11:22:00,359 - root - DEBUG - [MATCH] Similarities: Nour=0.705, Amir=-0.025, margin=0.731 ✓ RECOGNIZED
+2026-02-26 11:22:00,359 - root - DEBUG - [MATCH] Similarities: Nour=0.705, Amir=-0.025, margin=0.731 ✓ RECOGNIZED
+2026-02-26 11:22:00,421 - root - DEBUG - [MATCH] Similarities: Nour=0.709, Amir=-0.040, margin=0.749 ✓ RECOGNIZED
+2026-02-26 11:22:00,421 - root - DEBUG - [MATCH] Similarities: Nour=0.709, Amir=-0.040, margin=0.749 ✓ RECOGNIZED
+2026-02-26 11:22:00,482 - root - DEBUG - [MATCH] Similarities: Nour=0.719, Amir=-0.025, margin=0.743 ✓ RECOGNIZED
+2026-02-26 11:22:00,482 - root - DEBUG - [MATCH] Similarities: Nour=0.719, Amir=-0.025, margin=0.743 ✓ RECOGNIZED
+2026-02-26 11:22:00,544 - root - DEBUG - [MATCH] Similarities: Nour=0.720, Amir=-0.020, margin=0.740 ✓ RECOGNIZED
+2026-02-26 11:22:00,544 - root - DEBUG - [MATCH] Similarities: Nour=0.720, Amir=-0.020, margin=0.740 ✓ RECOGNIZED
+2026-02-26 11:22:00,783 - root - DEBUG - [MATCH] Similarities: Nour=0.718, Amir=-0.017, margin=0.734 ✓ RECOGNIZED
+2026-02-26 11:22:00,953 - root - DEBUG - [MATCH] Similarities: Nour=0.718, Amir=-0.017, margin=0.734 ✓ RECOGNIZED
+2026-02-26 11:22:01,022 - root - DEBUG - [MATCH] Similarities: Nour=0.720, Amir=-0.030, margin=0.749 ✓ RECOGNIZED
+2026-02-26 11:22:01,022 - root - DEBUG - [MATCH] Similarities: Nour=0.720, Amir=-0.030, margin=0.749 ✓ RECOGNIZED
+2026-02-26 11:22:01,084 - root - DEBUG - [MATCH] Similarities: Nour=0.717, Amir=-0.048, margin=0.765 ✓ RECOGNIZED
+2026-02-26 11:22:01,084 - root - DEBUG - [MATCH] Similarities: Nour=0.717, Amir=-0.048, margin=0.765 ✓ RECOGNIZED
+2026-02-26 11:22:01,147 - root - DEBUG - [MATCH] Similarities: Nour=0.720, Amir=-0.020, margin=0.740 ✓ RECOGNIZED
+2026-02-26 11:22:01,148 - root - DEBUG - [MATCH] Similarities: Nour=0.720, Amir=-0.020, margin=0.740 ✓ RECOGNIZED
+2026-02-26 11:22:01,210 - root - DEBUG - [MATCH] Similarities: Nour=0.667, Amir=-0.042, margin=0.709 ✓ RECOGNIZED
+2026-02-26 11:22:01,210 - root - DEBUG - [MATCH] Similarities: Nour=0.667, Amir=-0.042, margin=0.709 ✓ RECOGNIZED
+2026-02-26 11:22:01,451 - root - DEBUG - [MATCH] Similarities: Nour=0.659, Amir=-0.050, margin=0.708 ✓ RECOGNIZED
+2026-02-26 11:22:01,628 - root - DEBUG - [MATCH] Similarities: Nour=0.659, Amir=-0.050, margin=0.708 ✓ RECOGNIZED
+2026-02-26 11:22:01,705 - root - DEBUG - [MATCH] Similarities: Nour=0.616, Amir=-0.048, margin=0.664 ✓ RECOGNIZED
+2026-02-26 11:22:01,705 - root - DEBUG - [MATCH] Similarities: Nour=0.616, Amir=-0.048, margin=0.664 ✓ RECOGNIZED
+2026-02-26 11:22:01,775 - root - DEBUG - [MATCH] Similarities: Nour=0.626, Amir=-0.073, margin=0.698 ✓ RECOGNIZED
+2026-02-26 11:22:01,775 - root - DEBUG - [MATCH] Similarities: Nour=0.626, Amir=-0.073, margin=0.698 ✓ RECOGNIZED
+2026-02-26 11:22:01,836 - root - DEBUG - [MATCH] Similarities: Nour=0.620, Amir=-0.091, margin=0.712 ✓ RECOGNIZED
+2026-02-26 11:22:01,836 - root - DEBUG - [MATCH] Similarities: Nour=0.620, Amir=-0.091, margin=0.712 ✓ RECOGNIZED
+2026-02-26 11:22:01,899 - root - DEBUG - [MATCH] Similarities: Nour=0.608, Amir=-0.090, margin=0.698 ✓ RECOGNIZED
+2026-02-26 11:22:01,899 - root - DEBUG - [MATCH] Similarities: Nour=0.608, Amir=-0.090, margin=0.698 ✓ RECOGNIZED
+2026-02-26 11:22:02,132 - root - DEBUG - [MATCH] Similarities: Nour=0.640, Amir=-0.089, margin=0.729 ✓ RECOGNIZED
+2026-02-26 11:22:02,301 - root - DEBUG - [MATCH] Similarities: Nour=0.640, Amir=-0.089, margin=0.729 ✓ RECOGNIZED
+2026-02-26 11:22:02,361 - root - DEBUG - [MATCH] Similarities: Nour=0.640, Amir=-0.048, margin=0.688 ✓ RECOGNIZED
+2026-02-26 11:22:02,362 - root - DEBUG - [MATCH] Similarities: Nour=0.640, Amir=-0.048, margin=0.688 ✓ RECOGNIZED
+2026-02-26 11:22:02,422 - root - DEBUG - [MATCH] Similarities: Nour=0.613, Amir=-0.077, margin=0.690 ✓ RECOGNIZED
+2026-02-26 11:22:02,422 - root - DEBUG - [MATCH] Similarities: Nour=0.613, Amir=-0.077, margin=0.690 ✓ RECOGNIZED
+2026-02-26 11:22:02,637 - root - DEBUG - [MATCH] Similarities: Nour=0.173, Amir=-0.029, margin=0.202 ✗ REJECTED (sim 0.173 < threshold 0.55)
+2026-02-26 11:22:02,638 - root - DEBUG - [MATCH] Similarities: Nour=0.173, Amir=-0.029, margin=0.202 ✗ REJECTED (sim 0.173 < threshold 0.55)
+2026-02-26 11:22:02,703 - root - DEBUG - [MATCH] Similarities: Nour=0.242, Amir=0.017, margin=0.226 ✗ REJECTED (sim 0.242 < threshold 0.55)
+2026-02-26 11:22:02,704 - root - DEBUG - [MATCH] Similarities: Nour=0.242, Amir=0.017, margin=0.226 ✗ REJECTED (sim 0.242 < threshold 0.55)
+2026-02-26 11:22:02,961 - root - INFO - Ctrl+C detected. Shutting down gracefully...
+2026-02-26 11:22:02,961 - root - INFO - Cleaning up...
+2026-02-26 11:22:02,973 - root - INFO - Done.
+2026-02-26 11:22:02,974 - root - DEBUG - [MATCH] Similarities: Nour=0.242, Amir=0.017, margin=0.226 ✗ REJECTED (sim 0.242 < threshold 0.55)
+2026-02-26 11:36:59,473 - root - INFO - ✅ Surveillance RTSP opened
+2026-02-26 11:37:01,199 - root - INFO - ✅ YOLOv11 person detector loaded (yolo11n.pt)
+2026-02-26 11:37:01,200 - deep_sort_realtime.deepsort_tracker - INFO - DeepSort Tracker initialised
+2026-02-26 11:37:01,200 - deep_sort_realtime.deepsort_tracker - INFO - - max age: 30
+2026-02-26 11:37:01,201 - deep_sort_realtime.deepsort_tracker - INFO - - appearance threshold: 0.2
+2026-02-26 11:37:01,201 - deep_sort_realtime.deepsort_tracker - INFO - - nms threshold: OFF
+2026-02-26 11:37:01,201 - deep_sort_realtime.deepsort_tracker - INFO - - max num of appearance features: None
+2026-02-26 11:37:01,202 - deep_sort_realtime.deepsort_tracker - INFO - - overriding track class : No
+2026-02-26 11:37:01,202 - deep_sort_realtime.deepsort_tracker - INFO - - today given : No
+2026-02-26 11:37:01,202 - deep_sort_realtime.deepsort_tracker - INFO - - in-build embedder : No
+2026-02-26 11:37:01,204 - deep_sort_realtime.deepsort_tracker - INFO - - polygon detections : No
+2026-02-26 11:37:01,204 - root - INFO - ✅ DeepSORT initialized
+2026-02-26 11:40:19,149 - root - INFO - ✅ Surveillance RTSP opened
+2026-02-26 11:40:19,259 - root - INFO - ✅ YOLOv11 person detector loaded (yolo11n.pt)
+2026-02-26 11:40:20,708 - deep_sort_realtime.embedder.embedder_pytorch - INFO - MobileNetV2 Embedder for Deep Sort initialised
+2026-02-26 11:40:20,709 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - gpu enabled: True
+2026-02-26 11:40:20,709 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - half precision: True
+2026-02-26 11:40:20,710 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - max batch size: 16
+2026-02-26 11:40:20,710 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - expects BGR: True
+2026-02-26 11:40:21,027 - deep_sort_realtime.deepsort_tracker - INFO - DeepSort Tracker initialised
+2026-02-26 11:40:21,028 - deep_sort_realtime.deepsort_tracker - INFO - - max age: 30
+2026-02-26 11:40:21,028 - deep_sort_realtime.deepsort_tracker - INFO - - appearance threshold: 0.2
+2026-02-26 11:40:21,028 - deep_sort_realtime.deepsort_tracker - INFO - - nms threshold: OFF
+2026-02-26 11:40:21,028 - deep_sort_realtime.deepsort_tracker - INFO - - max num of appearance features: None
+2026-02-26 11:40:21,029 - deep_sort_realtime.deepsort_tracker - INFO - - overriding track class : No
+2026-02-26 11:40:21,029 - deep_sort_realtime.deepsort_tracker - INFO - - today given : No
+2026-02-26 11:40:21,029 - deep_sort_realtime.deepsort_tracker - INFO - - in-build embedder : Yes
+2026-02-26 11:40:21,029 - deep_sort_realtime.deepsort_tracker - INFO - - polygon detections : No
+2026-02-26 11:40:21,030 - root - INFO - ✅ DeepSORT initialized
+2026-02-26 11:52:00,345 - root - INFO - ✅ Surveillance RTSP opened
+2026-02-26 11:52:04,958 - root - INFO - ✅ YOLOv11 person detector loaded (yolo11s.pt)
+2026-02-26 11:53:27,475 - root - INFO - ✅ Surveillance RTSP opened
+2026-02-26 11:53:27,534 - root - INFO - ✅ YOLOv11 person detector loaded (yolo11s.pt)
+2026-02-26 11:53:44,350 - root - INFO - ✅ Surveillance RTSP opened
+2026-02-26 11:53:44,482 - root - INFO - ✅ YOLOv11 person detector loaded (yolo11s.pt)
+2026-02-26 11:53:45,893 - deep_sort_realtime.embedder.embedder_pytorch - INFO - MobileNetV2 Embedder for Deep Sort initialised
+2026-02-26 11:53:45,893 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - gpu enabled: True
+2026-02-26 11:53:45,893 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - half precision: True
+2026-02-26 11:53:45,894 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - max batch size: 16
+2026-02-26 11:53:45,894 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - expects BGR: True
+2026-02-26 11:53:46,143 - deep_sort_realtime.deepsort_tracker - INFO - DeepSort Tracker initialised
+2026-02-26 11:53:46,144 - deep_sort_realtime.deepsort_tracker - INFO - - max age: 80
+2026-02-26 11:53:46,144 - deep_sort_realtime.deepsort_tracker - INFO - - appearance threshold: 0.3
+2026-02-26 11:53:46,146 - deep_sort_realtime.deepsort_tracker - INFO - - nms threshold: OFF
+2026-02-26 11:53:46,146 - deep_sort_realtime.deepsort_tracker - INFO - - max num of appearance features: None
+2026-02-26 11:53:46,146 - deep_sort_realtime.deepsort_tracker - INFO - - overriding track class : No
+2026-02-26 11:53:46,147 - deep_sort_realtime.deepsort_tracker - INFO - - today given : No
+2026-02-26 11:53:46,147 - deep_sort_realtime.deepsort_tracker - INFO - - in-build embedder : Yes
+2026-02-26 11:53:46,147 - deep_sort_realtime.deepsort_tracker - INFO - - polygon detections : No
+2026-02-26 11:53:46,148 - root - INFO - ✅ DeepSORT initialized
+2026-02-26 12:04:04,570 - root - INFO - ✅ Surveillance RTSP opened
+2026-02-26 12:04:04,692 - root - INFO - ✅ YOLOv11 person detector loaded (yolo11s.pt)
+2026-02-26 12:04:06,017 - deep_sort_realtime.embedder.embedder_pytorch - INFO - MobileNetV2 Embedder for Deep Sort initialised
+2026-02-26 12:04:06,018 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - gpu enabled: True
+2026-02-26 12:04:06,018 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - half precision: True
+2026-02-26 12:04:06,018 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - max batch size: 16
+2026-02-26 12:04:06,018 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - expects BGR: True
+2026-02-26 12:04:06,280 - deep_sort_realtime.deepsort_tracker - INFO - DeepSort Tracker initialised
+2026-02-26 12:04:06,281 - deep_sort_realtime.deepsort_tracker - INFO - - max age: 80
+2026-02-26 12:04:06,281 - deep_sort_realtime.deepsort_tracker - INFO - - appearance threshold: 0.3
+2026-02-26 12:04:06,281 - deep_sort_realtime.deepsort_tracker - INFO - - nms threshold: OFF
+2026-02-26 12:04:06,281 - deep_sort_realtime.deepsort_tracker - INFO - - max num of appearance features: None
+2026-02-26 12:04:06,282 - deep_sort_realtime.deepsort_tracker - INFO - - overriding track class : No
+2026-02-26 12:04:06,282 - deep_sort_realtime.deepsort_tracker - INFO - - today given : No
+2026-02-26 12:04:06,283 - deep_sort_realtime.deepsort_tracker - INFO - - in-build embedder : Yes
+2026-02-26 12:04:06,283 - deep_sort_realtime.deepsort_tracker - INFO - - polygon detections : No
+2026-02-26 12:04:06,283 - root - INFO - ✅ DeepSORT initialized
+2026-02-26 12:57:59,188 - root - INFO - ✅ Surveillance RTSP opened
+2026-02-26 12:57:59,257 - root - INFO - ✅ YOLOv11 person detector loaded (yolo11s.pt)
+2026-02-26 12:58:00,139 - deep_sort_realtime.embedder.embedder_pytorch - INFO - MobileNetV2 Embedder for Deep Sort initialised
+2026-02-26 12:58:00,139 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - gpu enabled: True
+2026-02-26 12:58:00,140 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - half precision: True
+2026-02-26 12:58:00,140 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - max batch size: 16
+2026-02-26 12:58:00,142 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - expects BGR: True
+2026-02-26 12:58:00,423 - deep_sort_realtime.deepsort_tracker - INFO - DeepSort Tracker initialised
+2026-02-26 12:58:00,425 - deep_sort_realtime.deepsort_tracker - INFO - - max age: 80
+2026-02-26 12:58:00,425 - deep_sort_realtime.deepsort_tracker - INFO - - appearance threshold: 0.3
+2026-02-26 12:58:00,426 - deep_sort_realtime.deepsort_tracker - INFO - - nms threshold: OFF
+2026-02-26 12:58:00,426 - deep_sort_realtime.deepsort_tracker - INFO - - max num of appearance features: None
+2026-02-26 12:58:00,427 - deep_sort_realtime.deepsort_tracker - INFO - - overriding track class : No
+2026-02-26 12:58:00,427 - deep_sort_realtime.deepsort_tracker - INFO - - today given : No
+2026-02-26 12:58:00,428 - deep_sort_realtime.deepsort_tracker - INFO - - in-build embedder : Yes
+2026-02-26 12:58:00,428 - deep_sort_realtime.deepsort_tracker - INFO - - polygon detections : No
+2026-02-26 12:58:00,428 - root - INFO - ✅ DeepSORT initialized
+2026-02-26 12:58:00,430 - root - INFO - Loaded 2 embeddings (dim=512) from C:\Users\BH RENOVATIONS\intelligent-monitoring-system\models\embeddings
+2026-02-26 12:58:00,430 - root - INFO - ✅ Loaded known identities: 2 from C:\Users\BH RENOVATIONS\intelligent-monitoring-system\models\embeddings
+2026-02-26 12:58:00,430 - root - INFO - ✅ Recognition thresholds: sim=0.55 margin=0.18
+2026-02-26 12:58:00,431 - root - INFO - ✅ Loading InsightFace (buffalo_l) ...
+2026-02-26 12:58:01,719 - root - INFO - ✅ InsightFace CUDA OK
+2026-02-26 12:58:44,049 - root - INFO - ✅ Surveillance RTSP opened
+2026-02-26 12:58:44,110 - root - INFO - ✅ YOLOv11 person detector loaded (yolo11s.pt)
+2026-02-26 12:58:44,949 - deep_sort_realtime.embedder.embedder_pytorch - INFO - MobileNetV2 Embedder for Deep Sort initialised
+2026-02-26 12:58:44,949 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - gpu enabled: True
+2026-02-26 12:58:44,950 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - half precision: True
+2026-02-26 12:58:44,950 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - max batch size: 16
+2026-02-26 12:58:44,950 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - expects BGR: True
+2026-02-26 12:58:45,165 - deep_sort_realtime.deepsort_tracker - INFO - DeepSort Tracker initialised
+2026-02-26 12:58:45,165 - deep_sort_realtime.deepsort_tracker - INFO - - max age: 120
+2026-02-26 12:58:45,165 - deep_sort_realtime.deepsort_tracker - INFO - - appearance threshold: 0.4
+2026-02-26 12:58:45,166 - deep_sort_realtime.deepsort_tracker - INFO - - nms threshold: OFF
+2026-02-26 12:58:45,166 - deep_sort_realtime.deepsort_tracker - INFO - - max num of appearance features: None
+2026-02-26 12:58:45,166 - deep_sort_realtime.deepsort_tracker - INFO - - overriding track class : No
+2026-02-26 12:58:45,167 - deep_sort_realtime.deepsort_tracker - INFO - - today given : No
+2026-02-26 12:58:45,167 - deep_sort_realtime.deepsort_tracker - INFO - - in-build embedder : Yes
+2026-02-26 12:58:45,168 - deep_sort_realtime.deepsort_tracker - INFO - - polygon detections : No
+2026-02-26 12:58:45,168 - root - INFO - ✅ DeepSORT initialized
+2026-02-26 12:58:45,170 - root - INFO - Loaded 2 embeddings (dim=512) from C:\Users\BH RENOVATIONS\intelligent-monitoring-system\models\embeddings
+2026-02-26 12:58:45,170 - root - INFO - ✅ Loaded known identities: 2 from C:\Users\BH RENOVATIONS\intelligent-monitoring-system\models\embeddings
+2026-02-26 12:58:45,171 - root - INFO - ✅ Recognition thresholds: sim=0.55 margin=0.18
+2026-02-26 12:58:45,171 - root - INFO - ✅ Loading InsightFace (buffalo_l) ...
+2026-02-26 12:58:46,073 - root - INFO - ✅ InsightFace CUDA OK
+2026-02-26 12:58:46,935 - root - DEBUG - [MATCH] rejected best=Nour sim=0.324, second=-0.058, margin=0.382 ✗ (thr=0.55, m=0.18)
+2026-02-26 12:58:47,099 - root - DEBUG - [MATCH] rejected best=Nour sim=0.236, second=-0.006, margin=0.242 ✗ (thr=0.55, m=0.18)
+2026-02-26 12:58:47,196 - root - DEBUG - [MATCH] rejected best=Nour sim=0.348, second=-0.003, margin=0.351 ✗ (thr=0.55, m=0.18)
+2026-02-26 12:58:47,284 - root - DEBUG - [MATCH] rejected best=Nour sim=0.295, second=-0.078, margin=0.372 ✗ (thr=0.55, m=0.18)
+2026-02-26 12:58:47,377 - root - DEBUG - [MATCH] rejected best=Nour sim=0.361, second=-0.059, margin=0.420 ✗ (thr=0.55, m=0.18)
+2026-02-26 12:58:47,473 - root - DEBUG - [MATCH] rejected best=Nour sim=0.228, second=0.042, margin=0.186 ✗ (thr=0.55, m=0.18)
+2026-02-26 12:58:47,568 - root - DEBUG - [MATCH] rejected best=Nour sim=0.406, second=-0.032, margin=0.438 ✗ (thr=0.55, m=0.18)
+2026-02-26 12:58:47,658 - root - DEBUG - [MATCH] rejected best=Nour sim=0.515, second=-0.034, margin=0.549 ✗ (thr=0.55, m=0.18)
+2026-02-26 12:58:47,752 - root - DEBUG - [MATCH] Nour sim=0.581, second=-0.123, margin=0.704 ✓
+2026-02-26 12:58:47,849 - root - DEBUG - [MATCH] Nour sim=0.622, second=-0.073, margin=0.695 ✓
+2026-02-26 12:58:47,933 - root - DEBUG - [MATCH] Nour sim=0.640, second=-0.039, margin=0.679 ✓
+2026-02-26 12:58:48,030 - root - DEBUG - [MATCH] Nour sim=0.632, second=-0.057, margin=0.689 ✓
+2026-02-26 12:58:48,160 - root - DEBUG - [MATCH] Nour sim=0.711, second=-0.108, margin=0.819 ✓
+2026-02-26 12:58:48,272 - root - DEBUG - [MATCH] Nour sim=0.745, second=-0.088, margin=0.833 ✓
+2026-02-26 12:58:48,367 - root - DEBUG - [MATCH] Nour sim=0.719, second=-0.072, margin=0.791 ✓
+2026-02-26 12:58:48,461 - root - DEBUG - [MATCH] Nour sim=0.740, second=-0.071, margin=0.811 ✓
+2026-02-26 12:58:48,551 - root - DEBUG - [MATCH] Nour sim=0.733, second=-0.093, margin=0.826 ✓
+2026-02-26 12:58:48,646 - root - DEBUG - [MATCH] Nour sim=0.737, second=-0.081, margin=0.817 ✓
+2026-02-26 12:58:48,737 - root - DEBUG - [MATCH] Nour sim=0.761, second=-0.084, margin=0.845 ✓
+2026-02-26 12:58:48,830 - root - DEBUG - [MATCH] Nour sim=0.727, second=-0.098, margin=0.824 ✓
+2026-02-26 12:58:48,922 - root - DEBUG - [MATCH] Nour sim=0.710, second=-0.074, margin=0.785 ✓
+2026-02-26 12:58:49,019 - root - DEBUG - [MATCH] Nour sim=0.744, second=-0.075, margin=0.820 ✓
+2026-02-26 12:58:49,106 - root - DEBUG - [MATCH] Nour sim=0.719, second=-0.038, margin=0.757 ✓
+2026-02-26 12:58:49,201 - root - DEBUG - [MATCH] Nour sim=0.745, second=-0.055, margin=0.801 ✓
+2026-02-26 12:58:49,296 - root - DEBUG - [MATCH] Nour sim=0.738, second=-0.042, margin=0.779 ✓
+2026-02-26 12:58:49,400 - root - DEBUG - [MATCH] Nour sim=0.695, second=-0.064, margin=0.759 ✓
+2026-02-26 12:58:49,495 - root - DEBUG - [MATCH] Nour sim=0.686, second=-0.054, margin=0.740 ✓
+2026-02-26 12:58:49,585 - root - DEBUG - [MATCH] Nour sim=0.682, second=-0.051, margin=0.734 ✓
+2026-02-26 12:58:49,664 - root - DEBUG - [MATCH] Nour sim=0.695, second=-0.064, margin=0.760 ✓
+2026-02-26 12:58:49,756 - root - DEBUG - [MATCH] Nour sim=0.729, second=-0.064, margin=0.793 ✓
+2026-02-26 13:06:30,339 - root - INFO - ✅ Surveillance RTSP opened
+2026-02-26 13:06:30,399 - root - INFO - ✅ YOLOv11 person detector loaded (yolo11s.pt)
+2026-02-26 13:06:31,289 - deep_sort_realtime.embedder.embedder_pytorch - INFO - MobileNetV2 Embedder for Deep Sort initialised
+2026-02-26 13:06:31,289 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - gpu enabled: True
+2026-02-26 13:06:31,290 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - half precision: True
+2026-02-26 13:06:31,290 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - max batch size: 16
+2026-02-26 13:06:31,290 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - expects BGR: True
+2026-02-26 13:06:31,535 - deep_sort_realtime.deepsort_tracker - INFO - DeepSort Tracker initialised
+2026-02-26 13:06:31,535 - deep_sort_realtime.deepsort_tracker - INFO - - max age: 120
+2026-02-26 13:06:31,536 - deep_sort_realtime.deepsort_tracker - INFO - - appearance threshold: 0.4
+2026-02-26 13:06:31,536 - deep_sort_realtime.deepsort_tracker - INFO - - nms threshold: OFF
+2026-02-26 13:06:31,536 - deep_sort_realtime.deepsort_tracker - INFO - - max num of appearance features: None
+2026-02-26 13:06:31,536 - deep_sort_realtime.deepsort_tracker - INFO - - overriding track class : No
+2026-02-26 13:06:31,537 - deep_sort_realtime.deepsort_tracker - INFO - - today given : No
+2026-02-26 13:06:31,537 - deep_sort_realtime.deepsort_tracker - INFO - - in-build embedder : Yes
+2026-02-26 13:06:31,537 - deep_sort_realtime.deepsort_tracker - INFO - - polygon detections : No
+2026-02-26 13:06:31,538 - root - INFO - ✅ DeepSORT initialized
+2026-02-26 13:06:31,540 - root - INFO - Loaded 2 embeddings (dim=512) from C:\Users\BH RENOVATIONS\intelligent-monitoring-system\models\embeddings
+2026-02-26 13:06:31,540 - root - INFO - ✅ Loaded known identities: 2 from C:\Users\BH RENOVATIONS\intelligent-monitoring-system\models\embeddings
+2026-02-26 13:06:31,540 - root - INFO - ✅ Recognition thresholds: sim=0.55 margin=0.18
+2026-02-26 13:06:31,541 - root - INFO - ✅ Loading InsightFace (buffalo_l) ...
+2026-02-26 13:06:32,693 - root - INFO - ✅ InsightFace CUDA OK
+2026-02-26 13:06:33,735 - root - DEBUG - [MATCH] Nour sim=0.651, second=-0.007, margin=0.658 ✓
+2026-02-26 13:06:33,973 - root - DEBUG - [MATCH] Nour sim=0.677, second=-0.004, margin=0.682 ✓
+2026-02-26 13:06:34,251 - root - DEBUG - [MATCH] Nour sim=0.672, second=0.020, margin=0.653 ✓
+2026-02-26 13:06:34,506 - root - DEBUG - [MATCH] Nour sim=0.677, second=0.023, margin=0.655 ✓
+2026-02-26 13:06:34,756 - root - DEBUG - [MATCH] Nour sim=0.682, second=0.032, margin=0.650 ✓
+2026-02-26 13:06:35,020 - root - DEBUG - [MATCH] Nour sim=0.588, second=0.001, margin=0.587 ✓
+2026-02-26 13:07:18,592 - root - INFO - ✅ Surveillance RTSP opened
+2026-02-26 13:07:18,660 - root - INFO - ✅ YOLOv11 person detector loaded (yolo11s.pt)
+2026-02-26 13:07:19,494 - deep_sort_realtime.embedder.embedder_pytorch - INFO - MobileNetV2 Embedder for Deep Sort initialised
+2026-02-26 13:07:19,495 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - gpu enabled: True
+2026-02-26 13:07:19,496 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - half precision: True
+2026-02-26 13:07:19,496 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - max batch size: 16
+2026-02-26 13:07:19,497 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - expects BGR: True
+2026-02-26 13:07:19,736 - deep_sort_realtime.deepsort_tracker - INFO - DeepSort Tracker initialised
+2026-02-26 13:07:19,737 - deep_sort_realtime.deepsort_tracker - INFO - - max age: 120
+2026-02-26 13:07:19,737 - deep_sort_realtime.deepsort_tracker - INFO - - appearance threshold: 0.4
+2026-02-26 13:07:19,739 - deep_sort_realtime.deepsort_tracker - INFO - - nms threshold: OFF
+2026-02-26 13:07:19,739 - deep_sort_realtime.deepsort_tracker - INFO - - max num of appearance features: None
+2026-02-26 13:07:19,740 - deep_sort_realtime.deepsort_tracker - INFO - - overriding track class : No
+2026-02-26 13:07:19,740 - deep_sort_realtime.deepsort_tracker - INFO - - today given : No
+2026-02-26 13:07:19,740 - deep_sort_realtime.deepsort_tracker - INFO - - in-build embedder : Yes
+2026-02-26 13:07:19,741 - deep_sort_realtime.deepsort_tracker - INFO - - polygon detections : No
+2026-02-26 13:07:19,741 - root - INFO - ✅ DeepSORT initialized
+2026-02-26 13:07:19,742 - root - INFO - Loaded 2 embeddings (dim=512) from C:\Users\BH RENOVATIONS\intelligent-monitoring-system\models\embeddings
+2026-02-26 13:07:19,743 - root - INFO - ✅ Loaded known identities: 2 from C:\Users\BH RENOVATIONS\intelligent-monitoring-system\models\embeddings
+2026-02-26 13:07:19,743 - root - INFO - ✅ Recognition thresholds: sim=0.55 margin=0.18
+2026-02-26 13:07:19,743 - root - INFO - ✅ Loading InsightFace (buffalo_l) ...
+2026-02-26 13:07:20,902 - root - INFO - ✅ InsightFace CUDA OK
+2026-02-26 13:07:22,120 - root - DEBUG - [MATCH] Nour sim=0.626, second=-0.034, margin=0.660 ✓
+2026-02-26 13:07:22,330 - root - DEBUG - [MATCH] Nour sim=0.642, second=-0.049, margin=0.691 ✓
+2026-02-26 13:07:22,563 - root - DEBUG - [MATCH] Nour sim=0.677, second=-0.052, margin=0.729 ✓
+2026-02-26 13:07:22,827 - root - DEBUG - [MATCH] Nour sim=0.573, second=-0.148, margin=0.720 ✓
+2026-02-26 13:07:23,076 - root - DEBUG - [MATCH] Nour sim=0.555, second=-0.045, margin=0.600 ✓
+2026-02-26 13:07:23,472 - root - DEBUG - [MATCH] Nour sim=0.777, second=-0.028, margin=0.805 ✓
+2026-02-26 13:14:25,248 - root - INFO - ✅ Surveillance RTSP opened
+2026-02-26 13:14:25,302 - root - INFO - ✅ YOLOv11 person detector loaded (yolo11s.pt)
+2026-02-26 13:14:26,139 - deep_sort_realtime.embedder.embedder_pytorch - INFO - MobileNetV2 Embedder for Deep Sort initialised
+2026-02-26 13:14:26,140 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - gpu enabled: True
+2026-02-26 13:14:26,140 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - half precision: True
+2026-02-26 13:14:26,140 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - max batch size: 16
+2026-02-26 13:14:26,141 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - expects BGR: True
+2026-02-26 13:14:26,370 - deep_sort_realtime.deepsort_tracker - INFO - DeepSort Tracker initialised
+2026-02-26 13:14:26,370 - deep_sort_realtime.deepsort_tracker - INFO - - max age: 120
+2026-02-26 13:14:26,370 - deep_sort_realtime.deepsort_tracker - INFO - - appearance threshold: 0.4
+2026-02-26 13:14:26,370 - deep_sort_realtime.deepsort_tracker - INFO - - nms threshold: OFF
+2026-02-26 13:14:26,370 - deep_sort_realtime.deepsort_tracker - INFO - - max num of appearance features: None
+2026-02-26 13:14:26,371 - deep_sort_realtime.deepsort_tracker - INFO - - overriding track class : No
+2026-02-26 13:14:26,371 - deep_sort_realtime.deepsort_tracker - INFO - - today given : No
+2026-02-26 13:14:26,373 - deep_sort_realtime.deepsort_tracker - INFO - - in-build embedder : Yes
+2026-02-26 13:14:26,373 - deep_sort_realtime.deepsort_tracker - INFO - - polygon detections : No
+2026-02-26 13:14:26,374 - root - INFO - ✅ DeepSORT initialized
+2026-02-26 13:14:26,375 - root - INFO - Loaded 2 embeddings (dim=512) from C:\Users\BH RENOVATIONS\intelligent-monitoring-system\models\embeddings
+2026-02-26 13:14:26,375 - root - INFO - ✅ Loaded known identities: 2 from C:\Users\BH RENOVATIONS\intelligent-monitoring-system\models\embeddings
+2026-02-26 13:14:26,375 - root - INFO - ✅ Recognition thresholds: sim=0.55 margin=0.18
+2026-02-26 13:14:26,376 - root - INFO - ✅ Loading InsightFace (buffalo_l) ...
+2026-02-26 13:14:27,212 - root - INFO - ✅ InsightFace CUDA OK
+2026-02-26 13:14:29,113 - root - WARNING - [RTSP] invalid frame (1/15)
+2026-02-26 13:14:29,281 - root - WARNING - [RTSP] invalid frame (6/15)
+2026-02-26 13:14:29,435 - root - WARNING - [RTSP] invalid frame (11/15)
+2026-02-26 13:14:29,574 - root - WARNING - [RTSP] Stream unstable. Reconnecting...
+2026-02-26 13:14:31,864 - root - DEBUG - [MATCH] Nour sim=0.765, second=-0.042, margin=0.807 ✓
+2026-02-26 13:14:32,120 - root - DEBUG - [MATCH] Nour sim=0.737, second=-0.043, margin=0.780 ✓
+2026-02-26 13:14:32,361 - root - DEBUG - [MATCH] Nour sim=0.764, second=-0.052, margin=0.816 ✓
+2026-02-26 13:14:32,811 - root - DEBUG - [MATCH] rejected best=Nour sim=0.335, second=0.008, margin=0.327 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:14:33,060 - root - DEBUG - [MATCH] Nour sim=0.669, second=-0.033, margin=0.702 ✓
+2026-02-26 13:14:33,321 - root - DEBUG - [MATCH] Nour sim=0.673, second=0.003, margin=0.670 ✓
+2026-02-26 13:14:33,583 - root - DEBUG - [MATCH] Nour sim=0.677, second=0.012, margin=0.665 ✓
+2026-02-26 13:14:33,846 - root - DEBUG - [MATCH] Nour sim=0.686, second=-0.002, margin=0.687 ✓
+2026-02-26 13:14:34,142 - root - DEBUG - [MATCH] Nour sim=0.704, second=0.001, margin=0.702 ✓
+2026-02-26 13:14:34,374 - root - DEBUG - [MATCH] Nour sim=0.717, second=-0.005, margin=0.722 ✓
+2026-02-26 13:14:34,636 - root - DEBUG - [MATCH] Nour sim=0.715, second=-0.013, margin=0.728 ✓
+2026-02-26 13:14:34,888 - root - DEBUG - [MATCH] Nour sim=0.710, second=-0.015, margin=0.725 ✓
+2026-02-26 13:14:35,120 - root - DEBUG - [MATCH] Nour sim=0.704, second=0.008, margin=0.696 ✓
+2026-02-26 13:14:35,365 - root - DEBUG - [MATCH] Nour sim=0.706, second=-0.017, margin=0.723 ✓
+2026-02-26 13:14:35,613 - root - DEBUG - [MATCH] Nour sim=0.724, second=-0.017, margin=0.740 ✓
+2026-02-26 13:14:35,925 - root - DEBUG - [MATCH] Nour sim=0.717, second=-0.060, margin=0.778 ✓
+2026-02-26 13:14:36,172 - root - DEBUG - [MATCH] Nour sim=0.686, second=-0.060, margin=0.747 ✓
+2026-02-26 13:14:36,446 - root - DEBUG - [MATCH] Nour sim=0.658, second=-0.060, margin=0.718 ✓
+2026-02-26 13:14:36,692 - root - DEBUG - [MATCH] Nour sim=0.677, second=-0.042, margin=0.720 ✓
+2026-02-26 13:14:36,920 - root - DEBUG - [MATCH] Nour sim=0.711, second=-0.056, margin=0.767 ✓
+2026-02-26 13:14:37,167 - root - DEBUG - [MATCH] Nour sim=0.726, second=-0.049, margin=0.775 ✓
+2026-02-26 13:14:37,454 - root - DEBUG - [MATCH] Nour sim=0.685, second=-0.050, margin=0.735 ✓
+2026-02-26 13:14:37,711 - root - DEBUG - [MATCH] Nour sim=0.676, second=-0.015, margin=0.691 ✓
+2026-02-26 13:14:41,457 - root - DEBUG - [MATCH] Nour sim=0.748, second=-0.038, margin=0.786 ✓
+2026-02-26 13:14:41,729 - root - DEBUG - [MATCH] Nour sim=0.701, second=-0.032, margin=0.732 ✓
+2026-02-26 13:14:42,086 - root - DEBUG - [MATCH] Nour sim=0.687, second=-0.023, margin=0.709 ✓
+2026-02-26 13:14:42,331 - root - DEBUG - [MATCH] Nour sim=0.723, second=-0.031, margin=0.754 ✓
+2026-02-26 13:14:42,595 - root - DEBUG - [MATCH] Nour sim=0.725, second=-0.031, margin=0.756 ✓
+2026-02-26 13:14:42,874 - root - DEBUG - [MATCH] Nour sim=0.710, second=-0.012, margin=0.722 ✓
+2026-02-26 13:14:43,157 - root - DEBUG - [MATCH] Nour sim=0.714, second=0.014, margin=0.701 ✓
+2026-02-26 13:14:43,437 - root - DEBUG - [MATCH] Nour sim=0.717, second=-0.008, margin=0.725 ✓
+2026-02-26 13:14:43,701 - root - DEBUG - [MATCH] Nour sim=0.734, second=-0.032, margin=0.766 ✓
+2026-02-26 13:14:44,169 - root - DEBUG - [MATCH] Nour sim=0.720, second=-0.049, margin=0.769 ✓
+2026-02-26 13:14:44,432 - root - DEBUG - [MATCH] Nour sim=0.727, second=-0.034, margin=0.761 ✓
+2026-02-26 13:14:44,701 - root - DEBUG - [MATCH] Nour sim=0.744, second=-0.020, margin=0.764 ✓
+2026-02-26 13:14:45,132 - root - DEBUG - [MATCH] Nour sim=0.704, second=-0.036, margin=0.741 ✓
+2026-02-26 13:14:45,358 - root - DEBUG - [MATCH] Nour sim=0.633, second=-0.015, margin=0.648 ✓
+2026-02-26 13:14:51,692 - root - DEBUG - [MATCH] Nour sim=0.553, second=-0.090, margin=0.643 ✓
+2026-02-26 13:14:51,957 - root - DEBUG - [MATCH] Nour sim=0.598, second=-0.095, margin=0.693 ✓
+2026-02-26 13:14:52,283 - root - DEBUG - [MATCH] Nour sim=0.684, second=-0.058, margin=0.742 ✓
+2026-02-26 13:14:52,549 - root - DEBUG - [MATCH] Nour sim=0.692, second=-0.055, margin=0.747 ✓
+2026-02-26 13:14:52,809 - root - DEBUG - [MATCH] Nour sim=0.684, second=-0.046, margin=0.730 ✓
+2026-02-26 13:14:53,072 - root - DEBUG - [MATCH] Nour sim=0.702, second=-0.054, margin=0.756 ✓
+2026-02-26 13:14:53,347 - root - DEBUG - [MATCH] Nour sim=0.721, second=-0.047, margin=0.768 ✓
+2026-02-26 13:14:53,628 - root - DEBUG - [MATCH] Nour sim=0.724, second=-0.030, margin=0.754 ✓
+2026-02-26 13:14:53,891 - root - DEBUG - [MATCH] Nour sim=0.689, second=-0.061, margin=0.750 ✓
+2026-02-26 13:14:54,352 - root - DEBUG - [MATCH] Nour sim=0.700, second=-0.035, margin=0.735 ✓
+2026-02-26 13:14:54,618 - root - DEBUG - [MATCH] Nour sim=0.712, second=-0.031, margin=0.743 ✓
+2026-02-26 13:14:54,910 - root - DEBUG - [MATCH] Nour sim=0.687, second=-0.064, margin=0.751 ✓
+2026-02-26 13:14:55,393 - root - DEBUG - [MATCH] Nour sim=0.695, second=-0.040, margin=0.734 ✓
+2026-02-26 13:14:55,722 - root - DEBUG - [MATCH] Nour sim=0.683, second=-0.038, margin=0.721 ✓
+2026-02-26 13:14:56,060 - root - DEBUG - [MATCH] Nour sim=0.710, second=-0.023, margin=0.733 ✓
+2026-02-26 13:14:56,393 - root - DEBUG - [MATCH] Nour sim=0.670, second=-0.043, margin=0.713 ✓
+2026-02-26 13:14:56,656 - root - DEBUG - [MATCH] Nour sim=0.704, second=-0.012, margin=0.716 ✓
+2026-02-26 13:19:10,995 - root - INFO - ✅ Surveillance RTSP opened
+2026-02-26 13:19:11,054 - root - INFO - ✅ YOLOv11 person detector loaded (yolo11s.pt)
+2026-02-26 13:19:11,925 - deep_sort_realtime.embedder.embedder_pytorch - INFO - MobileNetV2 Embedder for Deep Sort initialised
+2026-02-26 13:19:11,925 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - gpu enabled: True
+2026-02-26 13:19:11,925 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - half precision: True
+2026-02-26 13:19:11,926 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - max batch size: 16
+2026-02-26 13:19:11,926 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - expects BGR: True
+2026-02-26 13:19:12,142 - deep_sort_realtime.deepsort_tracker - INFO - DeepSort Tracker initialised
+2026-02-26 13:19:12,143 - deep_sort_realtime.deepsort_tracker - INFO - - max age: 120
+2026-02-26 13:19:12,143 - deep_sort_realtime.deepsort_tracker - INFO - - appearance threshold: 0.4
+2026-02-26 13:19:12,143 - deep_sort_realtime.deepsort_tracker - INFO - - nms threshold: OFF
+2026-02-26 13:19:12,144 - deep_sort_realtime.deepsort_tracker - INFO - - max num of appearance features: None
+2026-02-26 13:19:12,144 - deep_sort_realtime.deepsort_tracker - INFO - - overriding track class : No
+2026-02-26 13:19:12,144 - deep_sort_realtime.deepsort_tracker - INFO - - today given : No
+2026-02-26 13:19:12,144 - deep_sort_realtime.deepsort_tracker - INFO - - in-build embedder : Yes
+2026-02-26 13:19:12,145 - deep_sort_realtime.deepsort_tracker - INFO - - polygon detections : No
+2026-02-26 13:19:12,145 - root - INFO - ✅ DeepSORT initialized
+2026-02-26 13:19:12,146 - root - INFO - Loaded 2 embeddings (dim=512) from C:\Users\BH RENOVATIONS\intelligent-monitoring-system\models\embeddings
+2026-02-26 13:19:12,147 - root - INFO - ✅ Loaded known identities: 2 from C:\Users\BH RENOVATIONS\intelligent-monitoring-system\models\embeddings
+2026-02-26 13:19:12,147 - root - INFO - ✅ Recognition thresholds: sim=0.55 margin=0.18
+2026-02-26 13:19:12,147 - root - INFO - ✅ Loading InsightFace (buffalo_l) ...
+2026-02-26 13:19:12,954 - root - INFO - ✅ InsightFace CUDA OK
+2026-02-26 13:19:13,940 - root - DEBUG - [MATCH] Nour sim=0.704, second=-0.033, margin=0.737 ✓
+2026-02-26 13:19:14,245 - root - DEBUG - [MATCH] Nour sim=0.701, second=-0.025, margin=0.726 ✓
+2026-02-26 13:19:14,499 - root - DEBUG - [MATCH] Nour sim=0.680, second=-0.020, margin=0.700 ✓
+2026-02-26 13:19:14,743 - root - DEBUG - [MATCH] Nour sim=0.701, second=-0.019, margin=0.720 ✓
+2026-02-26 13:19:15,010 - root - DEBUG - [MATCH] Nour sim=0.702, second=-0.018, margin=0.720 ✓
+2026-02-26 13:19:15,267 - root - DEBUG - [MATCH] Nour sim=0.708, second=-0.010, margin=0.717 ✓
+2026-02-26 13:19:15,456 - root - WARNING - [RTSP] invalid frame (1/15)
+2026-02-26 13:19:15,634 - root - WARNING - [RTSP] invalid frame (6/15)
+2026-02-26 13:19:15,788 - root - WARNING - [RTSP] invalid frame (11/15)
+2026-02-26 13:19:15,911 - root - WARNING - [RTSP] Stream unstable. Reconnecting...
+2026-02-26 13:19:18,049 - root - DEBUG - [MATCH] Nour sim=0.749, second=-0.029, margin=0.777 ✓
+2026-02-26 13:19:18,263 - root - DEBUG - [MATCH] Nour sim=0.759, second=-0.067, margin=0.826 ✓
+2026-02-26 13:19:18,481 - root - DEBUG - [MATCH] Nour sim=0.742, second=-0.020, margin=0.762 ✓
+2026-02-26 13:19:18,714 - root - DEBUG - [MATCH] Nour sim=0.727, second=-0.050, margin=0.778 ✓
+2026-02-26 13:19:19,119 - root - DEBUG - [MATCH] Nour sim=0.742, second=-0.026, margin=0.769 ✓
+2026-02-26 13:19:19,358 - root - DEBUG - [MATCH] Nour sim=0.715, second=-0.025, margin=0.740 ✓
+2026-02-26 13:19:19,619 - root - DEBUG - [MATCH] Nour sim=0.723, second=-0.049, margin=0.772 ✓
+2026-02-26 13:19:19,840 - root - DEBUG - [MATCH] Nour sim=0.739, second=-0.029, margin=0.768 ✓
+2026-02-26 13:19:20,155 - root - DEBUG - [MATCH] Nour sim=0.731, second=-0.031, margin=0.762 ✓
+2026-02-26 13:19:20,415 - root - DEBUG - [MATCH] Nour sim=0.754, second=-0.039, margin=0.793 ✓
+2026-02-26 13:19:20,697 - root - DEBUG - [MATCH] Nour sim=0.739, second=-0.017, margin=0.756 ✓
+2026-02-26 13:19:20,947 - root - DEBUG - [MATCH] Nour sim=0.737, second=-0.027, margin=0.764 ✓
+2026-02-26 13:19:21,189 - root - DEBUG - [MATCH] Nour sim=0.735, second=-0.009, margin=0.744 ✓
+2026-02-26 13:19:21,466 - root - DEBUG - [MATCH] Nour sim=0.739, second=-0.020, margin=0.759 ✓
+2026-02-26 13:19:21,734 - root - DEBUG - [MATCH] Nour sim=0.743, second=-0.017, margin=0.760 ✓
+2026-02-26 13:19:21,998 - root - DEBUG - [MATCH] Nour sim=0.730, second=-0.012, margin=0.742 ✓
+2026-02-26 13:19:22,234 - root - DEBUG - [MATCH] Nour sim=0.753, second=-0.039, margin=0.792 ✓
+2026-02-26 13:19:22,498 - root - DEBUG - [MATCH] Nour sim=0.743, second=-0.006, margin=0.748 ✓
+2026-02-26 13:19:22,778 - root - DEBUG - [MATCH] Nour sim=0.752, second=-0.025, margin=0.777 ✓
+2026-02-26 13:19:23,042 - root - DEBUG - [MATCH] Nour sim=0.729, second=0.002, margin=0.727 ✓
+2026-02-26 13:19:23,338 - root - DEBUG - [MATCH] Nour sim=0.713, second=-0.001, margin=0.714 ✓
+2026-02-26 13:19:23,594 - root - DEBUG - [MATCH] Nour sim=0.693, second=-0.035, margin=0.728 ✓
+2026-02-26 13:19:23,859 - root - DEBUG - [MATCH] Nour sim=0.695, second=-0.022, margin=0.717 ✓
+2026-02-26 13:19:28,336 - root - DEBUG - [MATCH] Nour sim=0.686, second=-0.073, margin=0.759 ✓
+2026-02-26 13:19:28,580 - root - DEBUG - [MATCH] Nour sim=0.669, second=-0.101, margin=0.771 ✓
+2026-02-26 13:19:28,849 - root - DEBUG - [MATCH] Nour sim=0.702, second=-0.086, margin=0.789 ✓
+2026-02-26 13:19:29,109 - root - DEBUG - [MATCH] Nour sim=0.740, second=-0.033, margin=0.774 ✓
+2026-02-26 13:19:29,359 - root - DEBUG - [MATCH] Nour sim=0.737, second=-0.022, margin=0.760 ✓
+2026-02-26 13:19:29,640 - root - DEBUG - [MATCH] Nour sim=0.713, second=-0.048, margin=0.760 ✓
+2026-02-26 13:19:29,912 - root - DEBUG - [MATCH] Nour sim=0.707, second=-0.027, margin=0.734 ✓
+2026-02-26 13:19:30,175 - root - DEBUG - [MATCH] Nour sim=0.678, second=-0.026, margin=0.704 ✓
+2026-02-26 13:19:30,441 - root - DEBUG - [MATCH] Nour sim=0.700, second=-0.053, margin=0.753 ✓
+2026-02-26 13:19:30,703 - root - DEBUG - [MATCH] Nour sim=0.709, second=-0.043, margin=0.752 ✓
+2026-02-26 13:19:30,969 - root - DEBUG - [MATCH] Nour sim=0.683, second=-0.061, margin=0.744 ✓
+2026-02-26 13:19:31,238 - root - DEBUG - [MATCH] Nour sim=0.691, second=-0.036, margin=0.727 ✓
+2026-02-26 13:19:31,526 - root - DEBUG - [MATCH] Nour sim=0.678, second=-0.046, margin=0.725 ✓
+2026-02-26 13:19:31,790 - root - DEBUG - [MATCH] Nour sim=0.728, second=-0.028, margin=0.756 ✓
+2026-02-26 13:19:32,060 - root - DEBUG - [MATCH] Nour sim=0.733, second=-0.047, margin=0.780 ✓
+2026-02-26 13:19:32,538 - root - DEBUG - [MATCH] Nour sim=0.681, second=-0.014, margin=0.694 ✓
+2026-02-26 13:19:32,803 - root - DEBUG - [MATCH] Nour sim=0.705, second=-0.030, margin=0.735 ✓
+2026-02-26 13:19:33,075 - root - DEBUG - [MATCH] Nour sim=0.711, second=0.000, margin=0.711 ✓
+2026-02-26 13:19:33,341 - root - DEBUG - [MATCH] Nour sim=0.690, second=-0.028, margin=0.718 ✓
+2026-02-26 13:19:33,606 - root - DEBUG - [MATCH] Nour sim=0.709, second=-0.008, margin=0.717 ✓
+2026-02-26 13:19:33,882 - root - DEBUG - [MATCH] Nour sim=0.715, second=-0.008, margin=0.723 ✓
+2026-02-26 13:19:34,170 - root - DEBUG - [MATCH] Nour sim=0.716, second=0.005, margin=0.711 ✓
+2026-02-26 13:19:34,638 - root - DEBUG - [MATCH] Nour sim=0.735, second=-0.010, margin=0.745 ✓
+2026-02-26 13:19:34,896 - root - DEBUG - [MATCH] Nour sim=0.748, second=-0.019, margin=0.767 ✓
+2026-02-26 13:19:35,178 - root - DEBUG - [MATCH] Nour sim=0.766, second=-0.030, margin=0.796 ✓
+2026-02-26 13:19:35,659 - root - DEBUG - [MATCH] Nour sim=0.739, second=-0.022, margin=0.760 ✓
+2026-02-26 13:19:35,939 - root - DEBUG - [MATCH] Nour sim=0.756, second=-0.016, margin=0.772 ✓
+2026-02-26 13:19:36,203 - root - DEBUG - [MATCH] Nour sim=0.738, second=-0.006, margin=0.744 ✓
+2026-02-26 13:19:36,686 - root - DEBUG - [MATCH] Nour sim=0.738, second=0.002, margin=0.736 ✓
+2026-02-26 13:19:36,970 - root - DEBUG - [MATCH] Nour sim=0.737, second=-0.001, margin=0.738 ✓
+2026-02-26 13:19:37,232 - root - DEBUG - [MATCH] Nour sim=0.738, second=-0.005, margin=0.743 ✓
+2026-02-26 13:19:37,700 - root - DEBUG - [MATCH] Nour sim=0.748, second=-0.021, margin=0.769 ✓
+2026-02-26 13:19:37,989 - root - DEBUG - [MATCH] Nour sim=0.742, second=-0.010, margin=0.752 ✓
+2026-02-26 13:19:38,254 - root - DEBUG - [MATCH] Nour sim=0.755, second=-0.005, margin=0.759 ✓
+2026-02-26 13:19:38,704 - root - DEBUG - [MATCH] Nour sim=0.741, second=-0.012, margin=0.753 ✓
+2026-02-26 13:19:38,984 - root - DEBUG - [MATCH] Nour sim=0.735, second=-0.019, margin=0.754 ✓
+2026-02-26 13:19:39,275 - root - DEBUG - [MATCH] Nour sim=0.701, second=-0.008, margin=0.709 ✓
+2026-02-26 13:19:39,727 - root - DEBUG - [MATCH] Nour sim=0.692, second=-0.033, margin=0.725 ✓
+2026-02-26 13:19:40,010 - root - DEBUG - [MATCH] Nour sim=0.697, second=-0.047, margin=0.744 ✓
+2026-02-26 13:19:40,321 - root - DEBUG - [MATCH] Nour sim=0.669, second=-0.058, margin=0.727 ✓
+2026-02-26 13:19:40,738 - root - DEBUG - [MATCH] Nour sim=0.612, second=-0.038, margin=0.650 ✓
+2026-02-26 13:19:41,032 - root - DEBUG - [MATCH] Nour sim=0.569, second=-0.081, margin=0.649 ✓
+2026-02-26 13:19:41,328 - root - DEBUG - [MATCH] Nour sim=0.653, second=-0.063, margin=0.716 ✓
+2026-02-26 13:19:41,750 - root - DEBUG - [MATCH] Nour sim=0.654, second=-0.031, margin=0.685 ✓
+2026-02-26 13:19:42,021 - root - DEBUG - [MATCH] Nour sim=0.660, second=-0.056, margin=0.715 ✓
+2026-02-26 13:19:42,304 - root - DEBUG - [MATCH] Nour sim=0.649, second=-0.044, margin=0.693 ✓
+2026-02-26 13:19:42,782 - root - DEBUG - [MATCH] Nour sim=0.656, second=-0.017, margin=0.673 ✓
+2026-02-26 13:19:43,065 - root - DEBUG - [MATCH] Nour sim=0.695, second=-0.026, margin=0.721 ✓
+2026-02-26 13:19:43,354 - root - DEBUG - [MATCH] Nour sim=0.723, second=-0.063, margin=0.785 ✓
+2026-02-26 13:19:43,823 - root - DEBUG - [MATCH] Nour sim=0.709, second=-0.022, margin=0.731 ✓
+2026-02-26 13:19:44,113 - root - DEBUG - [MATCH] Nour sim=0.702, second=-0.045, margin=0.746 ✓
+2026-02-26 13:19:44,421 - root - DEBUG - [MATCH] Nour sim=0.700, second=-0.046, margin=0.746 ✓
+2026-02-26 13:19:44,835 - root - DEBUG - [MATCH] Nour sim=0.698, second=-0.029, margin=0.727 ✓
+2026-02-26 13:19:45,134 - root - DEBUG - [MATCH] Nour sim=0.701, second=-0.051, margin=0.752 ✓
+2026-02-26 13:19:45,416 - root - DEBUG - [MATCH] Nour sim=0.693, second=-0.047, margin=0.741 ✓
+2026-02-26 13:19:45,920 - root - DEBUG - [MATCH] Nour sim=0.699, second=-0.018, margin=0.716 ✓
+2026-02-26 13:19:46,194 - root - DEBUG - [MATCH] Nour sim=0.685, second=-0.023, margin=0.708 ✓
+2026-02-26 13:19:46,472 - root - DEBUG - [MATCH] Nour sim=0.699, second=-0.033, margin=0.732 ✓
+2026-02-26 13:19:46,893 - root - DEBUG - [MATCH] Nour sim=0.713, second=-0.022, margin=0.734 ✓
+2026-02-26 13:19:47,162 - root - DEBUG - [MATCH] Nour sim=0.696, second=-0.036, margin=0.731 ✓
+2026-02-26 13:19:47,442 - root - DEBUG - [MATCH] Nour sim=0.687, second=-0.049, margin=0.736 ✓
+2026-02-26 13:19:47,903 - root - DEBUG - [MATCH] Nour sim=0.671, second=-0.015, margin=0.686 ✓
+2026-02-26 13:19:48,213 - root - DEBUG - [MATCH] Nour sim=0.663, second=-0.082, margin=0.745 ✓
+2026-02-26 13:19:48,513 - root - DEBUG - [MATCH] Nour sim=0.711, second=-0.053, margin=0.763 ✓
+2026-02-26 13:19:48,971 - root - DEBUG - [MATCH] rejected best=Nour sim=0.498, second=-0.010, margin=0.508 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:19:49,250 - root - DEBUG - [MATCH] rejected best=Nour sim=0.396, second=0.011, margin=0.385 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:19:57,228 - root - DEBUG - [MATCH] rejected best=Nour sim=0.490, second=-0.021, margin=0.511 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:19:57,459 - root - DEBUG - [MATCH] rejected best=Nour sim=0.483, second=-0.089, margin=0.572 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:19:57,676 - root - DEBUG - [MATCH] Nour sim=0.587, second=-0.092, margin=0.679 ✓
+2026-02-26 13:19:58,052 - root - DEBUG - [MATCH] Nour sim=0.607, second=-0.058, margin=0.665 ✓
+2026-02-26 13:19:58,294 - root - DEBUG - [MATCH] Nour sim=0.615, second=-0.028, margin=0.643 ✓
+2026-02-26 13:19:58,512 - root - DEBUG - [MATCH] Nour sim=0.708, second=-0.037, margin=0.746 ✓
+2026-02-26 13:19:58,714 - root - DEBUG - [MATCH] Nour sim=0.728, second=-0.015, margin=0.743 ✓
+2026-02-26 13:19:59,087 - root - DEBUG - [MATCH] Nour sim=0.712, second=-0.010, margin=0.722 ✓
+2026-02-26 13:19:59,319 - root - DEBUG - [MATCH] Nour sim=0.751, second=-0.013, margin=0.763 ✓
+2026-02-26 13:19:59,525 - root - DEBUG - [MATCH] Nour sim=0.752, second=-0.012, margin=0.763 ✓
+2026-02-26 13:19:59,775 - root - DEBUG - [MATCH] Nour sim=0.743, second=-0.005, margin=0.748 ✓
+2026-02-26 13:20:00,160 - root - DEBUG - [MATCH] Nour sim=0.736, second=-0.002, margin=0.738 ✓
+2026-02-26 13:20:00,377 - root - DEBUG - [MATCH] Nour sim=0.725, second=0.003, margin=0.722 ✓
+2026-02-26 13:20:00,594 - root - DEBUG - [MATCH] Nour sim=0.746, second=0.026, margin=0.720 ✓
+2026-02-26 13:20:00,830 - root - DEBUG - [MATCH] Nour sim=0.751, second=-0.005, margin=0.756 ✓
+2026-02-26 13:20:01,105 - root - DEBUG - [MATCH] Nour sim=0.742, second=-0.013, margin=0.755 ✓
+2026-02-26 13:20:01,324 - root - DEBUG - [MATCH] Nour sim=0.743, second=-0.054, margin=0.797 ✓
+2026-02-26 13:20:01,590 - root - DEBUG - [MATCH] Nour sim=0.754, second=-0.014, margin=0.768 ✓
+2026-02-26 13:20:01,822 - root - DEBUG - [MATCH] Nour sim=0.739, second=-0.028, margin=0.767 ✓
+2026-02-26 13:20:02,143 - root - DEBUG - [MATCH] Nour sim=0.756, second=-0.008, margin=0.764 ✓
+2026-02-26 13:20:02,409 - root - DEBUG - [MATCH] Nour sim=0.757, second=-0.026, margin=0.784 ✓
+2026-02-26 13:20:02,654 - root - DEBUG - [MATCH] Nour sim=0.739, second=-0.008, margin=0.747 ✓
+2026-02-26 13:20:02,886 - root - DEBUG - [MATCH] Nour sim=0.724, second=0.010, margin=0.715 ✓
+2026-02-26 13:20:03,197 - root - DEBUG - [MATCH] Nour sim=0.713, second=-0.021, margin=0.734 ✓
+2026-02-26 13:20:03,468 - root - DEBUG - [MATCH] Nour sim=0.720, second=-0.022, margin=0.741 ✓
+2026-02-26 13:20:03,726 - root - DEBUG - [MATCH] Nour sim=0.732, second=0.008, margin=0.723 ✓
+2026-02-26 13:20:03,978 - root - DEBUG - [MATCH] Nour sim=0.705, second=0.020, margin=0.685 ✓
+2026-02-26 13:20:04,253 - root - DEBUG - [MATCH] Nour sim=0.643, second=-0.028, margin=0.671 ✓
+2026-02-26 13:20:04,554 - root - DEBUG - [MATCH] Nour sim=0.642, second=-0.068, margin=0.709 ✓
+2026-02-26 13:20:04,826 - root - DEBUG - [MATCH] Nour sim=0.663, second=-0.060, margin=0.723 ✓
+2026-02-26 13:20:05,270 - root - DEBUG - [MATCH] Nour sim=0.651, second=-0.028, margin=0.679 ✓
+2026-02-26 13:20:05,541 - root - DEBUG - [MATCH] Nour sim=0.655, second=-0.037, margin=0.693 ✓
+2026-02-26 13:20:05,851 - root - DEBUG - [MATCH] Nour sim=0.634, second=-0.018, margin=0.652 ✓
+2026-02-26 13:20:06,346 - root - DEBUG - [MATCH] Nour sim=0.652, second=-0.014, margin=0.666 ✓
+2026-02-26 13:20:06,627 - root - DEBUG - [MATCH] Nour sim=0.645, second=-0.032, margin=0.677 ✓
+2026-02-26 13:21:14,374 - root - INFO - ✅ Surveillance RTSP opened
+2026-02-26 13:21:14,429 - root - INFO - ✅ YOLOv11 person detector loaded (yolo11s.pt)
+2026-02-26 13:21:15,243 - deep_sort_realtime.embedder.embedder_pytorch - INFO - MobileNetV2 Embedder for Deep Sort initialised
+2026-02-26 13:21:15,243 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - gpu enabled: True
+2026-02-26 13:21:15,243 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - half precision: True
+2026-02-26 13:21:15,244 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - max batch size: 16
+2026-02-26 13:21:15,244 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - expects BGR: True
+2026-02-26 13:21:15,462 - deep_sort_realtime.deepsort_tracker - INFO - DeepSort Tracker initialised
+2026-02-26 13:21:15,463 - deep_sort_realtime.deepsort_tracker - INFO - - max age: 120
+2026-02-26 13:21:15,463 - deep_sort_realtime.deepsort_tracker - INFO - - appearance threshold: 0.4
+2026-02-26 13:21:15,463 - deep_sort_realtime.deepsort_tracker - INFO - - nms threshold: OFF
+2026-02-26 13:21:15,464 - deep_sort_realtime.deepsort_tracker - INFO - - max num of appearance features: None
+2026-02-26 13:21:15,464 - deep_sort_realtime.deepsort_tracker - INFO - - overriding track class : No
+2026-02-26 13:21:15,465 - deep_sort_realtime.deepsort_tracker - INFO - - today given : No
+2026-02-26 13:21:15,465 - deep_sort_realtime.deepsort_tracker - INFO - - in-build embedder : Yes
+2026-02-26 13:21:15,465 - deep_sort_realtime.deepsort_tracker - INFO - - polygon detections : No
+2026-02-26 13:21:15,466 - root - INFO - ✅ DeepSORT initialized
+2026-02-26 13:21:15,467 - root - INFO - Loaded 2 embeddings (dim=512) from C:\Users\BH RENOVATIONS\intelligent-monitoring-system\models\embeddings
+2026-02-26 13:21:15,468 - root - INFO - ✅ Loaded known identities: 2 from C:\Users\BH RENOVATIONS\intelligent-monitoring-system\models\embeddings
+2026-02-26 13:21:15,468 - root - INFO - ✅ Recognition thresholds: sim=0.55 margin=0.18
+2026-02-26 13:21:15,469 - root - INFO - ✅ Loading InsightFace (buffalo_l) ...
+2026-02-26 13:21:16,281 - root - INFO - ✅ InsightFace CUDA OK
+2026-02-26 13:21:17,265 - root - DEBUG - [MATCH] Nour sim=0.745, second=-0.000, margin=0.745 ✓
+2026-02-26 13:21:17,517 - root - DEBUG - [MATCH] Nour sim=0.720, second=-0.035, margin=0.755 ✓
+2026-02-26 13:21:17,812 - root - DEBUG - [MATCH] Nour sim=0.734, second=-0.004, margin=0.738 ✓
+2026-02-26 13:21:18,103 - root - DEBUG - [MATCH] Nour sim=0.752, second=-0.038, margin=0.790 ✓
+2026-02-26 13:21:18,339 - root - DEBUG - [MATCH] Nour sim=0.743, second=-0.053, margin=0.797 ✓
+2026-02-26 13:21:18,581 - root - DEBUG - [MATCH] Nour sim=0.708, second=-0.029, margin=0.736 ✓
+2026-02-26 13:21:18,802 - root - WARNING - [RTSP] invalid frame (1/15)
+2026-02-26 13:21:18,966 - root - WARNING - [RTSP] invalid frame (6/15)
+2026-02-26 13:21:19,122 - root - WARNING - [RTSP] invalid frame (11/15)
+2026-02-26 13:21:19,275 - root - WARNING - [RTSP] Stream unstable. Reconnecting...
+2026-02-26 13:21:21,462 - root - DEBUG - [MATCH] Nour sim=0.672, second=0.007, margin=0.665 ✓
+2026-02-26 13:21:21,677 - root - DEBUG - [MATCH] Nour sim=0.714, second=-0.009, margin=0.722 ✓
+2026-02-26 13:21:21,894 - root - DEBUG - [MATCH] Nour sim=0.716, second=-0.002, margin=0.719 ✓
+2026-02-26 13:21:22,097 - root - DEBUG - [MATCH] Nour sim=0.715, second=-0.012, margin=0.727 ✓
+2026-02-26 13:21:22,456 - root - DEBUG - [MATCH] Nour sim=0.715, second=-0.038, margin=0.753 ✓
+2026-02-26 13:21:22,658 - root - DEBUG - [MATCH] Nour sim=0.714, second=-0.044, margin=0.758 ✓
+2026-02-26 13:21:22,892 - root - DEBUG - [MATCH] Nour sim=0.698, second=-0.007, margin=0.705 ✓
+2026-02-26 13:21:23,157 - root - DEBUG - [MATCH] Nour sim=0.710, second=-0.005, margin=0.715 ✓
+2026-02-26 13:21:23,451 - root - DEBUG - [MATCH] Nour sim=0.715, second=-0.032, margin=0.747 ✓
+2026-02-26 13:21:23,684 - root - DEBUG - [MATCH] Nour sim=0.697, second=-0.018, margin=0.715 ✓
+2026-02-26 13:21:23,916 - root - DEBUG - [MATCH] Nour sim=0.674, second=0.000, margin=0.674 ✓
+2026-02-26 13:21:24,176 - root - DEBUG - [MATCH] Nour sim=0.689, second=-0.029, margin=0.718 ✓
+2026-02-26 13:21:24,569 - root - DEBUG - [MATCH] Nour sim=0.712, second=-0.032, margin=0.745 ✓
+2026-02-26 13:21:24,835 - root - DEBUG - [MATCH] Nour sim=0.733, second=0.002, margin=0.732 ✓
+2026-02-26 13:21:25,094 - root - DEBUG - [MATCH] Nour sim=0.716, second=0.022, margin=0.694 ✓
+2026-02-26 13:21:25,543 - root - DEBUG - [MATCH] Nour sim=0.693, second=-0.030, margin=0.723 ✓
+2026-02-26 13:21:25,785 - root - DEBUG - [MATCH] Nour sim=0.729, second=-0.001, margin=0.729 ✓
+2026-02-26 13:21:26,050 - root - DEBUG - [MATCH] Nour sim=0.719, second=-0.004, margin=0.723 ✓
+2026-02-26 13:21:26,314 - root - DEBUG - [MATCH] Nour sim=0.729, second=-0.014, margin=0.743 ✓
+2026-02-26 13:21:26,575 - root - DEBUG - [MATCH] Nour sim=0.732, second=-0.020, margin=0.751 ✓
+2026-02-26 13:21:26,849 - root - DEBUG - [MATCH] Nour sim=0.742, second=-0.009, margin=0.751 ✓
+2026-02-26 13:21:27,097 - root - DEBUG - [MATCH] Nour sim=0.742, second=0.002, margin=0.740 ✓
+2026-02-26 13:21:27,346 - root - DEBUG - [MATCH] Nour sim=0.751, second=-0.018, margin=0.769 ✓
+2026-02-26 13:21:27,565 - root - DEBUG - [MATCH] Nour sim=0.740, second=-0.020, margin=0.760 ✓
+2026-02-26 13:21:27,827 - root - DEBUG - [MATCH] Nour sim=0.700, second=-0.012, margin=0.712 ✓
+2026-02-26 13:21:28,089 - root - DEBUG - [MATCH] Nour sim=0.697, second=-0.019, margin=0.716 ✓
+2026-02-26 13:21:28,403 - root - DEBUG - [MATCH] Nour sim=0.710, second=-0.015, margin=0.725 ✓
+2026-02-26 13:21:28,680 - root - DEBUG - [MATCH] Nour sim=0.706, second=-0.030, margin=0.736 ✓
+2026-02-26 13:21:28,978 - root - DEBUG - [MATCH] Nour sim=0.730, second=-0.031, margin=0.762 ✓
+2026-02-26 13:21:29,241 - root - DEBUG - [MATCH] Nour sim=0.718, second=-0.010, margin=0.729 ✓
+2026-02-26 13:21:29,636 - root - DEBUG - [MATCH] Nour sim=0.708, second=-0.019, margin=0.727 ✓
+2026-02-26 13:21:29,861 - root - DEBUG - [MATCH] Nour sim=0.713, second=-0.003, margin=0.715 ✓
+2026-02-26 13:21:30,085 - root - DEBUG - [MATCH] Nour sim=0.705, second=-0.000, margin=0.706 ✓
+2026-02-26 13:21:30,285 - root - DEBUG - [MATCH] Nour sim=0.656, second=0.019, margin=0.638 ✓
+2026-02-26 13:21:30,642 - root - DEBUG - [MATCH] Nour sim=0.737, second=0.005, margin=0.732 ✓
+2026-02-26 13:21:30,858 - root - DEBUG - [MATCH] Nour sim=0.748, second=0.032, margin=0.716 ✓
+2026-02-26 13:21:31,120 - root - DEBUG - [MATCH] Nour sim=0.721, second=-0.005, margin=0.727 ✓
+2026-02-26 13:21:31,397 - root - DEBUG - [MATCH] rejected best=Amir sim=0.134, second=0.053, margin=0.081 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:31,397 - root - DEBUG - [MATCH] Nour sim=0.573, second=-0.064, margin=0.636 ✓
+2026-02-26 13:21:31,756 - root - DEBUG - [MATCH] rejected best=Amir sim=0.141, second=0.055, margin=0.087 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:31,757 - root - DEBUG - [MATCH] Nour sim=0.583, second=-0.077, margin=0.660 ✓
+2026-02-26 13:21:32,021 - root - DEBUG - [MATCH] rejected best=Amir sim=0.126, second=0.092, margin=0.033 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:32,022 - root - DEBUG - [MATCH] Nour sim=0.560, second=-0.078, margin=0.638 ✓
+2026-02-26 13:21:32,324 - root - DEBUG - [MATCH] rejected best=Amir sim=0.132, second=0.057, margin=0.075 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:32,324 - root - DEBUG - [MATCH] Nour sim=0.572, second=-0.037, margin=0.609 ✓
+2026-02-26 13:21:32,777 - root - DEBUG - [MATCH] rejected best=Amir sim=0.130, second=0.061, margin=0.069 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:32,778 - root - DEBUG - [MATCH] Nour sim=0.708, second=-0.017, margin=0.724 ✓
+2026-02-26 13:21:33,074 - root - DEBUG - [MATCH] rejected best=Amir sim=0.126, second=0.039, margin=0.087 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:33,074 - root - DEBUG - [MATCH] Nour sim=0.743, second=-0.017, margin=0.759 ✓
+2026-02-26 13:21:33,341 - root - DEBUG - [MATCH] rejected best=Amir sim=0.085, second=0.061, margin=0.023 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:33,341 - root - DEBUG - [MATCH] Nour sim=0.728, second=-0.018, margin=0.746 ✓
+2026-02-26 13:21:33,823 - root - DEBUG - [MATCH] rejected best=Amir sim=0.174, second=0.053, margin=0.121 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:33,823 - root - DEBUG - [MATCH] Nour sim=0.709, second=0.002, margin=0.707 ✓
+2026-02-26 13:21:34,115 - root - DEBUG - [MATCH] rejected best=Amir sim=0.144, second=0.083, margin=0.062 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:34,116 - root - DEBUG - [MATCH] Nour sim=0.727, second=-0.018, margin=0.745 ✓
+2026-02-26 13:21:34,412 - root - DEBUG - [MATCH] rejected best=Amir sim=0.141, second=0.080, margin=0.060 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:34,412 - root - DEBUG - [MATCH] Nour sim=0.741, second=-0.051, margin=0.792 ✓
+2026-02-26 13:21:34,863 - root - DEBUG - [MATCH] rejected best=Amir sim=0.139, second=0.067, margin=0.071 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:34,863 - root - DEBUG - [MATCH] Nour sim=0.728, second=-0.009, margin=0.737 ✓
+2026-02-26 13:21:35,217 - root - DEBUG - [MATCH] rejected best=Amir sim=0.156, second=0.077, margin=0.080 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:35,218 - root - DEBUG - [MATCH] Nour sim=0.734, second=-0.019, margin=0.753 ✓
+2026-02-26 13:21:35,539 - root - DEBUG - [MATCH] rejected best=Amir sim=0.133, second=0.069, margin=0.064 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:35,539 - root - DEBUG - [MATCH] Nour sim=0.734, second=-0.007, margin=0.740 ✓
+2026-02-26 13:21:35,871 - root - DEBUG - [MATCH] rejected best=Amir sim=0.150, second=0.067, margin=0.083 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:35,871 - root - DEBUG - [MATCH] Nour sim=0.739, second=-0.037, margin=0.775 ✓
+2026-02-26 13:21:36,177 - root - DEBUG - [MATCH] rejected best=Amir sim=0.180, second=0.022, margin=0.158 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:36,177 - root - DEBUG - [MATCH] Nour sim=0.732, second=-0.039, margin=0.771 ✓
+2026-02-26 13:21:36,487 - root - DEBUG - [MATCH] rejected best=Amir sim=0.138, second=-0.006, margin=0.144 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:36,487 - root - DEBUG - [MATCH] Nour sim=0.651, second=-0.000, margin=0.651 ✓
+2026-02-26 13:21:36,892 - root - DEBUG - [MATCH] rejected best=Amir sim=0.116, second=-0.010, margin=0.125 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:36,893 - root - DEBUG - [MATCH] Nour sim=0.612, second=-0.003, margin=0.615 ✓
+2026-02-26 13:21:37,205 - root - DEBUG - [MATCH] rejected best=Amir sim=0.134, second=0.009, margin=0.125 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:37,205 - root - DEBUG - [MATCH] Nour sim=0.573, second=0.001, margin=0.572 ✓
+2026-02-26 13:21:37,493 - root - DEBUG - [MATCH] rejected best=Amir sim=0.123, second=0.008, margin=0.114 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:37,494 - root - DEBUG - [MATCH] Nour sim=0.598, second=-0.038, margin=0.636 ✓
+2026-02-26 13:21:37,931 - root - DEBUG - [MATCH] rejected best=Amir sim=0.139, second=-0.010, margin=0.149 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:37,932 - root - DEBUG - [MATCH] Nour sim=0.617, second=-0.019, margin=0.636 ✓
+2026-02-26 13:21:38,229 - root - DEBUG - [MATCH] rejected best=Amir sim=0.145, second=-0.001, margin=0.147 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:38,229 - root - DEBUG - [MATCH] Nour sim=0.631, second=-0.020, margin=0.651 ✓
+2026-02-26 13:21:38,529 - root - DEBUG - [MATCH] rejected best=Amir sim=0.153, second=-0.011, margin=0.164 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:38,530 - root - DEBUG - [MATCH] Nour sim=0.663, second=-0.013, margin=0.676 ✓
+2026-02-26 13:21:38,923 - root - DEBUG - [MATCH] rejected best=Amir sim=0.147, second=-0.008, margin=0.154 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:38,923 - root - DEBUG - [MATCH] Nour sim=0.652, second=-0.029, margin=0.681 ✓
+2026-02-26 13:21:39,237 - root - DEBUG - [MATCH] rejected best=Amir sim=0.151, second=0.008, margin=0.143 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:39,237 - root - DEBUG - [MATCH] Nour sim=0.667, second=-0.040, margin=0.707 ✓
+2026-02-26 13:21:39,529 - root - DEBUG - [MATCH] rejected best=Amir sim=0.128, second=0.001, margin=0.127 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:39,530 - root - DEBUG - [MATCH] Nour sim=0.679, second=-0.038, margin=0.717 ✓
+2026-02-26 13:21:39,939 - root - DEBUG - [MATCH] rejected best=Amir sim=0.114, second=0.005, margin=0.109 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:39,940 - root - DEBUG - [MATCH] Nour sim=0.669, second=-0.023, margin=0.692 ✓
+2026-02-26 13:21:40,234 - root - DEBUG - [MATCH] Nour sim=0.644, second=-0.004, margin=0.648 ✓
+2026-02-26 13:21:40,234 - root - DEBUG - [MATCH] rejected best=Amir sim=0.121, second=0.028, margin=0.093 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:40,567 - root - DEBUG - [MATCH] rejected best=Nour sim=0.549, second=0.004, margin=0.545 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:40,568 - root - DEBUG - [MATCH] rejected best=Amir sim=0.142, second=0.098, margin=0.044 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:40,966 - root - DEBUG - [MATCH] rejected best=Amir sim=0.154, second=0.064, margin=0.091 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:40,966 - root - DEBUG - [MATCH] Nour sim=0.682, second=-0.017, margin=0.699 ✓
+2026-02-26 13:21:41,295 - root - DEBUG - [MATCH] rejected best=Amir sim=0.176, second=0.049, margin=0.127 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:41,296 - root - DEBUG - [MATCH] Nour sim=0.703, second=-0.051, margin=0.754 ✓
+2026-02-26 13:21:41,575 - root - DEBUG - [MATCH] rejected best=Amir sim=0.166, second=0.081, margin=0.085 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:41,575 - root - DEBUG - [MATCH] Nour sim=0.707, second=-0.031, margin=0.738 ✓
+2026-02-26 13:21:41,983 - root - DEBUG - [MATCH] rejected best=Amir sim=0.173, second=0.050, margin=0.123 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:41,984 - root - DEBUG - [MATCH] Nour sim=0.743, second=-0.072, margin=0.815 ✓
+2026-02-26 13:21:42,278 - root - DEBUG - [MATCH] rejected best=Amir sim=0.137, second=0.050, margin=0.087 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:42,278 - root - DEBUG - [MATCH] Nour sim=0.727, second=-0.034, margin=0.761 ✓
+2026-02-26 13:21:42,592 - root - DEBUG - [MATCH] rejected best=Amir sim=0.147, second=0.096, margin=0.052 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:42,592 - root - DEBUG - [MATCH] Nour sim=0.737, second=-0.019, margin=0.756 ✓
+2026-02-26 13:21:42,997 - root - DEBUG - [MATCH] rejected best=Amir sim=0.091, second=0.008, margin=0.083 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:42,997 - root - DEBUG - [MATCH] Nour sim=0.743, second=-0.052, margin=0.794 ✓
+2026-02-26 13:21:43,266 - root - DEBUG - [MATCH] Nour sim=0.637, second=-0.066, margin=0.704 ✓
+2026-02-26 13:21:43,524 - root - DEBUG - [MATCH] Nour sim=0.691, second=-0.050, margin=0.741 ✓
+2026-02-26 13:21:44,020 - root - DEBUG - [MATCH] Nour sim=0.632, second=-0.027, margin=0.659 ✓
+2026-02-26 13:21:44,271 - root - DEBUG - [MATCH] Nour sim=0.694, second=-0.006, margin=0.701 ✓
+2026-02-26 13:21:44,490 - root - DEBUG - [MATCH] Nour sim=0.689, second=-0.019, margin=0.709 ✓
+2026-02-26 13:21:44,750 - root - DEBUG - [MATCH] Nour sim=0.707, second=-0.042, margin=0.749 ✓
+2026-02-26 13:21:45,003 - root - DEBUG - [MATCH] Nour sim=0.723, second=-0.021, margin=0.744 ✓
+2026-02-26 13:21:45,283 - root - DEBUG - [MATCH] Nour sim=0.715, second=-0.019, margin=0.734 ✓
+2026-02-26 13:21:45,542 - root - DEBUG - [MATCH] Nour sim=0.716, second=-0.008, margin=0.725 ✓
+2026-02-26 13:21:45,823 - root - DEBUG - [MATCH] Nour sim=0.766, second=-0.019, margin=0.785 ✓
+2026-02-26 13:21:46,087 - root - DEBUG - [MATCH] Nour sim=0.737, second=-0.035, margin=0.772 ✓
+2026-02-26 13:21:46,355 - root - DEBUG - [MATCH] Nour sim=0.683, second=-0.111, margin=0.794 ✓
+2026-02-26 13:21:46,650 - root - DEBUG - [MATCH] Nour sim=0.602, second=-0.033, margin=0.635 ✓
+2026-02-26 13:21:47,143 - root - DEBUG - [MATCH] Nour sim=0.604, second=-0.027, margin=0.631 ✓
+2026-02-26 13:21:47,408 - root - DEBUG - [MATCH] Nour sim=0.626, second=-0.047, margin=0.672 ✓
+2026-02-26 13:21:47,674 - root - DEBUG - [MATCH] Nour sim=0.603, second=-0.031, margin=0.634 ✓
+2026-02-26 13:21:48,123 - root - DEBUG - [MATCH] rejected best=Nour sim=0.533, second=0.014, margin=0.519 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:48,403 - root - DEBUG - [MATCH] Nour sim=0.620, second=-0.038, margin=0.658 ✓
+2026-02-26 13:21:48,667 - root - DEBUG - [MATCH] Nour sim=0.601, second=-0.044, margin=0.646 ✓
+2026-02-26 13:21:48,931 - root - DEBUG - [MATCH] Nour sim=0.611, second=-0.063, margin=0.674 ✓
+2026-02-26 13:21:49,208 - root - DEBUG - [MATCH] Nour sim=0.648, second=-0.053, margin=0.701 ✓
+2026-02-26 13:21:49,491 - root - DEBUG - [MATCH] Nour sim=0.633, second=-0.055, margin=0.688 ✓
+2026-02-26 13:21:49,766 - root - DEBUG - [MATCH] Nour sim=0.622, second=-0.053, margin=0.674 ✓
+2026-02-26 13:21:50,235 - root - DEBUG - [MATCH] Nour sim=0.643, second=-0.060, margin=0.703 ✓
+2026-02-26 13:21:50,511 - root - DEBUG - [MATCH] Nour sim=0.629, second=-0.077, margin=0.706 ✓
+2026-02-26 13:21:50,786 - root - DEBUG - [MATCH] Nour sim=0.617, second=-0.077, margin=0.694 ✓
+2026-02-26 13:21:51,278 - root - DEBUG - [MATCH] Nour sim=0.654, second=-0.063, margin=0.717 ✓
+2026-02-26 13:21:51,566 - root - DEBUG - [MATCH] Nour sim=0.653, second=-0.016, margin=0.669 ✓
+2026-02-26 13:21:51,847 - root - DEBUG - [MATCH] Nour sim=0.648, second=-0.059, margin=0.708 ✓
+2026-02-26 13:21:52,302 - root - DEBUG - [MATCH] Nour sim=0.609, second=-0.048, margin=0.657 ✓
+2026-02-26 13:21:52,576 - root - DEBUG - [MATCH] Nour sim=0.608, second=-0.050, margin=0.659 ✓
+2026-02-26 13:21:52,871 - root - DEBUG - [MATCH] Nour sim=0.636, second=-0.064, margin=0.700 ✓
+2026-02-26 13:21:54,067 - root - DEBUG - [MATCH] rejected best=Amir sim=0.142, second=0.063, margin=0.078 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:54,330 - root - DEBUG - [MATCH] rejected best=Amir sim=0.131, second=0.106, margin=0.025 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:54,610 - root - DEBUG - [MATCH] rejected best=Amir sim=0.177, second=0.068, margin=0.109 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:54,894 - root - DEBUG - [MATCH] rejected best=Amir sim=0.143, second=0.067, margin=0.075 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:55,362 - root - DEBUG - [MATCH] rejected best=Amir sim=0.130, second=0.076, margin=0.054 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:55,652 - root - DEBUG - [MATCH] rejected best=Amir sim=0.126, second=0.098, margin=0.028 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:55,885 - root - DEBUG - [MATCH] rejected best=Amir sim=0.121, second=0.075, margin=0.046 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:56,150 - root - DEBUG - [MATCH] rejected best=Amir sim=0.115, second=0.075, margin=0.039 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:56,404 - root - DEBUG - [MATCH] rejected best=Amir sim=0.117, second=0.106, margin=0.011 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:56,662 - root - DEBUG - [MATCH] rejected best=Amir sim=0.127, second=0.075, margin=0.051 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:56,880 - root - DEBUG - [MATCH] rejected best=Amir sim=0.127, second=0.086, margin=0.041 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:57,127 - root - DEBUG - [MATCH] rejected best=Amir sim=0.113, second=0.099, margin=0.015 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:57,427 - root - DEBUG - [MATCH] rejected best=Amir sim=0.133, second=0.108, margin=0.025 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:57,675 - root - DEBUG - [MATCH] rejected best=Amir sim=0.151, second=0.076, margin=0.075 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:57,872 - root - DEBUG - [MATCH] rejected best=Amir sim=0.120, second=0.088, margin=0.032 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:58,146 - root - DEBUG - [MATCH] rejected best=Amir sim=0.115, second=0.090, margin=0.025 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:58,446 - root - DEBUG - [MATCH] rejected best=Amir sim=0.102, second=0.087, margin=0.015 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:58,768 - root - DEBUG - [MATCH] rejected best=Nour sim=0.129, second=0.121, margin=0.008 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:58,769 - root - DEBUG - [MATCH] Nour sim=0.738, second=-0.045, margin=0.783 ✓
+2026-02-26 13:21:59,073 - root - DEBUG - [MATCH] rejected best=Amir sim=0.100, second=0.085, margin=0.015 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:59,073 - root - DEBUG - [MATCH] Nour sim=0.749, second=-0.053, margin=0.801 ✓
+2026-02-26 13:21:59,542 - root - DEBUG - [MATCH] rejected best=Amir sim=0.153, second=0.089, margin=0.064 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:21:59,542 - root - DEBUG - [MATCH] Nour sim=0.727, second=-0.093, margin=0.820 ✓
+2026-02-26 13:21:59,944 - root - DEBUG - [MATCH] Nour sim=0.721, second=-0.048, margin=0.769 ✓
+2026-02-26 13:21:59,944 - root - DEBUG - [MATCH] rejected best=Amir sim=0.216, second=0.071, margin=0.145 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:22:00,269 - root - DEBUG - [MATCH] Nour sim=0.712, second=-0.068, margin=0.780 ✓
+2026-02-26 13:22:00,270 - root - DEBUG - [MATCH] rejected best=Amir sim=0.181, second=0.068, margin=0.113 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:22:00,582 - root - DEBUG - [MATCH] Nour sim=0.731, second=-0.062, margin=0.792 ✓
+2026-02-26 13:22:00,582 - root - DEBUG - [MATCH] rejected best=Amir sim=0.148, second=0.105, margin=0.043 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:22:00,894 - root - DEBUG - [MATCH] rejected best=Amir sim=0.150, second=0.056, margin=0.094 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:22:00,895 - root - DEBUG - [MATCH] Nour sim=0.627, second=-0.052, margin=0.679 ✓
+2026-02-26 13:22:01,220 - root - DEBUG - [MATCH] Nour sim=0.727, second=-0.062, margin=0.789 ✓
+2026-02-26 13:22:01,221 - root - DEBUG - [MATCH] rejected best=Amir sim=0.151, second=0.107, margin=0.043 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:22:01,700 - root - DEBUG - [MATCH] rejected best=Amir sim=0.160, second=0.156, margin=0.003 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:22:01,701 - root - DEBUG - [MATCH] Nour sim=0.707, second=-0.093, margin=0.800 ✓
+2026-02-26 13:22:02,041 - root - DEBUG - [MATCH] Nour sim=0.652, second=-0.042, margin=0.693 ✓
+2026-02-26 13:22:02,041 - root - DEBUG - [MATCH] rejected best=Amir sim=0.126, second=0.086, margin=0.039 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:22:02,415 - root - DEBUG - [MATCH] Nour sim=0.572, second=-0.003, margin=0.575 ✓
+2026-02-26 13:22:02,415 - root - DEBUG - [MATCH] rejected best=Amir sim=0.153, second=0.099, margin=0.054 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:22:02,718 - root - DEBUG - [MATCH] rejected best=Nour sim=0.442, second=-0.006, margin=0.448 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:22:02,719 - root - DEBUG - [MATCH] rejected best=Amir sim=0.064, second=0.057, margin=0.007 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:22:02,991 - root - DEBUG - [MATCH] Nour sim=0.552, second=-0.009, margin=0.561 ✓
+2026-02-26 13:22:03,279 - root - DEBUG - [MATCH] Nour sim=0.614, second=-0.043, margin=0.657 ✓
+2026-02-26 13:22:03,730 - root - DEBUG - [MATCH] rejected best=Nour sim=0.494, second=0.034, margin=0.461 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:22:04,011 - root - DEBUG - [MATCH] rejected best=Nour sim=0.496, second=-0.045, margin=0.541 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:22:04,306 - root - DEBUG - [MATCH] rejected best=Nour sim=0.477, second=-0.046, margin=0.523 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:22:04,735 - root - DEBUG - [MATCH] Nour sim=0.609, second=-0.015, margin=0.624 ✓
+2026-02-26 13:27:00,697 - root - INFO - ✅ Surveillance RTSP opened
+2026-02-26 13:27:00,752 - root - INFO - ✅ YOLOv11 person detector loaded (yolo11s.pt)
+2026-02-26 13:27:01,591 - deep_sort_realtime.embedder.embedder_pytorch - INFO - MobileNetV2 Embedder for Deep Sort initialised
+2026-02-26 13:27:01,591 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - gpu enabled: True
+2026-02-26 13:27:01,592 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - half precision: True
+2026-02-26 13:27:01,592 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - max batch size: 16
+2026-02-26 13:27:01,592 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - expects BGR: True
+2026-02-26 13:27:01,840 - deep_sort_realtime.deepsort_tracker - INFO - DeepSort Tracker initialised
+2026-02-26 13:27:01,841 - deep_sort_realtime.deepsort_tracker - INFO - - max age: 120
+2026-02-26 13:27:01,841 - deep_sort_realtime.deepsort_tracker - INFO - - appearance threshold: 0.4
+2026-02-26 13:27:01,843 - deep_sort_realtime.deepsort_tracker - INFO - - nms threshold: OFF
+2026-02-26 13:27:01,843 - deep_sort_realtime.deepsort_tracker - INFO - - max num of appearance features: None
+2026-02-26 13:27:01,843 - deep_sort_realtime.deepsort_tracker - INFO - - overriding track class : No
+2026-02-26 13:27:01,844 - deep_sort_realtime.deepsort_tracker - INFO - - today given : No
+2026-02-26 13:27:01,844 - deep_sort_realtime.deepsort_tracker - INFO - - in-build embedder : Yes
+2026-02-26 13:27:01,844 - deep_sort_realtime.deepsort_tracker - INFO - - polygon detections : No
+2026-02-26 13:27:01,845 - root - INFO - ✅ DeepSORT initialized
+2026-02-26 13:27:01,846 - root - INFO - Loaded 2 embeddings (dim=512) from C:\Users\BH RENOVATIONS\intelligent-monitoring-system\models\embeddings
+2026-02-26 13:27:01,847 - root - INFO - ✅ Loaded known identities: 2 from C:\Users\BH RENOVATIONS\intelligent-monitoring-system\models\embeddings
+2026-02-26 13:27:01,847 - root - INFO - ✅ Recognition thresholds: sim=0.55 margin=0.18
+2026-02-26 13:27:01,848 - root - INFO - ✅ Loading InsightFace (buffalo_l) ...
+2026-02-26 13:27:02,844 - root - INFO - ✅ InsightFace CUDA OK
+2026-02-26 13:27:04,180 - root - DEBUG - [MATCH] Nour sim=0.714, second=-0.057, margin=0.771 ✓
+2026-02-26 13:27:04,460 - root - DEBUG - [MATCH] Nour sim=0.700, second=-0.050, margin=0.750 ✓
+2026-02-26 13:27:04,790 - root - DEBUG - [MATCH] Nour sim=0.728, second=-0.033, margin=0.760 ✓
+2026-02-26 13:27:05,117 - root - DEBUG - [MATCH] Nour sim=0.707, second=-0.025, margin=0.732 ✓
+2026-02-26 13:27:05,515 - root - DEBUG - [MATCH] Nour sim=0.717, second=-0.018, margin=0.735 ✓
+2026-02-26 13:27:05,855 - root - WARNING - [RTSP] invalid frame (1/15)
+2026-02-26 13:27:06,018 - root - WARNING - [RTSP] invalid frame (6/15)
+2026-02-26 13:27:06,173 - root - WARNING - [RTSP] invalid frame (11/15)
+2026-02-26 13:27:06,297 - root - WARNING - [RTSP] Stream unstable. Reconnecting...
+2026-02-26 13:27:08,947 - root - DEBUG - [MATCH] Nour sim=0.705, second=-0.021, margin=0.726 ✓
+2026-02-26 13:27:09,227 - root - DEBUG - [MATCH] Nour sim=0.709, second=-0.017, margin=0.726 ✓
+2026-02-26 13:27:09,467 - root - DEBUG - [MATCH] Nour sim=0.705, second=-0.023, margin=0.728 ✓
+2026-02-26 13:27:09,715 - root - DEBUG - [MATCH] Nour sim=0.732, second=-0.025, margin=0.757 ✓
+2026-02-26 13:27:09,960 - root - DEBUG - [MATCH] Nour sim=0.743, second=-0.022, margin=0.765 ✓
+2026-02-26 13:27:10,221 - root - DEBUG - [MATCH] Nour sim=0.729, second=-0.017, margin=0.746 ✓
+2026-02-26 13:27:10,437 - root - DEBUG - [MATCH] Nour sim=0.734, second=-0.015, margin=0.749 ✓
+2026-02-26 13:27:10,717 - root - DEBUG - [MATCH] Nour sim=0.708, second=-0.018, margin=0.726 ✓
+2026-02-26 13:27:10,948 - root - DEBUG - [MATCH] Nour sim=0.625, second=-0.038, margin=0.664 ✓
+2026-02-26 13:27:11,256 - root - DEBUG - [MATCH] Nour sim=0.695, second=-0.020, margin=0.715 ✓
+2026-02-26 13:27:11,528 - root - DEBUG - [MATCH] Nour sim=0.740, second=-0.028, margin=0.768 ✓
+2026-02-26 13:27:11,788 - root - DEBUG - [MATCH] Nour sim=0.732, second=-0.023, margin=0.755 ✓
+2026-02-26 13:27:12,036 - root - DEBUG - [MATCH] Nour sim=0.745, second=-0.008, margin=0.752 ✓
+2026-02-26 13:27:12,302 - root - DEBUG - [MATCH] Nour sim=0.750, second=-0.037, margin=0.787 ✓
+2026-02-26 13:27:12,520 - root - DEBUG - [MATCH] Nour sim=0.739, second=-0.039, margin=0.778 ✓
+2026-02-26 13:27:12,771 - root - DEBUG - [MATCH] Nour sim=0.742, second=-0.033, margin=0.775 ✓
+2026-02-26 13:27:13,040 - root - DEBUG - [MATCH] Nour sim=0.749, second=-0.006, margin=0.755 ✓
+2026-02-26 13:27:13,266 - root - DEBUG - [MATCH] Nour sim=0.728, second=-0.007, margin=0.735 ✓
+2026-02-26 13:27:13,529 - root - DEBUG - [MATCH] Nour sim=0.740, second=-0.024, margin=0.764 ✓
+2026-02-26 13:27:13,778 - root - DEBUG - [MATCH] Nour sim=0.745, second=-0.016, margin=0.761 ✓
+2026-02-26 13:27:14,030 - root - DEBUG - [MATCH] Nour sim=0.746, second=-0.015, margin=0.761 ✓
+2026-02-26 13:27:14,336 - root - DEBUG - [MATCH] Nour sim=0.752, second=-0.016, margin=0.768 ✓
+2026-02-26 13:27:14,588 - root - DEBUG - [MATCH] Nour sim=0.747, second=-0.029, margin=0.776 ✓
+2026-02-26 13:27:14,848 - root - DEBUG - [MATCH] Nour sim=0.761, second=-0.041, margin=0.802 ✓
+2026-02-26 13:27:15,144 - root - DEBUG - [MATCH] Nour sim=0.752, second=-0.025, margin=0.777 ✓
+2026-02-26 13:27:15,394 - root - DEBUG - [MATCH] Nour sim=0.751, second=-0.030, margin=0.781 ✓
+2026-02-26 13:27:15,656 - root - DEBUG - [MATCH] Nour sim=0.730, second=-0.016, margin=0.746 ✓
+2026-02-26 13:27:15,906 - root - DEBUG - [MATCH] Nour sim=0.729, second=-0.024, margin=0.753 ✓
+2026-02-26 13:27:16,186 - root - DEBUG - [MATCH] Nour sim=0.728, second=-0.023, margin=0.751 ✓
+2026-02-26 13:27:16,452 - root - DEBUG - [MATCH] Nour sim=0.730, second=-0.023, margin=0.753 ✓
+2026-02-26 13:27:16,725 - root - DEBUG - [MATCH] Nour sim=0.744, second=-0.025, margin=0.768 ✓
+2026-02-26 13:27:16,991 - root - DEBUG - [MATCH] Nour sim=0.728, second=-0.009, margin=0.737 ✓
+2026-02-26 13:27:17,257 - root - DEBUG - [MATCH] Nour sim=0.741, second=-0.030, margin=0.771 ✓
+2026-02-26 13:27:17,518 - root - DEBUG - [MATCH] Nour sim=0.734, second=-0.072, margin=0.806 ✓
+2026-02-26 13:27:17,806 - root - DEBUG - [MATCH] Nour sim=0.752, second=-0.043, margin=0.796 ✓
+2026-02-26 13:27:18,079 - root - DEBUG - [MATCH] Nour sim=0.752, second=-0.052, margin=0.803 ✓
+2026-02-26 13:27:18,525 - root - DEBUG - [MATCH] Nour sim=0.734, second=-0.011, margin=0.744 ✓
+2026-02-26 13:27:18,792 - root - DEBUG - [MATCH] Nour sim=0.744, second=-0.029, margin=0.773 ✓
+2026-02-26 13:27:19,058 - root - DEBUG - [MATCH] Nour sim=0.757, second=-0.050, margin=0.807 ✓
+2026-02-26 13:27:19,346 - root - DEBUG - [MATCH] Nour sim=0.747, second=-0.036, margin=0.783 ✓
+2026-02-26 13:27:19,608 - root - DEBUG - [MATCH] Nour sim=0.730, second=-0.037, margin=0.766 ✓
+2026-02-26 13:27:19,873 - root - DEBUG - [MATCH] Nour sim=0.722, second=-0.032, margin=0.754 ✓
+2026-02-26 13:27:20,148 - root - DEBUG - [MATCH] Nour sim=0.744, second=-0.035, margin=0.779 ✓
+2026-02-26 13:27:20,417 - root - DEBUG - [MATCH] Nour sim=0.752, second=-0.048, margin=0.800 ✓
+2026-02-26 13:27:20,677 - root - DEBUG - [MATCH] Nour sim=0.730, second=-0.041, margin=0.771 ✓
+2026-02-26 13:27:20,941 - root - DEBUG - [MATCH] Nour sim=0.741, second=-0.043, margin=0.783 ✓
+2026-02-26 13:27:21,204 - root - DEBUG - [MATCH] Nour sim=0.734, second=-0.039, margin=0.774 ✓
+2026-02-26 13:27:21,468 - root - DEBUG - [MATCH] Nour sim=0.734, second=-0.046, margin=0.780 ✓
+2026-02-26 13:27:21,733 - root - DEBUG - [MATCH] Nour sim=0.726, second=-0.048, margin=0.774 ✓
+2026-02-26 13:27:21,999 - root - DEBUG - [MATCH] Nour sim=0.730, second=-0.024, margin=0.754 ✓
+2026-02-26 13:27:22,259 - root - DEBUG - [MATCH] Nour sim=0.724, second=-0.038, margin=0.762 ✓
+2026-02-26 13:27:22,551 - root - DEBUG - [MATCH] Nour sim=0.753, second=-0.017, margin=0.770 ✓
+2026-02-26 13:27:22,846 - root - DEBUG - [MATCH] Nour sim=0.740, second=-0.035, margin=0.775 ✓
+2026-02-26 13:27:23,115 - root - DEBUG - [MATCH] Nour sim=0.733, second=-0.020, margin=0.753 ✓
+2026-02-26 13:27:23,394 - root - DEBUG - [MATCH] Nour sim=0.736, second=-0.030, margin=0.766 ✓
+2026-02-26 13:27:23,841 - root - DEBUG - [MATCH] Nour sim=0.742, second=-0.024, margin=0.766 ✓
+2026-02-26 13:27:24,103 - root - DEBUG - [MATCH] Nour sim=0.738, second=-0.018, margin=0.756 ✓
+2026-02-26 13:27:24,455 - root - DEBUG - [MATCH] Nour sim=0.722, second=-0.028, margin=0.751 ✓
+2026-02-26 13:27:24,895 - root - DEBUG - [MATCH] Nour sim=0.746, second=-0.071, margin=0.817 ✓
+2026-02-26 13:27:25,165 - root - DEBUG - [MATCH] Nour sim=0.766, second=-0.039, margin=0.804 ✓
+2026-02-26 13:27:25,436 - root - DEBUG - [MATCH] Nour sim=0.762, second=-0.043, margin=0.805 ✓
+2026-02-26 13:27:25,931 - root - DEBUG - [MATCH] Nour sim=0.751, second=-0.065, margin=0.816 ✓
+2026-02-26 13:27:26,224 - root - DEBUG - [MATCH] Nour sim=0.757, second=-0.052, margin=0.810 ✓
+2026-02-26 13:27:26,506 - root - DEBUG - [MATCH] Nour sim=0.767, second=-0.076, margin=0.843 ✓
+2026-02-26 13:27:26,924 - root - DEBUG - [MATCH] Nour sim=0.771, second=-0.052, margin=0.823 ✓
+2026-02-26 13:27:27,211 - root - DEBUG - [MATCH] Nour sim=0.771, second=-0.069, margin=0.839 ✓
+2026-02-26 13:27:27,571 - root - DEBUG - [MATCH] Nour sim=0.764, second=-0.024, margin=0.789 ✓
+2026-02-26 13:27:27,972 - root - DEBUG - [MATCH] rejected best=Nour sim=0.487, second=-0.039, margin=0.526 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:27:28,248 - root - DEBUG - [MATCH] rejected best=Nour sim=0.357, second=-0.015, margin=0.372 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:27:29,209 - root - DEBUG - [MATCH] rejected best=Nour sim=0.280, second=0.028, margin=0.252 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:27:29,488 - root - DEBUG - [MATCH] rejected best=Nour sim=0.304, second=0.020, margin=0.284 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:27:29,767 - root - DEBUG - [MATCH] rejected best=Nour sim=0.275, second=0.077, margin=0.198 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:27:30,560 - root - DEBUG - [MATCH] rejected best=Nour sim=0.273, second=-0.002, margin=0.275 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:27:30,859 - root - DEBUG - [MATCH] rejected best=Nour sim=0.442, second=-0.027, margin=0.469 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:27:31,140 - root - DEBUG - [MATCH] Nour sim=0.717, second=-0.059, margin=0.777 ✓
+2026-02-26 13:27:31,444 - root - DEBUG - [MATCH] Nour sim=0.722, second=-0.055, margin=0.777 ✓
+2026-02-26 13:27:31,720 - root - DEBUG - [MATCH] Nour sim=0.703, second=-0.013, margin=0.716 ✓
+2026-02-26 13:27:32,182 - root - DEBUG - [MATCH] Nour sim=0.687, second=-0.032, margin=0.720 ✓
+2026-02-26 13:27:32,509 - root - DEBUG - [MATCH] Nour sim=0.717, second=-0.050, margin=0.767 ✓
+2026-02-26 13:27:32,792 - root - DEBUG - [MATCH] Nour sim=0.714, second=-0.054, margin=0.768 ✓
+2026-02-26 13:27:33,162 - root - DEBUG - [MATCH] Nour sim=0.715, second=-0.027, margin=0.742 ✓
+2026-02-26 13:27:33,454 - root - DEBUG - [MATCH] Nour sim=0.724, second=-0.034, margin=0.758 ✓
+2026-02-26 13:27:33,731 - root - DEBUG - [MATCH] Nour sim=0.732, second=-0.034, margin=0.766 ✓
+2026-02-26 13:27:34,171 - root - DEBUG - [MATCH] Nour sim=0.721, second=-0.056, margin=0.776 ✓
+2026-02-26 13:27:34,530 - root - DEBUG - [MATCH] Nour sim=0.719, second=-0.017, margin=0.736 ✓
+2026-02-26 13:27:34,834 - root - DEBUG - [MATCH] Nour sim=0.737, second=-0.025, margin=0.762 ✓
+2026-02-26 13:34:55,604 - root - INFO - ✅ Surveillance RTSP opened
+2026-02-26 13:34:55,658 - root - INFO - ✅ YOLOv11 person detector loaded (yolo11s.pt)
+2026-02-26 13:34:56,496 - deep_sort_realtime.embedder.embedder_pytorch - INFO - MobileNetV2 Embedder for Deep Sort initialised
+2026-02-26 13:34:56,497 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - gpu enabled: True
+2026-02-26 13:34:56,497 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - half precision: True
+2026-02-26 13:34:56,498 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - max batch size: 16
+2026-02-26 13:34:56,498 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - expects BGR: True
+2026-02-26 13:34:56,726 - deep_sort_realtime.deepsort_tracker - INFO - DeepSort Tracker initialised
+2026-02-26 13:34:56,727 - deep_sort_realtime.deepsort_tracker - INFO - - max age: 120
+2026-02-26 13:34:56,727 - deep_sort_realtime.deepsort_tracker - INFO - - appearance threshold: 0.4
+2026-02-26 13:34:56,728 - deep_sort_realtime.deepsort_tracker - INFO - - nms threshold: OFF
+2026-02-26 13:34:56,728 - deep_sort_realtime.deepsort_tracker - INFO - - max num of appearance features: None
+2026-02-26 13:34:56,728 - deep_sort_realtime.deepsort_tracker - INFO - - overriding track class : No
+2026-02-26 13:34:56,728 - deep_sort_realtime.deepsort_tracker - INFO - - today given : No
+2026-02-26 13:34:56,729 - deep_sort_realtime.deepsort_tracker - INFO - - in-build embedder : Yes
+2026-02-26 13:34:56,729 - deep_sort_realtime.deepsort_tracker - INFO - - polygon detections : No
+2026-02-26 13:34:56,729 - root - INFO - ✅ DeepSORT initialized
+2026-02-26 13:34:56,731 - root - INFO - Loaded 2 embeddings (dim=512) from C:\Users\BH RENOVATIONS\intelligent-monitoring-system\models\embeddings
+2026-02-26 13:34:56,731 - root - INFO - ✅ Loaded known identities: 2 from C:\Users\BH RENOVATIONS\intelligent-monitoring-system\models\embeddings
+2026-02-26 13:34:56,732 - root - INFO - ✅ Recognition thresholds: sim=0.55 margin=0.18
+2026-02-26 13:34:56,733 - root - INFO - ✅ Loading InsightFace (buffalo_l) ...
+2026-02-26 13:34:57,553 - root - INFO - ✅ InsightFace CUDA OK
+2026-02-26 13:34:58,614 - root - DEBUG - [MATCH] Nour sim=0.652, second=-0.054, margin=0.706 ✓
+2026-02-26 13:34:59,012 - root - DEBUG - [MATCH] Nour sim=0.678, second=-0.049, margin=0.727 ✓
+2026-02-26 13:34:59,412 - root - WARNING - [RTSP] invalid frame (1/15)
+2026-02-26 13:34:59,573 - root - WARNING - [RTSP] invalid frame (6/15)
+2026-02-26 13:34:59,727 - root - WARNING - [RTSP] invalid frame (11/15)
+2026-02-26 13:34:59,851 - root - WARNING - [RTSP] Stream unstable. Reconnecting...
+2026-02-26 13:35:02,281 - root - DEBUG - [MATCH] rejected best=Nour sim=0.538, second=0.022, margin=0.516 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:35:02,648 - root - DEBUG - [MATCH] rejected best=Nour sim=0.218, second=-0.024, margin=0.242 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:35:03,275 - root - DEBUG - [MATCH] rejected best=Nour sim=0.204, second=0.020, margin=0.183 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:35:03,721 - root - DEBUG - [MATCH] rejected best=Nour sim=0.254, second=0.045, margin=0.209 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:35:04,377 - root - DEBUG - [MATCH] rejected best=Nour sim=0.439, second=-0.050, margin=0.489 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:35:04,827 - root - DEBUG - [MATCH] Nour sim=0.756, second=-0.073, margin=0.830 ✓
+2026-02-26 13:35:05,355 - root - DEBUG - [MATCH] Nour sim=0.749, second=-0.056, margin=0.805 ✓
+2026-02-26 13:35:05,753 - root - DEBUG - [MATCH] Nour sim=0.756, second=-0.042, margin=0.798 ✓
+2026-02-26 13:35:06,389 - root - DEBUG - [MATCH] Nour sim=0.753, second=-0.034, margin=0.786 ✓
+2026-02-26 13:35:06,811 - root - DEBUG - [MATCH] Nour sim=0.748, second=-0.043, margin=0.792 ✓
+2026-02-26 13:35:07,446 - root - DEBUG - [MATCH] Nour sim=0.723, second=-0.050, margin=0.773 ✓
+2026-02-26 13:35:07,931 - root - DEBUG - [MATCH] Nour sim=0.728, second=-0.064, margin=0.792 ✓
+2026-02-26 13:35:08,438 - root - DEBUG - [MATCH] Nour sim=0.734, second=-0.037, margin=0.771 ✓
+2026-02-26 13:35:08,888 - root - DEBUG - [MATCH] Nour sim=0.724, second=-0.050, margin=0.774 ✓
+2026-02-26 13:35:09,476 - root - DEBUG - [MATCH] Nour sim=0.740, second=-0.043, margin=0.783 ✓
+2026-02-26 13:35:09,944 - root - DEBUG - [MATCH] Nour sim=0.744, second=-0.038, margin=0.782 ✓
+2026-02-26 13:35:10,486 - root - DEBUG - [MATCH] Nour sim=0.733, second=-0.054, margin=0.787 ✓
+2026-02-26 13:35:10,953 - root - DEBUG - [MATCH] Nour sim=0.744, second=-0.050, margin=0.794 ✓
+2026-02-26 13:35:11,529 - root - DEBUG - [MATCH] Nour sim=0.742, second=-0.048, margin=0.790 ✓
+2026-02-26 13:35:11,979 - root - DEBUG - [MATCH] Nour sim=0.726, second=-0.034, margin=0.761 ✓
+2026-02-26 13:35:12,504 - root - DEBUG - [MATCH] Nour sim=0.702, second=-0.062, margin=0.764 ✓
+2026-02-26 13:35:12,953 - root - DEBUG - [MATCH] Nour sim=0.590, second=-0.052, margin=0.643 ✓
+2026-02-26 13:35:13,556 - root - DEBUG - [MATCH] Nour sim=0.661, second=-0.065, margin=0.726 ✓
+2026-02-26 13:35:13,993 - root - DEBUG - [MATCH] Nour sim=0.690, second=-0.073, margin=0.763 ✓
+2026-02-26 13:35:14,550 - root - DEBUG - [MATCH] Nour sim=0.735, second=-0.031, margin=0.766 ✓
+2026-02-26 13:35:15,016 - root - DEBUG - [MATCH] Nour sim=0.743, second=-0.012, margin=0.755 ✓
+2026-02-26 13:35:15,589 - root - DEBUG - [MATCH] Nour sim=0.678, second=-0.034, margin=0.711 ✓
+2026-02-26 13:35:16,018 - root - DEBUG - [MATCH] Nour sim=0.747, second=-0.026, margin=0.773 ✓
+2026-02-26 13:35:16,562 - root - DEBUG - [MATCH] Nour sim=0.754, second=-0.034, margin=0.788 ✓
+2026-02-26 13:35:17,000 - root - DEBUG - [MATCH] Nour sim=0.748, second=-0.036, margin=0.784 ✓
+2026-02-26 13:35:17,588 - root - DEBUG - [MATCH] Nour sim=0.739, second=-0.040, margin=0.779 ✓
+2026-02-26 13:35:18,069 - root - DEBUG - [MATCH] Nour sim=0.747, second=-0.062, margin=0.809 ✓
+2026-02-26 13:35:18,666 - root - DEBUG - [MATCH] Nour sim=0.731, second=-0.045, margin=0.776 ✓
+2026-02-26 13:35:19,155 - root - DEBUG - [MATCH] Nour sim=0.758, second=-0.054, margin=0.812 ✓
+2026-02-26 13:35:19,615 - root - DEBUG - [MATCH] Nour sim=0.759, second=-0.035, margin=0.794 ✓
+2026-02-26 13:35:20,063 - root - DEBUG - [MATCH] Nour sim=0.752, second=-0.051, margin=0.803 ✓
+2026-02-26 13:35:20,684 - root - DEBUG - [MATCH] Nour sim=0.708, second=-0.053, margin=0.760 ✓
+2026-02-26 13:35:21,134 - root - DEBUG - [MATCH] Nour sim=0.697, second=0.001, margin=0.696 ✓
+2026-02-26 13:35:21,702 - root - DEBUG - [MATCH] Nour sim=0.723, second=-0.069, margin=0.792 ✓
+2026-02-26 13:35:22,154 - root - DEBUG - [MATCH] Nour sim=0.748, second=-0.072, margin=0.820 ✓
+2026-02-26 13:35:22,705 - root - DEBUG - [MATCH] Nour sim=0.739, second=-0.028, margin=0.767 ✓
+2026-02-26 13:35:23,167 - root - DEBUG - [MATCH] Nour sim=0.741, second=-0.041, margin=0.782 ✓
+2026-02-26 13:35:23,711 - root - DEBUG - [MATCH] Nour sim=0.713, second=-0.043, margin=0.756 ✓
+2026-02-26 13:35:24,185 - root - DEBUG - [MATCH] Nour sim=0.698, second=-0.068, margin=0.767 ✓
+2026-02-26 13:35:24,726 - root - DEBUG - [MATCH] Nour sim=0.727, second=-0.096, margin=0.823 ✓
+2026-02-26 13:35:25,177 - root - DEBUG - [MATCH] Nour sim=0.637, second=-0.057, margin=0.694 ✓
+2026-02-26 13:35:25,780 - root - DEBUG - [MATCH] Nour sim=0.650, second=-0.076, margin=0.726 ✓
+2026-02-26 13:35:26,236 - root - DEBUG - [MATCH] Nour sim=0.686, second=-0.046, margin=0.732 ✓
+2026-02-26 13:35:26,798 - root - DEBUG - [MATCH] rejected best=Nour sim=0.298, second=0.014, margin=0.285 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:35:27,245 - root - DEBUG - [MATCH] Nour sim=0.633, second=-0.074, margin=0.707 ✓
+2026-02-26 13:35:27,855 - root - DEBUG - [MATCH] Nour sim=0.669, second=-0.065, margin=0.734 ✓
+2026-02-26 13:35:28,312 - root - DEBUG - [MATCH] Nour sim=0.691, second=-0.070, margin=0.761 ✓
+2026-02-26 13:35:28,875 - root - DEBUG - [MATCH] Nour sim=0.689, second=-0.040, margin=0.730 ✓
+2026-02-26 13:35:29,368 - root - DEBUG - [MATCH] Nour sim=0.575, second=-0.045, margin=0.621 ✓
+2026-02-26 13:35:29,852 - root - DEBUG - [MATCH] Nour sim=0.708, second=0.031, margin=0.677 ✓
+2026-02-26 13:35:30,287 - root - DEBUG - [MATCH] Nour sim=0.732, second=0.006, margin=0.726 ✓
+2026-02-26 13:35:30,908 - root - DEBUG - [MATCH] Nour sim=0.788, second=-0.021, margin=0.809 ✓
+2026-02-26 13:35:31,343 - root - DEBUG - [MATCH] Nour sim=0.731, second=-0.031, margin=0.762 ✓
+2026-02-26 13:35:31,887 - root - DEBUG - [MATCH] Nour sim=0.759, second=-0.020, margin=0.779 ✓
+2026-02-26 13:35:32,338 - root - DEBUG - [MATCH] Nour sim=0.730, second=-0.032, margin=0.762 ✓
+2026-02-26 13:35:32,955 - root - DEBUG - [MATCH] Nour sim=0.749, second=-0.007, margin=0.756 ✓
+2026-02-26 13:35:33,436 - root - DEBUG - [MATCH] Nour sim=0.704, second=-0.017, margin=0.722 ✓
+2026-02-26 13:35:33,983 - root - DEBUG - [MATCH] Nour sim=0.735, second=-0.034, margin=0.769 ✓
+2026-02-26 13:35:34,432 - root - DEBUG - [MATCH] Nour sim=0.701, second=-0.025, margin=0.726 ✓
+2026-02-26 13:35:34,989 - root - DEBUG - [MATCH] Nour sim=0.709, second=-0.041, margin=0.749 ✓
+2026-02-26 13:35:35,424 - root - DEBUG - [MATCH] Nour sim=0.722, second=-0.038, margin=0.760 ✓
+2026-02-26 13:35:36,029 - root - DEBUG - [MATCH] Nour sim=0.731, second=-0.019, margin=0.750 ✓
+2026-02-26 13:35:37,578 - root - DEBUG - [MATCH] rejected best=Amir sim=-0.017, second=-0.023, margin=0.007 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:35:46,268 - root - DEBUG - [MATCH] Nour sim=0.620, second=-0.105, margin=0.725 ✓
+2026-02-26 13:35:46,702 - root - DEBUG - [MATCH] Nour sim=0.618, second=-0.050, margin=0.667 ✓
+2026-02-26 13:35:47,494 - root - DEBUG - [MATCH] Nour sim=0.580, second=-0.002, margin=0.582 ✓
+2026-02-26 13:35:48,481 - root - DEBUG - [MATCH] Nour sim=0.663, second=-0.010, margin=0.673 ✓
+2026-02-26 13:35:49,352 - root - DEBUG - [MATCH] Nour sim=0.622, second=-0.024, margin=0.647 ✓
+2026-02-26 13:35:49,817 - root - DEBUG - [MATCH] Nour sim=0.663, second=-0.021, margin=0.684 ✓
+2026-02-26 13:35:50,423 - root - DEBUG - [MATCH] Nour sim=0.700, second=0.021, margin=0.679 ✓
+2026-02-26 13:35:50,873 - root - DEBUG - [MATCH] rejected best=Nour sim=0.485, second=0.009, margin=0.476 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:35:51,386 - root - DEBUG - [MATCH] rejected best=Nour sim=0.307, second=0.007, margin=0.300 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:35:51,858 - root - DEBUG - [MATCH] Nour sim=0.711, second=0.010, margin=0.701 ✓
+2026-02-26 13:35:52,405 - root - DEBUG - [MATCH] rejected best=Nour sim=0.418, second=0.047, margin=0.370 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:35:52,818 - root - DEBUG - [MATCH] rejected best=Nour sim=0.445, second=-0.002, margin=0.447 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:35:53,436 - root - DEBUG - [MATCH] Nour sim=0.552, second=0.023, margin=0.529 ✓
+2026-02-26 13:35:53,823 - root - DEBUG - [MATCH] Nour sim=0.699, second=-0.036, margin=0.735 ✓
+2026-02-26 13:35:54,365 - root - DEBUG - [MATCH] Nour sim=0.574, second=0.015, margin=0.559 ✓
+2026-02-26 13:35:54,799 - root - DEBUG - [MATCH] Nour sim=0.598, second=-0.059, margin=0.657 ✓
+2026-02-26 13:35:55,416 - root - DEBUG - [MATCH] Nour sim=0.592, second=0.036, margin=0.557 ✓
+2026-02-26 13:35:55,772 - root - DEBUG - [MATCH] Nour sim=0.671, second=-0.023, margin=0.694 ✓
+2026-02-26 13:35:56,502 - root - DEBUG - [MATCH] Nour sim=0.706, second=0.026, margin=0.680 ✓
+2026-02-26 13:35:56,890 - root - DEBUG - [MATCH] rejected best=Nour sim=0.406, second=-0.006, margin=0.412 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:35:57,531 - root - DEBUG - [MATCH] Nour sim=0.710, second=0.014, margin=0.696 ✓
+2026-02-26 13:35:57,953 - root - DEBUG - [MATCH] Nour sim=0.737, second=0.010, margin=0.727 ✓
+2026-02-26 13:35:58,569 - root - DEBUG - [MATCH] rejected best=Nour sim=0.514, second=0.051, margin=0.463 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:35:58,985 - root - DEBUG - [MATCH] Nour sim=0.652, second=0.034, margin=0.618 ✓
+2026-02-26 13:35:59,589 - root - DEBUG - [MATCH] Nour sim=0.601, second=0.021, margin=0.580 ✓
+2026-02-26 13:35:59,993 - root - DEBUG - [MATCH] Nour sim=0.594, second=0.026, margin=0.568 ✓
+2026-02-26 13:36:00,599 - root - DEBUG - [MATCH] rejected best=Nour sim=0.540, second=0.039, margin=0.501 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:01,032 - root - DEBUG - [MATCH] Nour sim=0.609, second=0.042, margin=0.567 ✓
+2026-02-26 13:36:01,638 - root - DEBUG - [MATCH] Nour sim=0.584, second=0.015, margin=0.569 ✓
+2026-02-26 13:36:02,087 - root - DEBUG - [MATCH] Nour sim=0.569, second=0.030, margin=0.539 ✓
+2026-02-26 13:36:02,629 - root - DEBUG - [MATCH] rejected best=Nour sim=0.520, second=0.026, margin=0.494 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:03,080 - root - DEBUG - [MATCH] rejected best=Nour sim=0.547, second=-0.007, margin=0.554 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:03,671 - root - DEBUG - [MATCH] rejected best=Nour sim=0.536, second=0.013, margin=0.523 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:04,108 - root - DEBUG - [MATCH] rejected best=Nour sim=0.321, second=-0.001, margin=0.322 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:04,730 - root - DEBUG - [MATCH] rejected best=Nour sim=0.160, second=0.013, margin=0.147 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:05,163 - root - DEBUG - [MATCH] rejected best=Nour sim=0.529, second=0.031, margin=0.498 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:05,726 - root - DEBUG - [MATCH] rejected best=Nour sim=0.417, second=0.015, margin=0.402 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:06,186 - root - DEBUG - [MATCH] rejected best=Nour sim=0.489, second=0.047, margin=0.442 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:06,723 - root - DEBUG - [MATCH] rejected best=Nour sim=0.390, second=0.023, margin=0.367 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:07,158 - root - DEBUG - [MATCH] rejected best=Nour sim=0.353, second=0.048, margin=0.305 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:07,753 - root - DEBUG - [MATCH] rejected best=Nour sim=0.360, second=-0.015, margin=0.375 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:08,184 - root - DEBUG - [MATCH] rejected best=Nour sim=0.391, second=0.028, margin=0.363 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:08,745 - root - DEBUG - [MATCH] rejected best=Nour sim=0.430, second=-0.012, margin=0.442 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:09,178 - root - DEBUG - [MATCH] rejected best=Nour sim=0.454, second=0.039, margin=0.415 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:09,791 - root - DEBUG - [MATCH] rejected best=Nour sim=0.495, second=0.034, margin=0.461 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:10,222 - root - DEBUG - [MATCH] rejected best=Nour sim=0.412, second=0.052, margin=0.360 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:10,845 - root - DEBUG - [MATCH] rejected best=Nour sim=0.394, second=0.036, margin=0.358 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:11,336 - root - DEBUG - [MATCH] rejected best=Nour sim=0.500, second=0.028, margin=0.472 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:11,866 - root - DEBUG - [MATCH] rejected best=Nour sim=0.418, second=0.063, margin=0.355 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:12,326 - root - DEBUG - [MATCH] rejected best=Nour sim=0.461, second=0.035, margin=0.426 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:12,886 - root - DEBUG - [MATCH] rejected best=Nour sim=0.442, second=0.090, margin=0.352 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:13,346 - root - DEBUG - [MATCH] rejected best=Nour sim=0.487, second=0.004, margin=0.484 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:13,904 - root - DEBUG - [MATCH] rejected best=Nour sim=0.337, second=-0.018, margin=0.355 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:14,343 - root - DEBUG - [MATCH] rejected best=Nour sim=0.428, second=0.003, margin=0.425 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:14,931 - root - DEBUG - [MATCH] rejected best=Nour sim=0.510, second=0.068, margin=0.442 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:15,382 - root - DEBUG - [MATCH] rejected best=Nour sim=0.485, second=0.049, margin=0.436 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:15,955 - root - DEBUG - [MATCH] rejected best=Nour sim=0.516, second=0.027, margin=0.488 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:16,422 - root - DEBUG - [MATCH] rejected best=Nour sim=0.517, second=0.042, margin=0.475 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:16,949 - root - DEBUG - [MATCH] rejected best=Nour sim=0.457, second=0.039, margin=0.419 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:17,408 - root - DEBUG - [MATCH] rejected best=Nour sim=0.505, second=0.058, margin=0.448 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:17,949 - root - DEBUG - [MATCH] rejected best=Nour sim=0.531, second=0.060, margin=0.471 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:18,382 - root - DEBUG - [MATCH] rejected best=Nour sim=0.214, second=0.113, margin=0.101 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:19,004 - root - DEBUG - [MATCH] Nour sim=0.560, second=0.058, margin=0.502 ✓
+2026-02-26 13:36:19,440 - root - DEBUG - [MATCH] rejected best=Nour sim=0.420, second=0.060, margin=0.360 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:20,002 - root - DEBUG - [MATCH] Nour sim=0.584, second=0.089, margin=0.495 ✓
+2026-02-26 13:36:20,440 - root - DEBUG - [MATCH] rejected best=Nour sim=0.549, second=0.095, margin=0.454 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:21,016 - root - DEBUG - [MATCH] Nour sim=0.567, second=0.071, margin=0.496 ✓
+2026-02-26 13:36:21,449 - root - DEBUG - [MATCH] rejected best=Nour sim=0.500, second=0.077, margin=0.423 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:22,041 - root - DEBUG - [MATCH] rejected best=Nour sim=0.482, second=0.059, margin=0.423 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:22,476 - root - DEBUG - [MATCH] rejected best=Nour sim=0.511, second=0.039, margin=0.472 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:23,117 - root - DEBUG - [MATCH] Nour sim=0.555, second=0.049, margin=0.506 ✓
+2026-02-26 13:36:23,613 - root - DEBUG - [MATCH] rejected best=Nour sim=0.513, second=0.090, margin=0.423 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:24,104 - root - DEBUG - [MATCH] Nour sim=0.572, second=0.018, margin=0.554 ✓
+2026-02-26 13:36:24,555 - root - DEBUG - [MATCH] Nour sim=0.593, second=0.037, margin=0.556 ✓
+2026-02-26 13:36:25,114 - root - DEBUG - [MATCH] Nour sim=0.616, second=-0.006, margin=0.622 ✓
+2026-02-26 13:36:25,550 - root - DEBUG - [MATCH] Nour sim=0.573, second=0.026, margin=0.546 ✓
+2026-02-26 13:36:26,172 - root - DEBUG - [MATCH] rejected best=Nour sim=0.360, second=-0.006, margin=0.366 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:26,599 - root - DEBUG - [MATCH] rejected best=Nour sim=0.400, second=-0.022, margin=0.422 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:27,142 - root - DEBUG - [MATCH] rejected best=Nour sim=0.546, second=-0.034, margin=0.580 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:27,610 - root - DEBUG - [MATCH] rejected best=Nour sim=0.432, second=-0.060, margin=0.492 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:28,236 - root - DEBUG - [MATCH] rejected best=Nour sim=0.407, second=-0.025, margin=0.431 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:28,707 - root - DEBUG - [MATCH] rejected best=Nour sim=0.467, second=0.022, margin=0.444 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:29,246 - root - DEBUG - [MATCH] rejected best=Nour sim=0.413, second=-0.048, margin=0.460 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:29,718 - root - DEBUG - [MATCH] rejected best=Nour sim=0.515, second=-0.004, margin=0.519 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:30,245 - root - DEBUG - [MATCH] rejected best=Nour sim=0.250, second=-0.030, margin=0.280 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:30,724 - root - DEBUG - [MATCH] rejected best=Nour sim=0.440, second=0.024, margin=0.416 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:31,251 - root - DEBUG - [MATCH] rejected best=Nour sim=0.467, second=0.021, margin=0.446 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:31,789 - root - DEBUG - [MATCH] rejected best=Nour sim=0.545, second=0.027, margin=0.518 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:32,339 - root - DEBUG - [MATCH] rejected best=Nour sim=0.466, second=-0.006, margin=0.472 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:32,855 - root - DEBUG - [MATCH] rejected best=Nour sim=0.534, second=0.039, margin=0.496 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:33,366 - root - DEBUG - [MATCH] rejected best=Nour sim=0.532, second=0.053, margin=0.480 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:33,874 - root - DEBUG - [MATCH] rejected best=Nour sim=0.478, second=0.004, margin=0.474 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:34,388 - root - DEBUG - [MATCH] rejected best=Nour sim=0.483, second=0.066, margin=0.417 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:34,871 - root - DEBUG - [MATCH] rejected best=Nour sim=0.425, second=0.064, margin=0.362 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:35,447 - root - DEBUG - [MATCH] rejected best=Nour sim=0.516, second=0.057, margin=0.459 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:35,957 - root - DEBUG - [MATCH] rejected best=Nour sim=0.507, second=-0.025, margin=0.532 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:36,455 - root - DEBUG - [MATCH] rejected best=Nour sim=0.503, second=0.038, margin=0.465 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:37,000 - root - DEBUG - [MATCH] Nour sim=0.550, second=0.050, margin=0.500 ✓
+2026-02-26 13:36:37,555 - root - DEBUG - [MATCH] rejected best=Nour sim=0.483, second=0.021, margin=0.462 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:38,063 - root - DEBUG - [MATCH] rejected best=Nour sim=0.405, second=0.086, margin=0.320 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:38,610 - root - DEBUG - [MATCH] rejected best=Nour sim=0.491, second=0.027, margin=0.464 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:39,174 - root - DEBUG - [MATCH] rejected best=Nour sim=0.457, second=0.039, margin=0.417 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:39,724 - root - DEBUG - [MATCH] rejected best=Nour sim=0.395, second=-0.012, margin=0.407 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:40,262 - root - DEBUG - [MATCH] rejected best=Nour sim=0.516, second=0.014, margin=0.502 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:40,833 - root - DEBUG - [MATCH] rejected best=Nour sim=0.536, second=0.068, margin=0.468 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:41,896 - root - DEBUG - [MATCH] rejected best=Nour sim=0.510, second=0.034, margin=0.476 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:42,933 - root - DEBUG - [MATCH] rejected best=Nour sim=0.313, second=-0.001, margin=0.314 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:43,951 - root - DEBUG - [MATCH] rejected best=Nour sim=0.549, second=-0.011, margin=0.560 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:44,958 - root - DEBUG - [MATCH] rejected best=Nour sim=0.426, second=0.029, margin=0.396 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:45,998 - root - DEBUG - [MATCH] rejected best=Nour sim=0.485, second=0.010, margin=0.476 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:47,022 - root - DEBUG - [MATCH] rejected best=Nour sim=0.409, second=0.029, margin=0.379 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:48,069 - root - DEBUG - [MATCH] rejected best=Nour sim=0.437, second=0.073, margin=0.364 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:49,105 - root - DEBUG - [MATCH] rejected best=Nour sim=0.471, second=0.002, margin=0.469 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:50,139 - root - DEBUG - [MATCH] rejected best=Nour sim=0.364, second=0.018, margin=0.347 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:51,175 - root - DEBUG - [MATCH] rejected best=Nour sim=0.329, second=-0.022, margin=0.351 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:52,233 - root - DEBUG - [MATCH] rejected best=Nour sim=0.482, second=-0.033, margin=0.515 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:53,255 - root - DEBUG - [MATCH] rejected best=Nour sim=0.482, second=0.047, margin=0.435 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:54,126 - root - DEBUG - [MATCH] rejected best=Nour sim=0.469, second=0.062, margin=0.408 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:54,460 - root - DEBUG - [MATCH] rejected best=Nour sim=0.396, second=0.029, margin=0.367 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:55,078 - root - DEBUG - [MATCH] rejected best=Nour sim=0.433, second=0.006, margin=0.427 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:55,596 - root - DEBUG - [MATCH] rejected best=Nour sim=0.425, second=0.024, margin=0.401 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:36:56,345 - root - DEBUG - [MATCH] rejected best=Nour sim=0.349, second=-0.021, margin=0.370 ✗ (thr=0.55, m=0.18)
+2026-02-26 13:43:23,021 - root - INFO - ✅ Surveillance RTSP opened
+2026-02-26 13:43:23,091 - root - INFO - ✅ YOLOv11 person detector loaded (yolo11s.pt)
+2026-02-26 13:43:23,939 - deep_sort_realtime.embedder.embedder_pytorch - INFO - MobileNetV2 Embedder for Deep Sort initialised
+2026-02-26 13:43:23,939 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - gpu enabled: True
+2026-02-26 13:43:23,940 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - half precision: True
+2026-02-26 13:43:23,941 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - max batch size: 16
+2026-02-26 13:43:23,941 - deep_sort_realtime.embedder.embedder_pytorch - INFO - - expects BGR: True
+2026-02-26 13:43:24,165 - deep_sort_realtime.deepsort_tracker - INFO - DeepSort Tracker initialised
+2026-02-26 13:43:24,165 - deep_sort_realtime.deepsort_tracker - INFO - - max age: 120
+2026-02-26 13:43:24,166 - deep_sort_realtime.deepsort_tracker - INFO - - appearance threshold: 0.4
+2026-02-26 13:43:24,166 - deep_sort_realtime.deepsort_tracker - INFO - - nms threshold: OFF
+2026-02-26 13:43:24,167 - deep_sort_realtime.deepsort_tracker - INFO - - max num of appearance features: None
+2026-02-26 13:43:24,167 - deep_sort_realtime.deepsort_tracker - INFO - - overriding track class : No
+2026-02-26 13:43:24,168 - deep_sort_realtime.deepsort_tracker - INFO - - today given : No
+2026-02-26 13:43:24,169 - deep_sort_realtime.deepsort_tracker - INFO - - in-build embedder : Yes
+2026-02-26 13:43:24,169 - deep_sort_realtime.deepsort_tracker - INFO - - polygon detections : No
+2026-02-26 13:43:24,170 - root - INFO - ✅ DeepSORT initialized
+2026-02-26 13:43:24,172 - root - INFO - Loaded 2 embeddings (dim=512) from C:\Users\BH RENOVATIONS\intelligent-monitoring-system\models\embeddings
+2026-02-26 13:43:24,172 - root - INFO - ✅ Loaded known identities: 2 from C:\Users\BH RENOVATIONS\intelligent-monitoring-system\models\embeddings
+2026-02-26 13:43:24,173 - root - INFO - ✅ Recognition thresholds: sim=0.55 margin=0.1
+2026-02-26 13:43:24,173 - root - INFO - ✅ Loading InsightFace (buffalo_l) ...
+2026-02-26 13:43:24,988 - root - INFO - ✅ InsightFace CUDA OK
+2026-02-26 13:43:28,396 - root - DEBUG - [MATCH] rejected best=Nour sim=0.369, second=-0.067, margin=0.436 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:34,890 - root - DEBUG - [MATCH] rejected best=Amir sim=0.093, second=0.018, margin=0.074 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:35,521 - root - DEBUG - [MATCH] rejected best=Amir sim=0.138, second=0.039, margin=0.099 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:36,005 - root - DEBUG - [MATCH] rejected best=Amir sim=0.068, second=0.016, margin=0.051 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:36,238 - root - DEBUG - [MATCH] rejected best=Amir sim=0.253, second=0.014, margin=0.238 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:36,725 - root - DEBUG - [MATCH] rejected best=Amir sim=0.082, second=0.053, margin=0.029 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:36,974 - root - DEBUG - [MATCH] rejected best=Amir sim=0.066, second=0.042, margin=0.025 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:36,974 - root - DEBUG - [MATCH] rejected best=Nour sim=0.032, second=-0.041, margin=0.073 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:37,528 - root - DEBUG - [MATCH] rejected best=Amir sim=0.027, second=-0.008, margin=0.035 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:37,784 - root - DEBUG - [MATCH] rejected best=Amir sim=0.189, second=-0.025, margin=0.214 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:38,023 - root - DEBUG - [MATCH] rejected best=Amir sim=-0.029, second=-0.044, margin=0.015 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:38,024 - root - DEBUG - [MATCH] rejected best=Amir sim=0.076, second=0.013, margin=0.063 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:38,298 - root - DEBUG - [MATCH] rejected best=Amir sim=0.410, second=0.092, margin=0.317 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:38,298 - root - DEBUG - [MATCH] rejected best=Nour sim=0.094, second=-0.042, margin=0.137 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:38,570 - root - DEBUG - [MATCH] rejected best=Amir sim=0.148, second=0.008, margin=0.140 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:38,571 - root - DEBUG - [MATCH] rejected best=Nour sim=0.025, second=0.017, margin=0.008 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:38,832 - root - DEBUG - [MATCH] rejected best=Amir sim=0.058, second=-0.048, margin=0.106 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:38,832 - root - DEBUG - [MATCH] rejected best=Nour sim=0.010, second=0.009, margin=0.001 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:39,063 - root - DEBUG - [MATCH] rejected best=Amir sim=0.149, second=0.018, margin=0.131 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:39,332 - root - DEBUG - [MATCH] rejected best=Nour sim=0.167, second=0.053, margin=0.114 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:39,332 - root - DEBUG - [MATCH] rejected best=Nour sim=0.089, second=-0.026, margin=0.115 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:39,546 - root - DEBUG - [MATCH] rejected best=Amir sim=0.089, second=-0.007, margin=0.096 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:39,783 - root - DEBUG - [MATCH] rejected best=Nour sim=0.019, second=-0.005, margin=0.024 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:40,011 - root - DEBUG - [MATCH] rejected best=Amir sim=0.160, second=-0.010, margin=0.171 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:40,012 - root - DEBUG - [MATCH] rejected best=Amir sim=0.081, second=0.016, margin=0.065 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:40,264 - root - DEBUG - [MATCH] rejected best=Amir sim=0.456, second=0.037, margin=0.419 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:40,264 - root - DEBUG - [MATCH] rejected best=Amir sim=0.038, second=0.033, margin=0.004 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:40,592 - root - DEBUG - [MATCH] rejected best=Amir sim=0.081, second=0.041, margin=0.040 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:40,593 - root - DEBUG - [MATCH] rejected best=Amir sim=0.294, second=-0.046, margin=0.340 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:40,855 - root - DEBUG - [MATCH] rejected best=Nour sim=0.069, second=-0.064, margin=0.132 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:40,855 - root - DEBUG - [MATCH] rejected best=Amir sim=0.521, second=0.078, margin=0.444 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:41,104 - root - DEBUG - [MATCH] rejected best=Nour sim=0.040, second=-0.003, margin=0.043 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:41,104 - root - DEBUG - [MATCH] Amir sim=0.592, second=0.081, margin=0.511 ✓
+2026-02-26 13:43:41,364 - root - DEBUG - [MATCH] rejected best=Amir sim=0.413, second=-0.012, margin=0.425 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:41,364 - root - DEBUG - [MATCH] rejected best=Amir sim=0.048, second=-0.013, margin=0.061 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:41,639 - root - DEBUG - [MATCH] rejected best=Nour sim=-0.010, second=-0.058, margin=0.049 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:41,640 - root - DEBUG - [MATCH] rejected best=Nour sim=0.297, second=0.045, margin=0.253 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:41,640 - root - DEBUG - [MATCH] rejected best=Amir sim=0.188, second=-0.030, margin=0.218 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:41,941 - root - DEBUG - [MATCH] rejected best=Nour sim=0.004, second=-0.092, margin=0.095 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:41,942 - root - DEBUG - [MATCH] Nour sim=0.632, second=0.014, margin=0.618 ✓
+2026-02-26 13:43:42,189 - root - DEBUG - [MATCH] rejected best=Amir sim=0.048, second=0.012, margin=0.036 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:42,189 - root - DEBUG - [MATCH] Nour sim=0.720, second=0.028, margin=0.692 ✓
+2026-02-26 13:43:42,471 - root - DEBUG - [MATCH] rejected best=Nour sim=0.105, second=-0.098, margin=0.203 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:42,472 - root - DEBUG - [MATCH] Nour sim=0.738, second=0.045, margin=0.692 ✓
+2026-02-26 13:43:42,725 - root - DEBUG - [MATCH] rejected best=Nour sim=0.016, second=-0.042, margin=0.058 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:42,725 - root - DEBUG - [MATCH] Nour sim=0.609, second=0.003, margin=0.606 ✓
+2026-02-26 13:43:43,061 - root - DEBUG - [MATCH] rejected best=Nour sim=0.038, second=-0.049, margin=0.088 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:43,062 - root - DEBUG - [MATCH] Nour sim=0.635, second=0.060, margin=0.574 ✓
+2026-02-26 13:43:43,339 - root - DEBUG - [MATCH] Nour sim=0.698, second=0.004, margin=0.695 ✓
+2026-02-26 13:43:43,339 - root - DEBUG - [MATCH] rejected best=Amir sim=0.507, second=-0.017, margin=0.524 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:43,340 - root - DEBUG - [MATCH] rejected best=Nour sim=0.017, second=-0.032, margin=0.049 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:43,773 - root - DEBUG - [MATCH] Nour sim=0.675, second=0.018, margin=0.657 ✓
+2026-02-26 13:43:43,773 - root - DEBUG - [MATCH] rejected best=Amir sim=0.027, second=-0.012, margin=0.039 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:43,774 - root - DEBUG - [MATCH] Amir sim=0.666, second=0.036, margin=0.629 ✓
+2026-02-26 13:43:44,082 - root - DEBUG - [MATCH] rejected best=Nour sim=0.001, second=0.001, margin=0.001 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:44,082 - root - DEBUG - [MATCH] Nour sim=0.659, second=-0.012, margin=0.671 ✓
+2026-02-26 13:43:44,083 - root - DEBUG - [MATCH] Amir sim=0.627, second=0.059, margin=0.568 ✓
+2026-02-26 13:43:44,411 - root - DEBUG - [MATCH] rejected best=Nour sim=0.066, second=-0.061, margin=0.127 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:44,412 - root - DEBUG - [MATCH] Amir sim=0.668, second=-0.029, margin=0.696 ✓
+2026-02-26 13:43:44,412 - root - DEBUG - [MATCH] Nour sim=0.697, second=0.026, margin=0.670 ✓
+2026-02-26 13:43:44,784 - root - DEBUG - [MATCH] Amir sim=0.689, second=-0.060, margin=0.749 ✓
+2026-02-26 13:43:44,785 - root - DEBUG - [MATCH] Nour sim=0.676, second=-0.011, margin=0.688 ✓
+2026-02-26 13:43:44,785 - root - DEBUG - [MATCH] rejected best=Nour sim=0.124, second=-0.132, margin=0.256 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:45,076 - root - DEBUG - [MATCH] Nour sim=0.667, second=0.020, margin=0.648 ✓
+2026-02-26 13:43:45,078 - root - DEBUG - [MATCH] rejected best=Nour sim=0.108, second=-0.121, margin=0.229 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:45,078 - root - DEBUG - [MATCH] Amir sim=0.654, second=-0.003, margin=0.657 ✓
+2026-02-26 13:43:45,360 - root - DEBUG - [MATCH] rejected best=Amir sim=0.474, second=-0.011, margin=0.485 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:45,360 - root - DEBUG - [MATCH] Nour sim=0.673, second=0.011, margin=0.662 ✓
+2026-02-26 13:43:45,360 - root - DEBUG - [MATCH] rejected best=Nour sim=0.137, second=-0.102, margin=0.239 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:45,801 - root - DEBUG - [MATCH] rejected best=Nour sim=0.113, second=-0.164, margin=0.277 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:45,801 - root - DEBUG - [MATCH] rejected best=Amir sim=0.141, second=-0.011, margin=0.152 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:46,102 - root - DEBUG - [MATCH] rejected best=Nour sim=0.052, second=-0.100, margin=0.153 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:46,102 - root - DEBUG - [MATCH] rejected best=Nour sim=0.035, second=0.025, margin=0.010 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:46,102 - root - DEBUG - [MATCH] rejected best=Nour sim=0.013, second=-0.018, margin=0.031 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:46,379 - root - DEBUG - [MATCH] rejected best=Nour sim=-0.005, second=-0.127, margin=0.122 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:46,380 - root - DEBUG - [MATCH] rejected best=Nour sim=0.003, second=-0.011, margin=0.014 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:46,380 - root - DEBUG - [MATCH] rejected best=Amir sim=-0.004, second=-0.061, margin=0.057 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:46,771 - root - DEBUG - [MATCH] rejected best=Amir sim=0.299, second=-0.015, margin=0.313 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:46,771 - root - DEBUG - [MATCH] Nour sim=0.595, second=0.002, margin=0.593 ✓
+2026-02-26 13:43:47,034 - root - DEBUG - [MATCH] rejected best=Amir sim=0.352, second=-0.023, margin=0.375 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:47,035 - root - DEBUG - [MATCH] Nour sim=0.718, second=-0.032, margin=0.750 ✓
+2026-02-26 13:43:47,300 - root - DEBUG - [MATCH] rejected best=Amir sim=0.299, second=0.003, margin=0.296 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:47,300 - root - DEBUG - [MATCH] Nour sim=0.710, second=-0.032, margin=0.742 ✓
+2026-02-26 13:43:47,563 - root - DEBUG - [MATCH] rejected best=Amir sim=0.086, second=0.048, margin=0.038 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:47,563 - root - DEBUG - [MATCH] Nour sim=0.684, second=0.001, margin=0.683 ✓
+2026-02-26 13:43:47,829 - root - DEBUG - [MATCH] rejected best=Amir sim=0.447, second=0.057, margin=0.390 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:47,829 - root - DEBUG - [MATCH] Nour sim=0.649, second=-0.015, margin=0.664 ✓
+2026-02-26 13:43:48,100 - root - DEBUG - [MATCH] Amir sim=0.636, second=0.017, margin=0.619 ✓
+2026-02-26 13:43:48,100 - root - DEBUG - [MATCH] Nour sim=0.674, second=0.001, margin=0.673 ✓
+2026-02-26 13:43:48,376 - root - DEBUG - [MATCH] Nour sim=0.709, second=0.036, margin=0.673 ✓
+2026-02-26 13:43:48,376 - root - DEBUG - [MATCH] Amir sim=0.658, second=0.012, margin=0.646 ✓
+2026-02-26 13:43:48,652 - root - DEBUG - [MATCH] Amir sim=0.664, second=0.015, margin=0.649 ✓
+2026-02-26 13:43:48,652 - root - DEBUG - [MATCH] Nour sim=0.675, second=-0.012, margin=0.687 ✓
+2026-02-26 13:43:48,900 - root - DEBUG - [MATCH] Amir sim=0.655, second=0.008, margin=0.647 ✓
+2026-02-26 13:43:48,900 - root - DEBUG - [MATCH] Nour sim=0.648, second=-0.022, margin=0.670 ✓
+2026-02-26 13:43:49,162 - root - DEBUG - [MATCH] Amir sim=0.594, second=0.028, margin=0.566 ✓
+2026-02-26 13:43:49,162 - root - DEBUG - [MATCH] Nour sim=0.670, second=-0.040, margin=0.709 ✓
+2026-02-26 13:43:49,418 - root - DEBUG - [MATCH] Amir sim=0.652, second=0.016, margin=0.636 ✓
+2026-02-26 13:43:49,419 - root - DEBUG - [MATCH] Nour sim=0.707, second=-0.032, margin=0.739 ✓
+2026-02-26 13:43:49,698 - root - DEBUG - [MATCH] Nour sim=0.663, second=-0.023, margin=0.685 ✓
+2026-02-26 13:43:49,699 - root - DEBUG - [MATCH] Amir sim=0.691, second=0.004, margin=0.687 ✓
+2026-02-26 13:43:49,995 - root - DEBUG - [MATCH] Amir sim=0.681, second=-0.008, margin=0.689 ✓
+2026-02-26 13:43:49,995 - root - DEBUG - [MATCH] Nour sim=0.716, second=0.023, margin=0.693 ✓
+2026-02-26 13:43:50,282 - root - DEBUG - [MATCH] Amir sim=0.676, second=0.024, margin=0.652 ✓
+2026-02-26 13:43:50,283 - root - DEBUG - [MATCH] rejected best=Nour sim=0.112, second=-0.008, margin=0.121 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:50,554 - root - DEBUG - [MATCH] Amir sim=0.701, second=-0.012, margin=0.713 ✓
+2026-02-26 13:43:50,554 - root - DEBUG - [MATCH] rejected best=Nour sim=0.505, second=-0.043, margin=0.548 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:50,995 - root - DEBUG - [MATCH] Nour sim=0.596, second=0.031, margin=0.565 ✓
+2026-02-26 13:43:50,996 - root - DEBUG - [MATCH] rejected best=Amir sim=0.527, second=-0.013, margin=0.540 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:51,311 - root - DEBUG - [MATCH] Amir sim=0.626, second=0.007, margin=0.619 ✓
+2026-02-26 13:43:51,312 - root - DEBUG - [MATCH] Nour sim=0.553, second=0.039, margin=0.513 ✓
+2026-02-26 13:43:51,553 - root - DEBUG - [MATCH] Nour sim=0.583, second=-0.054, margin=0.637 ✓
+2026-02-26 13:43:51,554 - root - DEBUG - [MATCH] Amir sim=0.682, second=-0.032, margin=0.714 ✓
+2026-02-26 13:43:51,980 - root - DEBUG - [MATCH] rejected best=Nour sim=0.526, second=-0.028, margin=0.554 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:51,980 - root - DEBUG - [MATCH] rejected best=Amir sim=0.355, second=0.027, margin=0.328 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:52,265 - root - DEBUG - [MATCH] rejected best=Nour sim=0.424, second=0.010, margin=0.413 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:52,266 - root - DEBUG - [MATCH] rejected best=Amir sim=0.425, second=-0.005, margin=0.430 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:52,522 - root - DEBUG - [MATCH] Amir sim=0.595, second=-0.017, margin=0.613 ✓
+2026-02-26 13:43:52,522 - root - DEBUG - [MATCH] Nour sim=0.550, second=0.000, margin=0.550 ✓
+2026-02-26 13:43:52,786 - root - DEBUG - [MATCH] Nour sim=0.689, second=0.028, margin=0.660 ✓
+2026-02-26 13:43:52,787 - root - DEBUG - [MATCH] Amir sim=0.653, second=0.016, margin=0.637 ✓
+2026-02-26 13:43:53,032 - root - DEBUG - [MATCH] Amir sim=0.661, second=-0.014, margin=0.676 ✓
+2026-02-26 13:43:53,032 - root - DEBUG - [MATCH] Nour sim=0.665, second=0.002, margin=0.663 ✓
+2026-02-26 13:43:53,295 - root - DEBUG - [MATCH] Amir sim=0.630, second=0.017, margin=0.613 ✓
+2026-02-26 13:43:53,295 - root - DEBUG - [MATCH] Nour sim=0.610, second=0.021, margin=0.589 ✓
+2026-02-26 13:43:53,546 - root - DEBUG - [MATCH] Amir sim=0.643, second=-0.049, margin=0.692 ✓
+2026-02-26 13:43:53,546 - root - DEBUG - [MATCH] Nour sim=0.709, second=0.007, margin=0.702 ✓
+2026-02-26 13:43:53,839 - root - DEBUG - [MATCH] Amir sim=0.664, second=-0.026, margin=0.690 ✓
+2026-02-26 13:43:53,839 - root - DEBUG - [MATCH] Nour sim=0.626, second=0.036, margin=0.590 ✓
+2026-02-26 13:43:54,100 - root - DEBUG - [MATCH] rejected best=Amir sim=0.526, second=0.049, margin=0.477 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:54,101 - root - DEBUG - [MATCH] Nour sim=0.589, second=0.037, margin=0.553 ✓
+2026-02-26 13:43:54,373 - root - DEBUG - [MATCH] Amir sim=0.617, second=-0.017, margin=0.634 ✓
+2026-02-26 13:43:54,373 - root - DEBUG - [MATCH] Nour sim=0.702, second=0.058, margin=0.644 ✓
+2026-02-26 13:43:54,639 - root - DEBUG - [MATCH] Amir sim=0.650, second=-0.020, margin=0.670 ✓
+2026-02-26 13:43:54,639 - root - DEBUG - [MATCH] Nour sim=0.633, second=0.042, margin=0.592 ✓
+2026-02-26 13:43:54,926 - root - DEBUG - [MATCH] Amir sim=0.694, second=-0.024, margin=0.717 ✓
+2026-02-26 13:43:54,926 - root - DEBUG - [MATCH] Nour sim=0.684, second=0.129, margin=0.555 ✓
+2026-02-26 13:43:55,188 - root - DEBUG - [MATCH] Amir sim=0.579, second=-0.037, margin=0.616 ✓
+2026-02-26 13:43:55,189 - root - DEBUG - [MATCH] Nour sim=0.647, second=0.072, margin=0.575 ✓
+2026-02-26 13:43:55,473 - root - DEBUG - [MATCH] Amir sim=0.557, second=-0.013, margin=0.570 ✓
+2026-02-26 13:43:55,474 - root - DEBUG - [MATCH] Nour sim=0.665, second=0.023, margin=0.642 ✓
+2026-02-26 13:43:55,755 - root - DEBUG - [MATCH] Nour sim=0.673, second=0.050, margin=0.623 ✓
+2026-02-26 13:43:55,755 - root - DEBUG - [MATCH] Amir sim=0.670, second=0.021, margin=0.649 ✓
+2026-02-26 13:43:56,034 - root - DEBUG - [MATCH] Amir sim=0.656, second=0.050, margin=0.606 ✓
+2026-02-26 13:43:56,034 - root - DEBUG - [MATCH] Nour sim=0.626, second=0.070, margin=0.556 ✓
+2026-02-26 13:43:56,293 - root - DEBUG - [MATCH] rejected best=Nour sim=0.317, second=0.006, margin=0.310 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:56,293 - root - DEBUG - [MATCH] rejected best=Amir sim=0.268, second=-0.015, margin=0.283 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:56,607 - root - DEBUG - [MATCH] rejected best=Nour sim=0.178, second=0.020, margin=0.158 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:56,607 - root - DEBUG - [MATCH] rejected best=Nour sim=0.074, second=-0.007, margin=0.081 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:43:56,903 - root - DEBUG - [MATCH] rejected best=Nour sim=0.025, second=-0.073, margin=0.098 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:02,136 - root - DEBUG - [MATCH] rejected best=Amir sim=0.061, second=-0.079, margin=0.140 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:02,342 - root - DEBUG - [MATCH] rejected best=Amir sim=0.005, second=-0.013, margin=0.018 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:02,583 - root - DEBUG - [MATCH] rejected best=Nour sim=0.049, second=-0.023, margin=0.072 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:02,583 - root - DEBUG - [MATCH] rejected best=Nour sim=-0.021, second=-0.063, margin=0.042 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:02,793 - root - DEBUG - [MATCH] rejected best=Amir sim=0.120, second=-0.057, margin=0.177 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:03,029 - root - DEBUG - [MATCH] rejected best=Amir sim=0.036, second=-0.040, margin=0.076 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:03,379 - root - DEBUG - [MATCH] rejected best=Nour sim=-0.030, second=-0.069, margin=0.038 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:03,380 - root - DEBUG - [MATCH] rejected best=Nour sim=-0.034, second=-0.058, margin=0.024 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:03,642 - root - DEBUG - [MATCH] rejected best=Amir sim=0.042, second=0.033, margin=0.009 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:03,643 - root - DEBUG - [MATCH] rejected best=Nour sim=0.032, second=-0.020, margin=0.052 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:03,896 - root - DEBUG - [MATCH] rejected best=Nour sim=0.136, second=-0.008, margin=0.144 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:03,896 - root - DEBUG - [MATCH] rejected best=Nour sim=0.043, second=0.033, margin=0.010 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:04,133 - root - DEBUG - [MATCH] rejected best=Nour sim=0.026, second=0.007, margin=0.018 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:04,133 - root - DEBUG - [MATCH] rejected best=Amir sim=0.086, second=-0.074, margin=0.160 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:04,419 - root - DEBUG - [MATCH] rejected best=Nour sim=0.031, second=-0.009, margin=0.040 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:04,420 - root - DEBUG - [MATCH] rejected best=Amir sim=0.080, second=0.044, margin=0.036 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:04,686 - root - DEBUG - [MATCH] rejected best=Nour sim=0.013, second=-0.042, margin=0.056 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:04,688 - root - DEBUG - [MATCH] rejected best=Amir sim=0.084, second=0.082, margin=0.002 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:04,926 - root - DEBUG - [MATCH] rejected best=Nour sim=0.042, second=0.003, margin=0.039 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:05,190 - root - DEBUG - [MATCH] rejected best=Nour sim=0.016, second=-0.013, margin=0.029 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:05,509 - root - DEBUG - [MATCH] rejected best=Amir sim=0.114, second=-0.072, margin=0.186 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:05,509 - root - DEBUG - [MATCH] rejected best=Nour sim=0.050, second=0.016, margin=0.034 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:05,510 - root - DEBUG - [MATCH] rejected best=Amir sim=0.076, second=-0.021, margin=0.097 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:05,803 - root - DEBUG - [MATCH] rejected best=Nour sim=0.076, second=0.025, margin=0.051 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:05,803 - root - DEBUG - [MATCH] rejected best=Nour sim=-0.013, second=-0.027, margin=0.014 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:05,803 - root - DEBUG - [MATCH] rejected best=Amir sim=0.063, second=-0.034, margin=0.097 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:06,083 - root - DEBUG - [MATCH] rejected best=Amir sim=0.039, second=0.017, margin=0.023 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:06,083 - root - DEBUG - [MATCH] rejected best=Nour sim=0.049, second=0.030, margin=0.019 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:06,084 - root - DEBUG - [MATCH] rejected best=Amir sim=0.107, second=0.010, margin=0.097 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:06,488 - root - DEBUG - [MATCH] rejected best=Nour sim=0.547, second=-0.068, margin=0.615 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:06,489 - root - DEBUG - [MATCH] Amir sim=0.562, second=0.037, margin=0.525 ✓
+2026-02-26 13:44:06,489 - root - DEBUG - [MATCH] rejected best=Nour sim=0.060, second=-0.108, margin=0.168 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:06,792 - root - DEBUG - [MATCH] rejected best=Nour sim=0.206, second=0.003, margin=0.203 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:06,793 - root - DEBUG - [MATCH] rejected best=Nour sim=0.020, second=-0.079, margin=0.100 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:06,793 - root - DEBUG - [MATCH] rejected best=Amir sim=0.426, second=0.050, margin=0.376 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:07,072 - root - DEBUG - [MATCH] rejected best=Nour sim=0.035, second=-0.116, margin=0.152 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:07,072 - root - DEBUG - [MATCH] Nour sim=0.590, second=0.011, margin=0.578 ✓
+2026-02-26 13:44:07,073 - root - DEBUG - [MATCH] rejected best=Amir sim=0.546, second=0.004, margin=0.542 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:07,486 - root - DEBUG - [MATCH] rejected best=Nour sim=0.063, second=-0.099, margin=0.162 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:07,486 - root - DEBUG - [MATCH] rejected best=Nour sim=0.543, second=-0.036, margin=0.579 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:07,486 - root - DEBUG - [MATCH] rejected best=Amir sim=0.400, second=-0.038, margin=0.438 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:07,777 - root - DEBUG - [MATCH] rejected best=Nour sim=0.090, second=-0.096, margin=0.187 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:07,778 - root - DEBUG - [MATCH] rejected best=Nour sim=0.402, second=-0.001, margin=0.403 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:07,778 - root - DEBUG - [MATCH] rejected best=Amir sim=0.360, second=0.006, margin=0.354 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:08,058 - root - DEBUG - [MATCH] rejected best=Nour sim=0.046, second=-0.121, margin=0.166 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:08,058 - root - DEBUG - [MATCH] rejected best=Nour sim=0.537, second=0.033, margin=0.504 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:08,059 - root - DEBUG - [MATCH] rejected best=Amir sim=0.404, second=0.054, margin=0.350 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:08,488 - root - DEBUG - [MATCH] rejected best=Nour sim=0.098, second=-0.112, margin=0.209 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:08,489 - root - DEBUG - [MATCH] Nour sim=0.562, second=-0.018, margin=0.580 ✓
+2026-02-26 13:44:08,489 - root - DEBUG - [MATCH] Amir sim=0.572, second=0.054, margin=0.518 ✓
+2026-02-26 13:44:08,798 - root - DEBUG - [MATCH] rejected best=Nour sim=0.326, second=-0.001, margin=0.327 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:08,798 - root - DEBUG - [MATCH] rejected best=Nour sim=0.060, second=0.038, margin=0.021 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:08,799 - root - DEBUG - [MATCH] rejected best=Amir sim=0.466, second=0.077, margin=0.389 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:09,080 - root - DEBUG - [MATCH] rejected best=Nour sim=0.066, second=-0.108, margin=0.174 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:09,080 - root - DEBUG - [MATCH] Nour sim=0.598, second=0.021, margin=0.577 ✓
+2026-02-26 13:44:09,080 - root - DEBUG - [MATCH] Amir sim=0.588, second=0.041, margin=0.547 ✓
+2026-02-26 13:44:09,500 - root - DEBUG - [MATCH] Nour sim=0.638, second=0.019, margin=0.619 ✓
+2026-02-26 13:44:09,501 - root - DEBUG - [MATCH] rejected best=Nour sim=0.066, second=-0.117, margin=0.183 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:09,501 - root - DEBUG - [MATCH] rejected best=Amir sim=0.544, second=0.034, margin=0.511 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:09,813 - root - DEBUG - [MATCH] rejected best=Nour sim=0.087, second=-0.051, margin=0.138 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:09,814 - root - DEBUG - [MATCH] rejected best=Nour sim=0.487, second=0.040, margin=0.447 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:09,814 - root - DEBUG - [MATCH] rejected best=Amir sim=0.356, second=-0.012, margin=0.368 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:10,086 - root - DEBUG - [MATCH] rejected best=Nour sim=0.070, second=-0.103, margin=0.173 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:10,086 - root - DEBUG - [MATCH] rejected best=Nour sim=0.443, second=0.084, margin=0.359 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:10,086 - root - DEBUG - [MATCH] rejected best=Amir sim=0.155, second=-0.030, margin=0.185 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:10,522 - root - DEBUG - [MATCH] rejected best=Nour sim=0.083, second=-0.109, margin=0.191 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:10,522 - root - DEBUG - [MATCH] rejected best=Nour sim=0.460, second=0.041, margin=0.419 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:10,522 - root - DEBUG - [MATCH] rejected best=Amir sim=0.406, second=0.047, margin=0.359 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:10,828 - root - DEBUG - [MATCH] rejected best=Nour sim=0.063, second=-0.082, margin=0.145 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:10,829 - root - DEBUG - [MATCH] rejected best=Nour sim=0.414, second=0.016, margin=0.398 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:10,829 - root - DEBUG - [MATCH] rejected best=Amir sim=0.394, second=0.001, margin=0.394 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:11,088 - root - DEBUG - [MATCH] rejected best=Nour sim=0.039, second=-0.033, margin=0.072 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:11,088 - root - DEBUG - [MATCH] rejected best=Nour sim=0.385, second=-0.068, margin=0.453 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:11,381 - root - DEBUG - [MATCH] rejected best=Nour sim=0.336, second=-0.031, margin=0.367 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:11,382 - root - DEBUG - [MATCH] rejected best=Nour sim=0.070, second=0.029, margin=0.041 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:11,693 - root - DEBUG - [MATCH] rejected best=Nour sim=0.362, second=0.012, margin=0.350 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:11,693 - root - DEBUG - [MATCH] rejected best=Nour sim=0.088, second=-0.067, margin=0.155 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:11,987 - root - DEBUG - [MATCH] rejected best=Nour sim=0.369, second=-0.021, margin=0.389 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:11,987 - root - DEBUG - [MATCH] rejected best=Nour sim=0.119, second=-0.010, margin=0.129 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:12,279 - root - DEBUG - [MATCH] rejected best=Nour sim=0.442, second=-0.042, margin=0.484 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:12,280 - root - DEBUG - [MATCH] rejected best=Nour sim=0.049, second=-0.071, margin=0.119 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:12,654 - root - DEBUG - [MATCH] rejected best=Nour sim=0.053, second=0.002, margin=0.051 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:12,654 - root - DEBUG - [MATCH] rejected best=Nour sim=0.518, second=-0.015, margin=0.533 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:12,929 - root - DEBUG - [MATCH] rejected best=Nour sim=0.041, second=-0.059, margin=0.100 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:12,930 - root - DEBUG - [MATCH] rejected best=Nour sim=0.487, second=-0.049, margin=0.536 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:13,184 - root - DEBUG - [MATCH] rejected best=Nour sim=0.112, second=-0.034, margin=0.145 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:13,185 - root - DEBUG - [MATCH] rejected best=Nour sim=0.446, second=0.016, margin=0.430 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:13,438 - root - DEBUG - [MATCH] rejected best=Nour sim=0.067, second=-0.089, margin=0.156 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:13,439 - root - DEBUG - [MATCH] rejected best=Nour sim=0.471, second=-0.008, margin=0.480 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:13,693 - root - DEBUG - [MATCH] rejected best=Nour sim=0.012, second=-0.070, margin=0.082 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:13,693 - root - DEBUG - [MATCH] rejected best=Nour sim=0.476, second=-0.059, margin=0.535 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:13,939 - root - DEBUG - [MATCH] rejected best=Nour sim=0.013, second=-0.063, margin=0.077 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:14,183 - root - DEBUG - [MATCH] rejected best=Nour sim=0.007, second=-0.060, margin=0.067 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:14,423 - root - DEBUG - [MATCH] rejected best=Nour sim=0.058, second=-0.068, margin=0.126 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:14,716 - root - DEBUG - [MATCH] rejected best=Amir sim=-0.035, second=-0.041, margin=0.006 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:14,716 - root - DEBUG - [MATCH] rejected best=Nour sim=0.351, second=-0.034, margin=0.385 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:15,013 - root - DEBUG - [MATCH] rejected best=Nour sim=0.021, second=-0.074, margin=0.095 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:15,013 - root - DEBUG - [MATCH] rejected best=Nour sim=0.447, second=0.017, margin=0.430 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:15,280 - root - DEBUG - [MATCH] rejected best=Nour sim=0.489, second=-0.065, margin=0.554 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:15,281 - root - DEBUG - [MATCH] rejected best=Nour sim=-0.027, second=-0.067, margin=0.040 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:15,550 - root - DEBUG - [MATCH] rejected best=Nour sim=0.268, second=0.023, margin=0.245 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:15,550 - root - DEBUG - [MATCH] rejected best=Amir sim=-0.039, second=-0.101, margin=0.062 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:15,772 - root - DEBUG - [MATCH] rejected best=Nour sim=0.329, second=0.025, margin=0.304 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:16,001 - root - DEBUG - [MATCH] rejected best=Nour sim=0.506, second=0.004, margin=0.502 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:16,225 - root - DEBUG - [MATCH] rejected best=Nour sim=0.526, second=0.040, margin=0.486 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:16,471 - root - DEBUG - [MATCH] Nour sim=0.579, second=0.063, margin=0.516 ✓
+2026-02-26 13:44:16,801 - root - DEBUG - [MATCH] rejected best=Nour sim=0.539, second=0.021, margin=0.518 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:17,064 - root - DEBUG - [MATCH] rejected best=Nour sim=0.504, second=-0.010, margin=0.514 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:17,280 - root - DEBUG - [MATCH] rejected best=Nour sim=0.516, second=0.069, margin=0.447 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:17,532 - root - DEBUG - [MATCH] rejected best=Nour sim=0.420, second=0.061, margin=0.360 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:17,837 - root - DEBUG - [MATCH] rejected best=Nour sim=0.123, second=0.022, margin=0.102 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:18,080 - root - DEBUG - [MATCH] rejected best=Nour sim=0.088, second=-0.033, margin=0.121 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:18,313 - root - DEBUG - [MATCH] rejected best=Nour sim=0.328, second=-0.002, margin=0.330 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:18,617 - root - DEBUG - [MATCH] rejected best=Nour sim=0.259, second=0.007, margin=0.252 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:18,842 - root - DEBUG - [MATCH] rejected best=Nour sim=0.246, second=0.012, margin=0.234 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:19,077 - root - DEBUG - [MATCH] rejected best=Nour sim=0.068, second=-0.038, margin=0.106 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:19,299 - root - DEBUG - [MATCH] rejected best=Nour sim=0.185, second=0.028, margin=0.157 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:19,544 - root - DEBUG - [MATCH] rejected best=Nour sim=0.247, second=-0.021, margin=0.268 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:19,872 - root - DEBUG - [MATCH] rejected best=Nour sim=0.366, second=-0.020, margin=0.386 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:20,104 - root - DEBUG - [MATCH] rejected best=Nour sim=0.400, second=-0.046, margin=0.446 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:20,326 - root - DEBUG - [MATCH] rejected best=Nour sim=0.097, second=-0.037, margin=0.134 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:20,574 - root - DEBUG - [MATCH] rejected best=Nour sim=0.357, second=0.002, margin=0.355 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:20,886 - root - DEBUG - [MATCH] rejected best=Nour sim=0.350, second=-0.034, margin=0.384 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:21,130 - root - DEBUG - [MATCH] rejected best=Nour sim=0.086, second=0.040, margin=0.046 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:21,364 - root - DEBUG - [MATCH] rejected best=Nour sim=0.320, second=-0.016, margin=0.336 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:21,608 - root - DEBUG - [MATCH] rejected best=Nour sim=0.281, second=-0.011, margin=0.292 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:21,925 - root - DEBUG - [MATCH] rejected best=Nour sim=0.313, second=-0.002, margin=0.315 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:22,165 - root - DEBUG - [MATCH] rejected best=Nour sim=0.206, second=0.014, margin=0.192 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:22,426 - root - DEBUG - [MATCH] rejected best=Nour sim=0.086, second=-0.001, margin=0.086 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:22,668 - root - DEBUG - [MATCH] rejected best=Nour sim=0.101, second=0.062, margin=0.039 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:22,932 - root - DEBUG - [MATCH] rejected best=Nour sim=0.240, second=-0.010, margin=0.250 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:23,178 - root - DEBUG - [MATCH] rejected best=Nour sim=0.457, second=-0.056, margin=0.513 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:23,418 - root - DEBUG - [MATCH] rejected best=Nour sim=0.472, second=-0.088, margin=0.561 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:23,661 - root - DEBUG - [MATCH] rejected best=Nour sim=0.114, second=0.020, margin=0.094 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:23,972 - root - DEBUG - [MATCH] rejected best=Nour sim=0.507, second=0.027, margin=0.480 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:24,218 - root - DEBUG - [MATCH] rejected best=Nour sim=0.387, second=-0.019, margin=0.406 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:24,468 - root - DEBUG - [MATCH] rejected best=Nour sim=0.336, second=0.068, margin=0.268 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:24,712 - root - DEBUG - [MATCH] rejected best=Nour sim=0.489, second=0.014, margin=0.475 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:24,975 - root - DEBUG - [MATCH] rejected best=Nour sim=0.528, second=-0.036, margin=0.565 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:25,233 - root - DEBUG - [MATCH] rejected best=Nour sim=0.222, second=0.066, margin=0.156 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:25,456 - root - DEBUG - [MATCH] rejected best=Nour sim=0.341, second=0.012, margin=0.329 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:25,716 - root - DEBUG - [MATCH] rejected best=Nour sim=0.112, second=0.023, margin=0.089 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:26,011 - root - DEBUG - [MATCH] rejected best=Nour sim=0.219, second=-0.024, margin=0.243 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:26,258 - root - DEBUG - [MATCH] rejected best=Nour sim=0.193, second=-0.037, margin=0.230 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:26,509 - root - DEBUG - [MATCH] rejected best=Nour sim=0.089, second=-0.016, margin=0.105 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:26,758 - root - DEBUG - [MATCH] rejected best=Nour sim=0.198, second=0.069, margin=0.129 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:27,013 - root - DEBUG - [MATCH] Nour sim=0.692, second=0.012, margin=0.680 ✓
+2026-02-26 13:44:27,260 - root - DEBUG - [MATCH] Nour sim=0.590, second=-0.025, margin=0.615 ✓
+2026-02-26 13:44:27,493 - root - DEBUG - [MATCH] Nour sim=0.676, second=-0.005, margin=0.681 ✓
+2026-02-26 13:44:27,756 - root - DEBUG - [MATCH] Nour sim=0.692, second=0.005, margin=0.687 ✓
+2026-02-26 13:44:27,991 - root - DEBUG - [MATCH] Nour sim=0.697, second=-0.014, margin=0.711 ✓
+2026-02-26 13:44:28,236 - root - DEBUG - [MATCH] Nour sim=0.664, second=0.013, margin=0.651 ✓
+2026-02-26 13:44:28,488 - root - DEBUG - [MATCH] Nour sim=0.642, second=0.014, margin=0.627 ✓
+2026-02-26 13:44:28,736 - root - DEBUG - [MATCH] Nour sim=0.646, second=0.018, margin=0.628 ✓
+2026-02-26 13:44:29,004 - root - DEBUG - [MATCH] Nour sim=0.658, second=0.029, margin=0.629 ✓
+2026-02-26 13:44:29,243 - root - DEBUG - [MATCH] Nour sim=0.683, second=0.051, margin=0.632 ✓
+2026-02-26 13:44:29,462 - root - DEBUG - [MATCH] Nour sim=0.705, second=0.068, margin=0.638 ✓
+2026-02-26 13:44:29,713 - root - DEBUG - [MATCH] rejected best=Nour sim=0.424, second=0.008, margin=0.416 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:30,036 - root - DEBUG - [MATCH] Nour sim=0.658, second=-0.007, margin=0.665 ✓
+2026-02-26 13:44:30,298 - root - DEBUG - [MATCH] Nour sim=0.712, second=0.015, margin=0.698 ✓
+2026-02-26 13:44:30,554 - root - DEBUG - [MATCH] rejected best=Nour sim=0.523, second=0.009, margin=0.514 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:30,811 - root - DEBUG - [MATCH] Nour sim=0.695, second=-0.032, margin=0.727 ✓
+2026-02-26 13:44:31,042 - root - DEBUG - [MATCH] rejected best=Nour sim=0.361, second=0.030, margin=0.331 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:31,306 - root - DEBUG - [MATCH] Nour sim=0.604, second=0.029, margin=0.576 ✓
+2026-02-26 13:44:31,572 - root - DEBUG - [MATCH] Nour sim=0.598, second=-0.046, margin=0.644 ✓
+2026-02-26 13:44:31,832 - root - DEBUG - [MATCH] Nour sim=0.700, second=0.035, margin=0.665 ✓
+2026-02-26 13:44:32,080 - root - DEBUG - [MATCH] Nour sim=0.696, second=0.019, margin=0.677 ✓
+2026-02-26 13:44:32,346 - root - DEBUG - [MATCH] Nour sim=0.682, second=0.030, margin=0.652 ✓
+2026-02-26 13:44:32,600 - root - DEBUG - [MATCH] Nour sim=0.640, second=-0.033, margin=0.673 ✓
+2026-02-26 13:44:32,846 - root - DEBUG - [MATCH] rejected best=Nour sim=0.499, second=0.041, margin=0.458 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:33,121 - root - DEBUG - [MATCH] Nour sim=0.716, second=0.018, margin=0.698 ✓
+2026-02-26 13:44:33,121 - root - DEBUG - [MATCH] rejected best=Amir sim=0.189, second=0.140, margin=0.048 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:33,412 - root - DEBUG - [MATCH] Nour sim=0.661, second=0.023, margin=0.637 ✓
+2026-02-26 13:44:33,413 - root - DEBUG - [MATCH] rejected best=Amir sim=0.328, second=0.160, margin=0.168 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:33,678 - root - DEBUG - [MATCH] rejected best=Amir sim=0.083, second=-0.009, margin=0.093 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:33,678 - root - DEBUG - [MATCH] Nour sim=0.665, second=0.040, margin=0.625 ✓
+2026-02-26 13:44:33,962 - root - DEBUG - [MATCH] Nour sim=0.704, second=-0.000, margin=0.704 ✓
+2026-02-26 13:44:33,962 - root - DEBUG - [MATCH] rejected best=Amir sim=0.038, second=-0.005, margin=0.042 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:34,209 - root - DEBUG - [MATCH] Nour sim=0.632, second=0.027, margin=0.605 ✓
+2026-02-26 13:44:34,210 - root - DEBUG - [MATCH] rejected best=Amir sim=0.182, second=-0.005, margin=0.186 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:34,469 - root - DEBUG - [MATCH] Nour sim=0.701, second=0.023, margin=0.678 ✓
+2026-02-26 13:44:34,470 - root - DEBUG - [MATCH] rejected best=Amir sim=0.247, second=0.012, margin=0.234 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:34,723 - root - DEBUG - [MATCH] Nour sim=0.627, second=0.060, margin=0.567 ✓
+2026-02-26 13:44:34,724 - root - DEBUG - [MATCH] rejected best=Amir sim=0.430, second=0.072, margin=0.358 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:34,997 - root - DEBUG - [MATCH] rejected best=Amir sim=0.531, second=-0.011, margin=0.542 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:34,997 - root - DEBUG - [MATCH] Nour sim=0.658, second=0.027, margin=0.632 ✓
+2026-02-26 13:44:35,246 - root - DEBUG - [MATCH] Amir sim=0.683, second=-0.013, margin=0.695 ✓
+2026-02-26 13:44:35,246 - root - DEBUG - [MATCH] Nour sim=0.694, second=-0.002, margin=0.695 ✓
+2026-02-26 13:44:35,507 - root - DEBUG - [MATCH] rejected best=Amir sim=0.503, second=0.001, margin=0.501 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:35,507 - root - DEBUG - [MATCH] Nour sim=0.596, second=-0.042, margin=0.638 ✓
+2026-02-26 13:44:35,773 - root - DEBUG - [MATCH] Nour sim=0.637, second=-0.030, margin=0.667 ✓
+2026-02-26 13:44:35,774 - root - DEBUG - [MATCH] rejected best=Amir sim=0.517, second=0.032, margin=0.485 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:36,051 - root - DEBUG - [MATCH] Nour sim=0.737, second=-0.013, margin=0.750 ✓
+2026-02-26 13:44:36,051 - root - DEBUG - [MATCH] Amir sim=0.602, second=0.018, margin=0.584 ✓
+2026-02-26 13:44:36,304 - root - DEBUG - [MATCH] Nour sim=0.675, second=-0.018, margin=0.693 ✓
+2026-02-26 13:44:36,305 - root - DEBUG - [MATCH] rejected best=Amir sim=0.382, second=0.031, margin=0.350 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:36,593 - root - DEBUG - [MATCH] Nour sim=0.645, second=0.012, margin=0.633 ✓
+2026-02-26 13:44:36,594 - root - DEBUG - [MATCH] rejected best=Amir sim=0.395, second=0.012, margin=0.383 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:36,842 - root - DEBUG - [MATCH] Nour sim=0.637, second=0.007, margin=0.630 ✓
+2026-02-26 13:44:36,843 - root - DEBUG - [MATCH] rejected best=Amir sim=0.366, second=0.008, margin=0.358 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:37,105 - root - DEBUG - [MATCH] Nour sim=0.678, second=0.018, margin=0.660 ✓
+2026-02-26 13:44:37,105 - root - DEBUG - [MATCH] rejected best=Amir sim=0.362, second=-0.016, margin=0.378 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:37,373 - root - DEBUG - [MATCH] Nour sim=0.680, second=-0.026, margin=0.706 ✓
+2026-02-26 13:44:37,373 - root - DEBUG - [MATCH] rejected best=Amir sim=0.403, second=0.007, margin=0.396 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:37,651 - root - DEBUG - [MATCH] rejected best=Amir sim=0.418, second=-0.008, margin=0.427 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:37,651 - root - DEBUG - [MATCH] Nour sim=0.638, second=0.001, margin=0.637 ✓
+2026-02-26 13:44:37,919 - root - DEBUG - [MATCH] rejected best=Amir sim=0.208, second=0.043, margin=0.165 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:37,920 - root - DEBUG - [MATCH] rejected best=Nour sim=0.097, second=-0.021, margin=0.118 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:38,196 - root - DEBUG - [MATCH] rejected best=Nour sim=0.535, second=0.005, margin=0.530 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:38,196 - root - DEBUG - [MATCH] rejected best=Amir sim=0.268, second=0.053, margin=0.214 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:38,451 - root - DEBUG - [MATCH] rejected best=Nour sim=0.443, second=-0.030, margin=0.472 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:38,452 - root - DEBUG - [MATCH] rejected best=Amir sim=0.264, second=-0.002, margin=0.266 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:38,736 - root - DEBUG - [MATCH] rejected best=Nour sim=0.303, second=-0.038, margin=0.341 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:38,736 - root - DEBUG - [MATCH] rejected best=Amir sim=0.286, second=0.090, margin=0.197 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:39,046 - root - DEBUG - [MATCH] Nour sim=0.551, second=-0.001, margin=0.552 ✓
+2026-02-26 13:44:39,048 - root - DEBUG - [MATCH] rejected best=Amir sim=0.338, second=0.086, margin=0.252 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:39,495 - root - DEBUG - [MATCH] rejected best=Nour sim=0.491, second=-0.028, margin=0.519 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:39,495 - root - DEBUG - [MATCH] rejected best=Amir sim=0.319, second=0.001, margin=0.318 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:39,780 - root - DEBUG - [MATCH] rejected best=Nour sim=0.424, second=0.006, margin=0.417 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:39,781 - root - DEBUG - [MATCH] rejected best=Amir sim=0.220, second=0.017, margin=0.203 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:40,098 - root - DEBUG - [MATCH] Nour sim=0.684, second=-0.013, margin=0.697 ✓
+2026-02-26 13:44:40,099 - root - DEBUG - [MATCH] rejected best=Amir sim=0.439, second=0.016, margin=0.424 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:40,566 - root - DEBUG - [MATCH] rejected best=Nour sim=0.216, second=0.012, margin=0.204 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:40,566 - root - DEBUG - [MATCH] rejected best=Amir sim=0.146, second=0.028, margin=0.118 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:40,872 - root - DEBUG - [MATCH] rejected best=Nour sim=0.235, second=-0.015, margin=0.250 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:40,872 - root - DEBUG - [MATCH] rejected best=Amir sim=0.061, second=-0.046, margin=0.107 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:41,152 - root - DEBUG - [MATCH] rejected best=Amir sim=0.028, second=-0.021, margin=0.049 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:41,153 - root - DEBUG - [MATCH] rejected best=Nour sim=0.252, second=-0.073, margin=0.325 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:41,544 - root - DEBUG - [MATCH] rejected best=Nour sim=0.222, second=0.135, margin=0.088 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:41,544 - root - DEBUG - [MATCH] rejected best=Nour sim=-0.016, second=-0.017, margin=0.001 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:41,796 - root - DEBUG - [MATCH] rejected best=Nour sim=0.315, second=0.068, margin=0.247 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:42,015 - root - DEBUG - [MATCH] rejected best=Nour sim=0.409, second=0.091, margin=0.318 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:42,231 - root - DEBUG - [MATCH] rejected best=Nour sim=0.394, second=0.138, margin=0.256 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:42,517 - root - DEBUG - [MATCH] Nour sim=0.602, second=-0.015, margin=0.617 ✓
+2026-02-26 13:44:42,755 - root - DEBUG - [MATCH] Nour sim=0.747, second=-0.024, margin=0.771 ✓
+2026-02-26 13:44:42,993 - root - DEBUG - [MATCH] Nour sim=0.763, second=-0.042, margin=0.805 ✓
+2026-02-26 13:44:43,227 - root - DEBUG - [MATCH] Nour sim=0.596, second=-0.003, margin=0.599 ✓
+2026-02-26 13:44:43,588 - root - DEBUG - [MATCH] Nour sim=0.761, second=-0.038, margin=0.800 ✓
+2026-02-26 13:44:43,824 - root - DEBUG - [MATCH] Nour sim=0.698, second=-0.020, margin=0.718 ✓
+2026-02-26 13:44:44,103 - root - DEBUG - [MATCH] Nour sim=0.619, second=-0.005, margin=0.624 ✓
+2026-02-26 13:44:45,805 - root - DEBUG - [MATCH] Nour sim=0.683, second=-0.095, margin=0.778 ✓
+2026-02-26 13:44:46,022 - root - DEBUG - [MATCH] Nour sim=0.674, second=-0.064, margin=0.738 ✓
+2026-02-26 13:44:46,267 - root - DEBUG - [MATCH] Nour sim=0.679, second=-0.094, margin=0.773 ✓
+2026-02-26 13:44:46,560 - root - DEBUG - [MATCH] Nour sim=0.699, second=-0.091, margin=0.790 ✓
+2026-02-26 13:44:46,788 - root - DEBUG - [MATCH] Nour sim=0.570, second=-0.075, margin=0.645 ✓
+2026-02-26 13:44:46,992 - root - DEBUG - [MATCH] Nour sim=0.748, second=-0.067, margin=0.816 ✓
+2026-02-26 13:44:47,192 - root - DEBUG - [MATCH] Nour sim=0.737, second=-0.082, margin=0.820 ✓
+2026-02-26 13:44:47,380 - root - DEBUG - [MATCH] Nour sim=0.696, second=-0.118, margin=0.814 ✓
+2026-02-26 13:44:47,590 - root - DEBUG - [MATCH] rejected best=Nour sim=0.285, second=-0.002, margin=0.287 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:48,000 - root - DEBUG - [MATCH] rejected best=Nour sim=0.375, second=-0.071, margin=0.446 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:48,202 - root - DEBUG - [MATCH] Nour sim=0.698, second=-0.092, margin=0.789 ✓
+2026-02-26 13:44:48,443 - root - DEBUG - [MATCH] Nour sim=0.772, second=-0.101, margin=0.874 ✓
+2026-02-26 13:44:48,673 - root - DEBUG - [MATCH] Nour sim=0.738, second=-0.023, margin=0.761 ✓
+2026-02-26 13:44:48,909 - root - DEBUG - [MATCH] Nour sim=0.707, second=-0.036, margin=0.743 ✓
+2026-02-26 13:44:49,122 - root - DEBUG - [MATCH] rejected best=Nour sim=0.328, second=0.002, margin=0.327 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:49,368 - root - DEBUG - [MATCH] Nour sim=0.570, second=0.010, margin=0.560 ✓
+2026-02-26 13:44:50,952 - root - DEBUG - [MATCH] rejected best=Nour sim=0.386, second=0.068, margin=0.318 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:51,172 - root - DEBUG - [MATCH] rejected best=Nour sim=0.403, second=-0.046, margin=0.449 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:51,439 - root - DEBUG - [MATCH] Nour sim=0.589, second=-0.088, margin=0.676 ✓
+2026-02-26 13:44:51,734 - root - DEBUG - [MATCH] rejected best=Nour sim=0.414, second=-0.026, margin=0.440 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:51,972 - root - DEBUG - [MATCH] rejected best=Nour sim=0.239, second=-0.013, margin=0.252 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:52,395 - root - DEBUG - [MATCH] rejected best=Nour sim=0.200, second=0.017, margin=0.183 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:52,781 - root - DEBUG - [MATCH] rejected best=Nour sim=0.440, second=-0.078, margin=0.518 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:53,022 - root - DEBUG - [MATCH] rejected best=Nour sim=0.520, second=-0.111, margin=0.631 ✗ (thr=0.55, m=0.1)
+2026-02-26 13:44:53,504 - root - DEBUG - [MATCH] rejected best=Nour sim=0.345, second=0.052, margin=0.293 ✗ (thr=0.55, m=0.1)

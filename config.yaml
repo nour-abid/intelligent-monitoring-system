@@ -1,9 +1,9 @@
 camera:
-  rtsp_url: "rtsp://admin:admin1234@169.254.77.55:554/Streaming/Channels/102"
+  rtsp_url: "rtsp://admin:admin1234@169.254.77.55:554/Streaming/Channels/101"
 
 recognition:
   sim_threshold: 0.55
-  margin: 0.18
+  margin: 0.10
 
 liveness:
   real_threshold: 0.75
@@ -25,7 +25,7 @@ tuning:
   min_face_aspect: 0.50        # wider tolerance
   max_face_aspect: 1.90
 
-  min_face_area_ratio: 0.005   # lower from 0.015 (very strict)
+  min_face_area_ratio: 0.005  
   blur_threshold: 10.0         # lower from 20.0
 
 
@@ -37,3 +37,8 @@ tuning:
   absent_after_sec: 2.0
   min_hits: 3
   present_after_sec: 1.0
+  identity_window: 10
+  identity_min_hits: 3
+  liveness_window: 10
+  liveness_min_hits: 6
+  stale_track_sec: 2.0
