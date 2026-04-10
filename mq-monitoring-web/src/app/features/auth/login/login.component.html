@@ -1,0 +1,61 @@
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-card__header">
+      <span class="login-card__logo">MQ</span>
+      <h1 class="login-card__title">Monitoring</h1>
+    </div>
+
+    <form class="login-card__form" (ngSubmit)="onSubmit()" #f="ngForm" novalidate>
+      @if (resetSuccess()) {
+        <p class="login-card__success" role="status">Password reset successfully. Please sign in.</p>
+      }
+      @if (error()) {
+        <p class="login-card__error" role="alert">{{ error() }}</p>
+      }
+
+      <div class="login-card__field">
+        <label class="login-card__label" for="email">Email</label>
+        <input
+          class="login-card__input"
+          id="email"
+          type="email"
+          name="email"
+          autocomplete="email"
+          required
+          [(ngModel)]="email"
+          [disabled]="loading()"
+        />
+      </div>
+
+      <div class="login-card__field">
+        <label class="login-card__label" for="password">Password</label>
+        <input
+          class="login-card__input"
+          id="password"
+          type="password"
+          name="password"
+          autocomplete="current-password"
+          required
+          [(ngModel)]="password"
+          [disabled]="loading()"
+        />
+      </div>
+
+      <button
+        class="login-card__submit"
+        type="submit"
+        [disabled]="loading() || !f.valid"
+      >
+        @if (loading()) {
+          <span class="spinner spinner--sm"></span>
+        } @else {
+          Sign in
+        }
+      </button>
+
+      <p class="login-card__forgot">
+        <a routerLink="/forgot-password">Forgot password?</a>
+      </p>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,101 @@
+.timeline-empty {
+  color: var(--color-text-3);
+  font-size: 13px;
+  padding: var(--sp-8) 0;
+  text-align: center;
+}
+
+.timeline {
+  &__count {
+    font-size: 12px;
+    color: var(--color-text-3);
+    margin-bottom: var(--sp-3);
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    max-height: 520px;
+    overflow-y: auto;
+    padding-right: var(--sp-1);
+
+    /* Custom scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-2) transparent;
+
+    &::-webkit-scrollbar { width: 4px; }
+    &::-webkit-scrollbar-track { background: transparent; }
+    &::-webkit-scrollbar-thumb {
+      background: var(--color-border-2);
+      border-radius: 2px;
+    }
+  }
+}
+
+/* ── Segment row ─────────────────────────────────────────────── */
+.seg {
+  padding: var(--sp-3) var(--sp-4);
+  border-left: 3px solid var(--color-border-2);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--color-surface-2);
+  transition: background 0.12s;
+
+  &:hover {
+    background: #eef2ff;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    margin-bottom: var(--sp-2);
+    flex-wrap: wrap;
+  }
+
+  &__time {
+    font-size: 12px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text-2);
+  }
+
+  &__sep {
+    font-size: 11px;
+    color: var(--color-text-3);
+  }
+
+  &__dur {
+    margin-left: auto;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-1);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+  }
+
+  &__meta-item {
+    font-size: 11px;
+    color: var(--color-text-3);
+  }
+
+  &__trigger {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 1px 6px;
+    border-radius: 100px;
+
+    &--activity_change { background: #e0e7ff; color: #3730a3; }
+    &--track_lost      { background: #fef3c7; color: #92400e; }
+    &--session_end     { background: #f1f5f9; color: #475569; }
+  }
+}

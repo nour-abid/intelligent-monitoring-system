@@ -1,0 +1,159 @@
+.table-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-6);
+  box-shadow: var(--shadow-sm);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  &__title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text-3);
+    margin-bottom: var(--sp-4);
+    flex-shrink: 0;
+  }
+
+  &__empty {
+    color: var(--color-text-3);
+    font-size: 13px;
+    padding: var(--sp-8) 0;
+    text-align: center;
+  }
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  flex: 1;
+}
+
+.id-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  &__th {
+    padding: var(--sp-2) var(--sp-3);
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-text-3);
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+
+    &--right  { text-align: right; }
+    &--center { text-align: center; }
+  }
+
+  &__row {
+    cursor: pointer;
+    transition: background 0.1s;
+
+    &:hover {
+      background: var(--color-surface-2);
+
+      .id-table__avatar {
+        background: var(--color-primary);
+        color: #fff;
+      }
+    }
+
+    &:not(:last-child) .id-table__td {
+      border-bottom: 1px solid var(--color-border);
+    }
+  }
+
+  &__td {
+    padding: var(--sp-3) var(--sp-3);
+    color: var(--color-text-1);
+    vertical-align: middle;
+
+    &--name {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+      font-weight: 500;
+    }
+
+    &--right  { text-align: right; }
+    &--center { text-align: center; }
+
+    &--mono {
+      font-variant-numeric: tabular-nums;
+      color: var(--color-text-2);
+    }
+  }
+
+  &__name-cell {
+    display:        flex;
+    flex-direction: column;
+    gap:            2px;
+  }
+
+  &__flags {
+    display:   flex;
+    flex-wrap: wrap;
+    gap:       4px;
+  }
+
+  &__avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-text-2);
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  &__view-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--color-text-3);
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    &:hover {
+      background: var(--color-primary-light);
+      border-color: var(--color-primary-light);
+      color: #fff;
+    }
+  }
+}
+
+/* -- Employee flag pills ------------------------------------------------- */
+.id-flag {
+  display:       inline-block;
+  padding:       1px 6px;
+  border-radius: 999px;
+  font-size:     10px;
+  font-weight:   600;
+  letter-spacing: 0.02em;
+  white-space:   nowrap;
+
+  &--leader  { background: rgba(16,185,129,.15);  color: #10b981; }
+  &--phone   { background: rgba(239, 68, 68,.15); color: #ef4444; }
+  &--idle    { background: rgba(245,158, 11,.15); color: #f59e0b; }
+  &--low     { background: rgba(148,163,184,.15); color: #94a3b8; }
+}

@@ -1,0 +1,15 @@
+path: C:/Users/BH RENOVATIONS/intelligent-monitoring-system
+train: train/images
+val: valid/images
+test: test/images
+
+names:
+  0: Arriving
+  1: Counselling
+  2: Eating
+  3: Idle
+  4: Leaving
+  5: Sleeping
+  6: Talking
+  7: Using_Phone
+  8: Working

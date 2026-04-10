@@ -1,0 +1,161 @@
+# ============================================================
+# Camera B – Surveillance / Activity Monitor Settings
+# ============================================================
+
+# Video source: integer webcam index (e.g. 0) or RTSP URL string
+video_source: "http://192.168.100.46:8080/video"
+
+# YOLO activity model path (relative to project root)
+model_path: surveillance/models/best.pt
+
+# Detection confidence threshold [0.0, 1.0]
+# Lowered to 0.10 so background / partially-occluded people whose detection
+# scores hover around 0.10-0.14 are consistently passed to the tracker.
+# The activity-smoother and track-maturity gate prevent noisy low-confidence
+# single-frame detections from emitting wrong labels.
+conf_threshold: 0.10
+
+# Minimum IoU between a YOLO activity detection box and a DeepSORT track box
+# required before that activity label is assigned to the track.
+# 0.3 (old default) was too permissive: neighbouring people at desks share
+# ~10-25% of their bounding-box area which was enough to bleed activity across.
+# 0.45 requires a substantially overlapping box before the match is accepted.
+activity_iou_threshold: 0.45
+
+# Activity classification confidence threshold [0.0, 1.0]
+# Only accept activity predictions when the model meets this confidence minimum.
+# Lowered to 0.35 so moderate-confidence predictions (Inactive, Working) are
+# accepted instead of falling back to "Unknown".
+activity_conf_threshold: 0.35
+
+# Per-activity confidence overrides (stricter than the global threshold above).
+# Add entries here to override the global threshold for specific activities.
+activity_conf_overrides: {}
+
+# YOLO inference image size (pixels)
+# 768 provides a larger feature map for small / partially occluded people
+# in the background who were borderline-detectable at 416.  The trade-off
+# is higher per-frame inference time, acceptable now that identity matching
+# cadence and frame-drain have already reduced overall CPU pressure.
+imgsz: 768
+
+# Stale-frame drain: after cap.read() succeeds, call cap.grab() up to this
+# many extra times to discard frames that queued while the CPU was busy.
+# Each grab on a buffered MJPEG frame takes <1 ms; once the buffer is empty
+# the grab takes >2 ms (has to wait for the camera) and the drain stops.
+# 4 is enough to clear a typical FFmpeg MJPEG queue without ever blocking.
+frame_drain_count: 4
+
+# Smoothing: consecutive frames a new activity must appear before switching
+# Reduced from 8 → 3 to allow faster correction of YOLO misclassifications
+activity_stable_frames: 2
+
+# Extra consecutive frames required on top of activity_stable_frames before
+# a Working -> Inactive downgrade is committed.  Working is a deliberate
+# high-effort posture; a brief desk pause or neighbouring Inactive person
+# should not flip the label.  Total required = stable + extra = 2 + 3 = 5.
+working_to_inactive_extra_frames: 2
+
+# Extra consecutive frames required for any transition between Working and
+# Using_Phone (both directions).  These two postures look similar at a desk;
+# a brief phone-raise or accidental arm position should not flip the label.
+# Total required = stable + extra = 2 + 2 = 4.
+working_phone_extra_frames: 3
+
+# Extra consecutive frames required before committing Inactive on a track
+# whose identity is still Unknown (fresh / not-yet-introduced persons).
+# Unidentified persons are often partially visible or share a bbox region
+# with a seated known person; Inactive is the spurious label most frequently
+# emitted in those conditions.  Total required = stable + extra = 2 + 2 = 4.
+unknown_inactive_extra_frames: 1
+
+# Track maturity gate: minimum DeepSORT hit count before a track is allowed
+# to commit and display any activity label.  Fresh tracks with degenerate
+# bboxes, face-too-small crops, and below-threshold matches are suppressed
+# until they have been matched this many times, preventing visible flicker.
+# 10 frames ≈ 0.33 s at 30 fps.
+track_maturity_frames: 2
+
+# Frames without a detection before removing a track from state.
+# Raised to 50 so background / partially-occluded people who miss a few
+# frames (desk partition passing through, head-turn) remain as live tracks
+# instead of being dropped and re-created with a new ID each time.
+track_max_missing_frames: 50
+
+# DeepSORT n_init: detections required before a track is marked confirmed.
+# 1 = any single detection creates a confirmed track immediately.  Background
+# people often appear intermittently; n_init=2 (old) required two consecutive
+# frames which they frequently failed to produce, keeping them perpetually
+# tentative.  n_init=1 is safe here because the activity-smoothing gate and
+# track-maturity gate together prevent noisy single-frame tracks from emitting
+# a label too quickly.
+tracker_n_init: 1
+
+# CSV activity-event log
+save_log_csv: true
+log_csv_path: logs/surveillance_events.csv
+
+# Display
+show_window: true
+line_thickness: 2
+font_scale: 0.6
+
+# Debug: show raw YOLO class index and confidence on frame
+debug_overlay: false
+
+# ── Identity matching (Camera B face recognition) ──────────────────────────
+# Path to ArcFace ONNX model (relative to project root)
+arcface_model_path: models/arcface/arcface.onnx
+
+# Directory containing known face embeddings <name>.npy (relative to project root)
+identity_embeddings_dir: models/embeddings
+
+# Cosine similarity threshold to accept a match [0.0, 1.0]
+identity_match_threshold: 0.45
+
+# Minimum gap between best and second-best similarity (anti-confusion margin)
+identity_match_margin: 0.06
+
+# Run face matching every N frames per track (reduces CPU load)
+# 30 = once per ~1s at 30fps.  Identity is stable; halving the cadence from 15
+# roughly halves InsightFace invocations across all active tracks.
+face_every_n_frames: 30
+
+# Expand person bbox by this ratio before face detection (e.g., 0.2 = +20% on each side)
+# Helps MediaPipe detect faces in small crops
+bbox_expand_ratio: 0.2
+
+# Minimum person-bbox dimension (px) that must be met before attempting face detection.
+# Person crops narrower or shorter than this cannot contain a usable face — skip early
+# and save the entire InsightFace inference call.  Higher than min_face_px (which guards
+# the face region inside the crop) because the full person bbox must be large enough to
+# even crop a face from.
+min_person_crop_px: 60
+
+# Failure cooldown: after face_fail_cooldown_threshold consecutive failed attempts
+# (no_face_detected or below_threshold) on the same track, suppress that track's face
+# matching for face_fail_cooldown_frames frames before retrying.
+face_fail_cooldown_threshold: 3
+face_fail_cooldown_frames: 60
+
+# ── Short-term identity reassociation ──────────────────────────────────────
+# Maximum time gap (seconds) since a known track was lost for reassociation to apply
+reassoc_max_gap_sec: 5.0
+
+# Maximum center-to-center pixel distance between old and new bbox (primary cue)
+reassoc_max_center_dist_px: 200.0
+
+# Minimum composite score [0.0-1.0] to accept a reassociation
+# Score = 0.55 * distance_score + 0.25 * identity_confidence + 0.20 * iou
+reassoc_min_score: 0.25
+
+# Face-confirmed entries: longer window + lower score bar (person had a verified face match)
+# was_face_confirmed is only set when identity_source == "face" (never inherited from reassoc)
+reassoc_face_confirmed_max_gap_sec: 15.0
+reassoc_face_confirmed_min_score: 0.15
+
+# YOLO class index → activity label (3-class model; runtime overrides this from model.names)
+activity_classes:
+  0: Inactive
+  1: Using_Phone
+  2: Working

@@ -1,0 +1,49 @@
+@if (segments().length === 0) {
+  <div class="timeline-empty">No activity recorded for this period.</div>
+} @else {
+  <div class="timeline">
+    <div class="timeline__count">{{ segments().length }} segment{{ segments().length !== 1 ? 's' : '' }}</div>
+
+    <div class="timeline__list">
+      @for (seg of segments(); track seg.timestamp_start + seg.track_id; let last = $last) {
+        <div
+          class="seg"
+          [style.border-left-color]="accentColor(seg.activity)"
+        >
+          <!-- Time range + duration -->
+          <div class="seg__header">
+            <span class="seg__time">{{ ts(seg.timestamp_start) }}</span>
+            <span class="seg__sep">–</span>
+            <span class="seg__time">{{ ts(seg.timestamp_end) }}</span>
+            <span class="seg__dur">{{ seg.duration_sec | duration }}</span>
+          </div>
+
+          <!-- Activity badge + meta row -->
+          <div class="seg__meta">
+            <span class="badge {{ badgeClass(seg.activity) }}">
+              {{ seg.activity.replace(/_/g, ' ') }}
+            </span>
+
+            <span class="seg__meta-item" title="Track ID">
+              Track #{{ seg.track_id }}
+            </span>
+
+            @if (seg.identity_confidence > 0) {
+              <span class="seg__meta-item" title="Match confidence">
+                {{ confidenceStr(seg.identity_confidence) }} confidence
+              </span>
+            }
+
+            <span class="seg__meta-item" title="Identity source">
+              {{ sourceLabel(seg.identity_source) }}
+            </span>
+
+            <span class="seg__trigger seg__trigger--{{ seg.event_trigger }}" title="Event trigger">
+              {{ triggerLabel(seg.event_trigger) }}
+            </span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}

@@ -1,0 +1,86 @@
+.toast-container {
+  position: fixed;
+  bottom: 24px; // bottom-right: more natural, less intrusive than top-right
+  right: 20px;
+  z-index: 500;
+  display: flex;
+  flex-direction: column-reverse; // newest toast on top of the stack
+  gap: 8px;
+  pointer-events: none; // container transparent to mouse; children re-enable
+  width: 340px;
+}
+
+.toast {
+  pointer-events: all;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding: 12px 14px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-primary);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  animation: toast-slide-in 0.25s ease;
+
+  // Per-type accent colour on the left border
+  &--inactive     { border-left-color: #facc15; } // Yellow (matches bell dot)
+  &--phone        { border-left-color: #fb923c; } // Orange (matches bell dot)
+  &--late_arrival { border-left-color: var(--color-primary); } // Brand crimson
+
+  &__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  &__label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--color-text-2);
+  }
+
+  &__identity {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-1);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__detail {
+    font-size: 11px;
+    color: var(--color-text-2);
+  }
+
+  &__close {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: var(--color-text-3);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 2px;
+    margin-top: -2px;
+    transition: color 0.12s;
+
+    &:hover { color: var(--color-text-1); }
+  }
+}
+
+@keyframes toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

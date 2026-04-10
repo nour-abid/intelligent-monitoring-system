@@ -1,0 +1,18 @@
+<div class="kpi-grid">
+  @for (card of cards(); track card.label) {
+    <div class="kpi-card kpi-card--{{ card.theme ?? 'neutral' }}">
+      <div class="kpi-card__header">
+        <span class="kpi-card__label">{{ card.label }}</span>
+        @if (card.icon) {
+          <svg class="kpi-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path [attr.d]="card.icon" />
+          </svg>
+        }
+      </div>
+      <div class="kpi-card__value">{{ card.value }}</div>
+      @if (card.sub) {
+        <div class="kpi-card__sub">{{ card.sub }}</div>
+      }
+    </div>
+  }
+</div>

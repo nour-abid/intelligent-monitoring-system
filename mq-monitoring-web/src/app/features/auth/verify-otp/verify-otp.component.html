@@ -1,0 +1,52 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-card__header">
+      <span class="auth-card__logo">MQ</span>
+      <h1 class="auth-card__title">Enter Code</h1>
+    </div>
+
+    <p class="auth-card__hint">A 6-digit code was sent to <strong>{{ email }}</strong>. It expires in 10 minutes.</p>
+
+    <form class="auth-card__form" (ngSubmit)="onSubmit()" #f="ngForm" novalidate>
+      @if (error()) {
+        <p class="auth-card__error" role="alert">{{ error() }}</p>
+      }
+
+      <div class="auth-card__field">
+        <label class="auth-card__label" for="otp">Verification Code</label>
+        <input
+          class="auth-card__input auth-card__input--otp"
+          id="otp"
+          type="text"
+          name="otp"
+          inputmode="numeric"
+          autocomplete="one-time-code"
+          maxlength="6"
+          pattern="\d{6}"
+          required
+          [(ngModel)]="otp"
+          [disabled]="loading()"
+          placeholder="000000"
+        />
+      </div>
+
+      <button
+        class="auth-card__submit"
+        type="submit"
+        [disabled]="loading() || !f.valid"
+      >
+        @if (loading()) {
+          <span class="spinner spinner--sm"></span>
+        } @else {
+          Verify Code
+        }
+      </button>
+    </form>
+
+    <p class="auth-card__footer">
+      <a routerLink="/forgot-password">Resend code</a>
+      &nbsp;·&nbsp;
+      <a routerLink="/login">Back to Sign In</a>
+    </p>
+  </div>
+</div>

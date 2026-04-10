@@ -1,0 +1,14 @@
+# mq-monitoring-api — Laravel backend (not yet scaffolded)
+#
+# This folder is reserved for the Laravel REST API backend.
+#
+# To scaffold the Laravel project here, run the following from the
+# project root (intelligent-monitoring-system/) once PHP >= 8.2 and
+# Composer are installed:
+#
+#   composer create-project laravel/laravel mq-monitoring-api
+#
+# Or using the Laravel installer:
+#   laravel new mq-monitoring-api
+#
+# After scaffolding, this file can be deleted.

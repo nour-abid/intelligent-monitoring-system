@@ -1,0 +1,141 @@
+<header class="topbar">
+  <div class="topbar__brand">
+    <!-- Simple SVG camera icon as logo -->
+    <svg class="topbar__logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M23 7l-7 5 7 5V7z"/>
+      <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+    </svg>
+    <span class="topbar__title">MQ Monitoring</span>
+  </div>
+
+  @if (auth.isLoggedIn()) {
+    <nav class="topbar__nav">
+      <a
+        class="topbar__link"
+        routerLink="/surveillance"
+        routerLinkActive="topbar__link--active"
+        [routerLinkActiveOptions]="{ exact: false }"
+      >
+        <!-- Surveillance icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M2 12s3.64-7 10-7 10 7 10 7-3.64 7-10 7-10-7-10-7z"/>
+        </svg>
+        Surveillance
+      </a>
+
+      @if (auth.user()?.role === 'admin') {
+        <a
+          class="topbar__link"
+          routerLink="/admin/users"
+          routerLinkActive="topbar__link--active"
+        >
+          <!-- Users icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          Users
+        </a>
+      }
+    </nav>
+
+    <div class="topbar__meta">
+      <span class="topbar__badge">V1</span>
+
+      <!-- Theme toggle -->
+      <button
+        class="topbar__theme-btn"
+        type="button"
+        (click)="theme.toggle()"
+        [attr.aria-label]="theme.isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
+      >
+        @if (theme.isDark()) {
+          <!-- Sun: click to go light -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+          </svg>
+        } @else {
+          <!-- Moon: click to go dark -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        }
+      </button>
+
+      <!-- ── Alert bell ─────────────────────────────────────────── -->
+      <div class="topbar__alerts">
+        <button
+          class="topbar__alert-btn"
+          type="button"
+          (click)="togglePanel(); $event.stopPropagation()"
+          [attr.aria-label]="'Alerts – ' + alert.unreadCount() + ' unread'"
+        >
+          <!-- Bell SVG -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          @if (alert.unreadCount() > 0) {
+            <span class="topbar__alert-badge">{{ alert.unreadCount() > 9 ? '9+' : alert.unreadCount() }}</span>
+          }
+        </button>
+
+        @if (panelOpen()) {
+          <div class="topbar__alert-panel" (click)="$event.stopPropagation()">
+            <div class="topbar__alert-panel-header">
+              <span>Alerts</span>
+            </div>
+
+            @if (alert.alerts().length === 0) {
+              <p class="topbar__alert-empty">No alerts yet.</p>
+            } @else {
+              <ul class="topbar__alert-list">
+                @for (a of alert.alerts(); track a.id) {
+                  <li class="topbar__alert-item" [class.topbar__alert-item--unread]="!a.read">
+                    <span class="topbar__alert-dot"
+                      [class.topbar__alert-dot--inactive]="a.type === 'inactive'"
+                      [class.topbar__alert-dot--phone]="a.type === 'phone'"
+                      [class.topbar__alert-dot--late-arrival]="a.type === 'late_arrival'"
+                    ></span>
+                    <span class="topbar__alert-body">
+                      <strong>{{ a.identity }}</strong> — {{ alertLabel(a.type) }}
+                      {{ a.duration_minutes }} min (threshold: {{ a.threshold_minutes }} min)
+                    </span>
+                    <span class="topbar__alert-time">{{ a.timestamp | date:'HH:mm' }}</span>
+                    @if (a.serverId) {
+                      <button
+                        class="topbar__replay-btn"
+                        type="button"
+                        title="View replay"
+                        (click)="openReplay(a); $event.stopPropagation()"
+                      >▶ Replay</button>
+                    }
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        }
+      </div>
+
+@if (replayAlertId()) {
+  <app-replay-modal
+    [alertId]="replayAlertId()!"
+    [alertLabel]="replayLabel()"
+    (closed)="closeReplay()"
+  />
+}
+
+      <span class="topbar__user">{{ auth.user()?.name }}</span>
+      <button class="topbar__logout" type="button" (click)="logout()">Sign out</button>
+    </div>
+  } @else {
+    <div class="topbar__meta">
+      <span class="topbar__badge">V1</span>
+    </div>
+  }
+</header>

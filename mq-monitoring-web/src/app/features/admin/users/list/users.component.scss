@@ -1,0 +1,515 @@
+.admin-users {
+  padding: var(--sp-8);
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ── Page header ─────────────────────────────────────────────── */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-6);
+
+  &__title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-text-1);
+    margin: 0;
+  }
+
+  &__sub {
+    margin: var(--sp-1) 0 0;
+    font-size: 0.85rem;
+    color: var(--color-text-2);
+  }
+
+  &__actions {
+    flex-shrink: 0;
+  }
+}
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: calc(var(--radius) / 2);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, background 0.15s;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  min-height: 36px;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &--primary {
+    background: var(--color-primary);
+    color: #fff;
+    border-color: var(--color-primary);
+
+    &:hover:not(:disabled) { opacity: 0.88; }
+  }
+
+  &--ghost {
+    background: transparent;
+    color: var(--color-text-2);
+    border-color: var(--color-border);
+
+    &:hover:not(:disabled) {
+      background: var(--color-bg);
+    }
+  }
+
+  &--danger-ghost {
+    background: transparent;
+    color: var(--color-danger);
+    border-color: rgba(239, 68, 68, 0.4);
+
+    &:hover:not(:disabled) {
+      background: rgba(239, 68, 68, 0.1);
+    }
+  }
+
+  &--xs {
+    padding: 3px var(--sp-3);
+    min-height: 28px;
+    font-size: 0.78rem;
+  }
+}
+
+/* ── User form panel ─────────────────────────────────────────── */
+.user-form {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  margin-bottom: var(--sp-6);
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--sp-4) var(--sp-6);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface-2);
+  }
+
+  &__title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-text-1);
+    margin: 0;
+  }
+
+  &__close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-text-2);
+    font-size: 1rem;
+    padding: var(--sp-1) var(--sp-2);
+    border-radius: calc(var(--radius) / 2);
+    transition: background 0.15s;
+
+    &:hover {
+      background: var(--color-bg);
+    }
+  }
+
+  &__error {
+    margin: var(--sp-4) var(--sp-6) 0;
+    padding: var(--sp-3) var(--sp-4);
+    background: rgba(196, 18, 48, 0.14);
+    color: #f87171;
+    border-radius: calc(var(--radius) / 2);
+    font-size: 0.875rem;
+  }
+
+  &__body {
+    padding: var(--sp-5) var(--sp-6);
+  }
+
+  &__actions {
+    display: flex;
+    gap: var(--sp-3);
+    padding-top: var(--sp-5);
+    border-top: 1px solid var(--color-border);
+    margin-top: var(--sp-5);
+  }
+}
+
+/* ── Form fields ─────────────────────────────────────────────── */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--sp-4) var(--sp-5);
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+
+  &--check {
+    justify-content: flex-end;
+    padding-bottom: var(--sp-1);
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-2);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__input {
+    border: 1px solid var(--color-border);
+    border-radius: calc(var(--radius) / 2);
+    padding: var(--sp-2) var(--sp-3);
+    font-size: 0.9rem;
+    font-family: inherit;
+    background: var(--color-surface);
+    color: var(--color-text-1);
+    outline: none;
+    transition: border-color 0.15s;
+
+    &:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgb(196 18 48 / 0.2);
+    }
+
+    &:disabled {
+      background: var(--color-bg);
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  &__check-label {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-size: 0.9rem;
+    color: var(--color-text-1);
+    cursor: pointer;
+
+    input[type='checkbox'] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+  }
+
+  &__hint {
+    font-size: 0.75rem;
+    color: var(--color-text-2);
+    margin-top: var(--sp-1);
+  }
+}
+
+/* ── Users table ─────────────────────────────────────────────── */
+.users-table-wrap {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  &__th {
+    padding: var(--sp-3) var(--sp-4);
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-2);
+    background: var(--color-surface-2);
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+
+    &--center { text-align: center; }
+    &--right  { text-align: right;  }
+  }
+
+  &__row {
+    border-bottom: 1px solid var(--color-border);
+    transition: background 0.1s;
+
+    &:last-child { border-bottom: none; }
+
+    &:hover { background: var(--color-bg); }
+
+    &--inactive .users-table__td {
+      opacity: 0.55;
+    }
+  }
+
+  &__td {
+    padding: var(--sp-3) var(--sp-4);
+    font-size: 0.875rem;
+    color: var(--color-text-1);
+    vertical-align: middle;
+
+    &--name {
+      font-weight: 500;
+    }
+
+    &--muted {
+      color: var(--color-text-2);
+    }
+
+    &--center { text-align: center; }
+    &--right  { text-align: right;  }
+  }
+}
+
+/* ── Role badge ──────────────────────────────────────────────── */
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+
+  &--admin        { background: rgba(139,  92, 246, 0.18); color: #c4b5fd; }
+  &--superviseur  { background: rgba( 59, 130, 246, 0.18); color: #93c5fd; }
+  &--viewer       { background: rgba(100, 116, 139, 0.18); color: #94a3b8; }
+}
+
+/* ── Status dot ──────────────────────────────────────────────── */
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-neutral);
+
+  &--active {
+    background: var(--color-success);
+  }
+}
+
+/* ── Row action buttons ──────────────────────────────────────── */
+.row-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--sp-2);
+}
+
+/* ── Spinner inside submit button ────────────────────────────── */
+.spinner--sm {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+/* ── Status filter bar ───────────────────────────────────────── */
+/* ── Users toolbar: status filter + search ────────────────────── */
+.users-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+
+.users-filter {
+  display: flex;
+  gap: var(--sp-1);
+
+  &__btn {
+    padding: 4px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--color-border);
+    background: transparent;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--color-text-2);
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+
+    &:hover {
+      background: var(--color-bg);
+      color: var(--color-text-1);
+    }
+
+    &--active {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: #fff;
+
+      &:hover {
+        opacity: 0.88;
+        background: var(--color-primary);
+        color: #fff;
+      }
+    }
+  }
+}
+
+/* ── Search input ────────────────────────────────────────────── */
+.users-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  &__icon {
+    position: absolute;
+    left: 10px;
+    color: var(--color-text-3);
+    pointer-events: none;
+    flex-shrink: 0;
+  }
+
+  &__input {
+    height: 30px;
+    padding: 0 40px 0 40px;
+    border: 1px solid var(--color-border);
+    border-radius: 100px;
+    font-size: 0.8rem;
+    color: var(--color-text-1);
+    background: var(--color-surface);
+    outline: none;
+    width: 260px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+
+    &::placeholder {
+      color: var(--color-text-2);
+    }
+
+    &:focus {
+      border-color: var(--color-primary-light, #3b82f6);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+    }
+
+    /* remove native search clear button */
+    &::-webkit-search-cancel-button { display: none; }
+  }
+
+  &__clear {
+    position: absolute;
+    right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border: none;
+    background: transparent;
+    color: var(--color-text-3);
+    font-size: 11px;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background 0.12s, color 0.12s;
+
+    &:hover {
+      background: var(--color-surface-2);
+      color: var(--color-text-1);
+    }
+  }
+}
+
+/* ── Name cell with surveillance identity sub-line ───────────── */
+.user-display-name {
+  display: block;
+}
+
+.user-surv-id {
+  display: block;
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  color: var(--color-text-2);
+  margin-top: 2px;
+}
+
+/* ── Monospace input for surveillance_identity ───────────────── */
+.form-field__input--mono {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+}
+
+/* ── Modal overlay + dialog ──────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: var(--sp-4);
+  overflow-y: auto;
+}
+
+.modal-dialog {
+  width: 100%;
+  max-width: 680px;
+  max-height: calc(100dvh - var(--sp-8));
+  overflow-y: auto;
+
+  .user-form {
+    margin-bottom: 0;
+  }
+
+  &--stats {
+    max-width: 760px;
+  }
+}
+
+/* ── Pagination controls ─────────────────────────────────────── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--sp-3);
+  margin-top: var(--sp-4);
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border);
+    background: transparent;
+    color: var(--color-text-2);
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+
+    &:hover:not(:disabled) {
+      background: var(--color-bg);
+      color: var(--color-text-1);
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  &__label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--color-text-3);
+    white-space: nowrap;
+  }
+}

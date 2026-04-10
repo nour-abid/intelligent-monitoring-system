@@ -1,0 +1,126 @@
+<div class="stats-modal">
+
+  <!-- ── Header ──────────────────────────────────────────────── -->
+  <div class="stats-modal__header">
+    <div class="stats-modal__person">
+      <div class="stats-modal__avatar" aria-hidden="true">
+        {{ identity()[0]?.toUpperCase() }}
+      </div>
+      <div>
+        <h2 class="stats-modal__name">{{ identity() }}</h2>
+        <p class="stats-modal__sub">Surveillance statistics</p>
+      </div>
+    </div>
+    <button
+      class="stats-modal__close"
+      type="button"
+      (click)="close()"
+      aria-label="Close statistics"
+    >✕</button>
+  </div>
+
+  <!-- ── Loading ────────────────────────────────────────────── -->
+  @if (loadState() === 'loading') {
+    <div class="stats-modal__state">
+      <span class="spinner"></span>
+      <span class="stats-modal__state-text">Loading statistics…</span>
+    </div>
+  }
+
+  <!-- ── Error ──────────────────────────────────────────────── -->
+  @if (loadState() === 'error') {
+    <div class="stats-modal__state stats-modal__state--error">
+      <span class="stats-modal__state-icon">⚠️</span>
+      <span class="stats-modal__state-text">{{ errorMsg() }}</span>
+      <button class="stats-modal__retry-btn" type="button" (click)="retry()">Retry</button>
+    </div>
+  }
+
+  <!-- ── Success ────────────────────────────────────────────── -->
+  @if (loadState() === 'success' && timeline()) {
+
+    @if (timeline()!.count === 0) {
+      <div class="stats-modal__state">
+        <span class="stats-modal__state-icon">📭</span>
+        <span class="stats-modal__state-text">No surveillance data found for this identity.</span>
+      </div>
+    } @else {
+
+      <!-- KPI cards -->
+      <app-kpi-cards [cards]="kpiCards()" />
+
+      <!-- Activity flow strip -->
+      @if (activityRows().length > 0) {
+        <div class="flow-section">
+          <div class="flow-section__label">Activity mix</div>
+          <div
+            class="flow-strip"
+            role="img"
+            [attr.aria-label]="'Activity distribution for ' + identity()"
+          >
+            @for (row of activityRows(); track row.activity) {
+              <div
+                class="flow-strip__seg"
+                [style.width]="(row.share * 100) + '%'"
+                [style.background-color]="row.color"
+                [title]="row.activity.replace(/_/g, ' ') + ' — ' + row.formatted + ' (' + (row.share * 100).toFixed(1) + '%'"
+              ></div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Charts: duration by activity (left) + segment count (right) -->
+      @if (activityRows().length > 0) {
+        <div class="charts-row">
+
+          <!-- Duration chart (reuses existing component) -->
+          <app-activity-chart [stats]="activityStats()" />
+
+          <!-- Segment count chart (inline) -->
+          <div class="seg-chart">
+            <h3 class="seg-chart__title">Segments by Activity</h3>
+            @for (row of activityRows(); track row.activity) {
+              <div class="seg-chart__row">
+                <div class="seg-chart__label" [title]="row.activity">{{ row.activity.replace(/_/g, ' ') }}</div>
+                <div class="seg-chart__track">
+                  <div
+                    class="seg-chart__bar"
+                    [style.width]="segPct(row.segment_count)"
+                    [style.background-color]="row.color"
+                    role="progressbar"
+                    [attr.aria-valuenow]="row.segment_count"
+                    [attr.aria-valuemax]="maxSegmentCount()"
+                  ></div>
+                </div>
+                <div class="seg-chart__count">{{ row.segment_count }}</div>
+              </div>
+            }
+          </div>
+
+        </div>
+      }
+
+
+    }
+  }
+
+  <!-- ── Footer link to full page ─────────────────────────────── -->
+  @if (loadState() === 'success') {
+    <div class="stats-modal__footer">
+      <span class="stats-modal__footer-hint">Full breakdown &amp; timeline in the report</span>
+      <a
+        class="stats-modal__full-link"
+        [routerLink]="['/surveillance/identity', identity()]"
+        (click)="close()"
+      >
+        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+        View full report
+      </a>
+    </div>
+  }
+
+</div>

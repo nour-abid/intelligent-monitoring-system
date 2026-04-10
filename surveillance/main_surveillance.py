@@ -1,390 +1,782 @@
+"""
+Camera B - Surveillance / Activity Monitor
+==========================================
+
+Loads the YOLO activity model (``surveillance/models/best.pt``), tracks
+persons with DeepSORT, maintains per-track state (identity + current
+activity + duration) via the supporting modules, and logs every activity
+state-change to a CSV file.
+
+Nothing in this file touches the facial check-in pipeline (src/recognition/).
+Identity defaults to ``"Unknown"``.  Face-based identity matching is wired
+in through ``identity_matcher.py`` which is currently a no-op stub.
+
+Run
+---
+    python -m surveillance.main_surveillance
+or
+    python surveillance/main_surveillance.py
+"""
+
+from __future__ import annotations
+
+import logging
 import sys
 import time
 from pathlib import Path
-from collections import deque
+from typing import Dict, List, Optional
 
 import cv2
-import numpy as np
+import yaml
 from ultralytics import YOLO
-from insightface.app import FaceAnalysis
 
-# --------- make imports work ----------
-SCRIPT_DIR = Path(__file__).resolve().parent           # .../surveillance
-PROJECT_ROOT = SCRIPT_DIR.parent                       # project root
-SRC_DIR = PROJECT_ROOT / "src"
+# ---------------------------------------------------------------------------
+# Path setup --- makes ``surveillance.*`` importable regardless of cwd
+# ---------------------------------------------------------------------------
+_HERE = Path(__file__).resolve().parent        # .../surveillance/
+_ROOT = _HERE.parent                            # project root
 
-for p in (PROJECT_ROOT, SRC_DIR):
-    sp = str(p)
-    if sp not in sys.path:
-        sys.path.insert(0, sp)
+for _p in [str(_ROOT), str(_ROOT / "src"), str(_HERE.parent)]:
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 
-# Config + logger
+# ---------------------------------------------------------------------------
+# Surveillance-internal imports (no check-in code imported here)
+# ---------------------------------------------------------------------------
+from surveillance.tracker import init_activity_tracker, update_tracks_activity
+from surveillance.state_manager import StateManager, SurveillanceTrackState
+from surveillance.activity_logic import should_switch_activity
+from surveillance.repositories.surveillance_repository import SurveillanceRepository
+from surveillance.identity_matcher import IdentityMatcher
+
+# Optional: checked-in identity bridge (Camera A → Camera B).
+# Guarded so that missing/unavailable store never breaks the surveillance loop.
 try:
-    from src.recognition.config import config
-    from src.recognition.logger import logger
+    from surveillance.shared.daily_identity_store import DailyIdentityStore as _DailyIdentityStore
+    _DAILY_STORE_AVAILABLE = True
 except Exception:
-    config = {"camera": {"rtsp_url": ""}, "recognition": {"sim_threshold": 0.72, "margin": 0.08}}
-    import logging
-    logger = logging.getLogger("surveillance")
-    logging.basicConfig(level=logging.INFO)
+    _DailyIdentityStore = None  # type: ignore[assignment,misc]
+    _DAILY_STORE_AVAILABLE = False
 
-# Tracker wrapper
-try:
-    from surveillance.tracker import init_tracker, update_tracks_person
-except Exception:
-    from tracker import init_tracker, update_tracks_person  # fallback
+# ---------------------------------------------------------------------------
+# Logging
+# ---------------------------------------------------------------------------
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s --- %(message)s",
+)
+logging.getLogger("surveillance.identity").setLevel(logging.DEBUG)
+log = logging.getLogger("surveillance")
 
-# Face recognition helpers
-from src.recognition.recognition import load_known_embeddings, match_identity
+# ---------------------------------------------------------------------------
+# Constants
+# ---------------------------------------------------------------------------
+DEFAULT_ACTIVITY_CLASSES: Dict[int, str] = {
+    0: "Inactive",
+    1: "Using_Phone",
+    2: "Working",
+}
 
-
-# ------------------------
-# Utils: face -> track association
-# ------------------------
-def point_in_box(cx, cy, box):
-    x1, y1, x2, y2 = box
-    return (x1 <= cx <= x2) and (y1 <= cy <= y2)
-
-
-def assign_face_to_track(face_bbox, track_boxes):
-    cx = (face_bbox[0] + face_bbox[2]) / 2.0
-    cy = (face_bbox[1] + face_bbox[3]) / 2.0
-
-    best_tid = None
-    best_area = None
-    for tid, tbox in track_boxes.items():
-        if point_in_box(cx, cy, tbox):
-            area = max(1.0, (tbox[2] - tbox[0]) * (tbox[3] - tbox[1]))
-            if best_area is None or area < best_area:
-                best_area = area
-                best_tid = tid
-    return best_tid
+# BGR colours per activity for the overlay rectangle
+_ACTIVITY_COLORS: Dict[str, tuple] = {
+    "Inactive":    (128, 128, 128),   # grey
+    "Using_Phone": (  0,   0, 255),   # red
+    "Working":     (  0, 255,   0),   # green
+    "Unknown":     (  0, 255, 255),   # yellow
+}
 
 
-# ------------------------
-# RTSP helper
-# ------------------------
-def open_rtsp_capture(url: str):
+# ===========================================================================
+# Settings
+# ===========================================================================
+
+def _load_settings(path: Path) -> dict:
+    with open(path, "r", encoding="utf-8") as fh:
+        return yaml.safe_load(fh) or {}
+
+
+# ===========================================================================
+# Video capture
+# ===========================================================================
+
+def _open_capture(source, retry_interval_sec: float = 5.0) -> cv2.VideoCapture:
+    """Open a webcam index, RTSP, HTTP/IP-Webcam, or file path.
+
+    HTTP streams (IP Webcam) and RTSP streams use CAP_FFMPEG with a
+    reduced buffer to minimise latency.  Falls back to a plain index
+    for integer sources.  Retries indefinitely on failure, logging
+    each attempt, so the process stays alive while the camera is
+    temporarily unreachable.
+    """
     import os
-    os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;tcp"
-    cap = cv2.VideoCapture(url, cv2.CAP_FFMPEG)
-    cap.set(cv2.CAP_PROP_BUFFERSIZE, 5)  # a bit more stable
-    if not cap.isOpened():
-        raise RuntimeError(f"Failed to open RTSP stream: {url}")
-    return cap
+
+    is_network = isinstance(source, str) and (
+        source.lower().startswith("rtsp")
+        or source.lower().startswith("http")
+    )
+
+    while True:
+        try:
+            if is_network:
+                if source.lower().startswith("rtsp"):
+                    os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;tcp"
+                else:
+                    # HTTP / MJPEG — tell FFmpeg not to buffer input frames.
+                    # Without fflags=nobuffer, FFmpeg queues several decoded
+                    # MJPEG frames internally; by the time the main loop calls
+                    # cap.read() again, those stale frames are returned first
+                    # causing visible action-display lag.
+                    os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = (
+                        "fflags;nobuffer|analyzeduration;0|probesize;32"
+                    )
+                cap = cv2.VideoCapture(source, cv2.CAP_FFMPEG)
+            else:
+                idx = int(source) if str(source).lstrip("-").isdigit() else source
+                cap = cv2.VideoCapture(idx)
+
+            if cap.isOpened():
+                cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+                log.info("Video source opened: %s", source)
+                return cap
+
+            cap.release()
+        except Exception as exc:
+            log.error("Exception while opening video source %r: %s", source, exc)
+
+        log.warning(
+            "Cannot open video source %r — retrying in %.0f s ...",
+            source, retry_interval_sec,
+        )
+        time.sleep(retry_interval_sec)
 
 
-def main():
-    # 1) RTSP source
-    rtsp_url = config["camera"]["rtsp_url"]
-    if not rtsp_url:
-        raise SystemExit("❌ RTSP URL empty. Check config.yaml camera.rtsp_url")
+# ===========================================================================
+# Overlay drawing
+# ===========================================================================
 
-    cap = open_rtsp_capture(rtsp_url)
-    logger.info("✅ Surveillance RTSP opened")
+def _fmt_duration(seconds: float) -> str:
+    """Format seconds as HH:MM:SS."""
+    s = int(seconds)
+    h, rem = divmod(s, 3600)
+    m, sec = divmod(rem, 60)
+    return f"{h:02d}:{m:02d}:{sec:02d}"
 
-    # RTSP recovery state
-    consecutive_frame_fails = 0
-    max_consecutive_fails = 15
 
-    last_frame_sig = None
-    same_frame_count = 0
-    max_same_frames = 20
+def _draw_overlays(
+    frame,
+    states: Dict[int, SurveillanceTrackState],
+    line_thickness: int,
+    font_scale: float,
+) -> None:
+    """Draw bounding boxes and activity labels for all active tracks."""
+    H, W = frame.shape[:2]
+    
+    for tid, state in states.items():
+        if state.bbox is None:
+            continue
 
-    # 2) YOLOv11 COCO model for PERSON detection
-    yolo_person = YOLO("yolo11s.pt")
-    logger.info("✅ YOLOv11 person detector loaded (yolo11s.pt)")
+        x1, y1, x2, y2 = (int(v) for v in state.bbox)
+        duration_str = _fmt_duration(time.time() - state.activity_start_time)
+        label = (
+            f"Track {tid} | {state.identity_name} "
+            f"| {state.current_activity} | {duration_str}"
+        )
 
-    # 3) DeepSORT tracker (FULL BODY)
-    deepsort = init_tracker()
-    logger.info("✅ DeepSORT initialized")
+        color = _ACTIVITY_COLORS.get(state.current_activity, _ACTIVITY_COLORS["Unknown"])
 
-    # 4) Load known embeddings
-    emb_dir = PROJECT_ROOT / "models" / "embeddings"
-    known = load_known_embeddings(emb_dir)
-    logger.info(f"✅ Loaded known identities: {len(known)} from {emb_dir}")
+        # Bounding box
+        cv2.rectangle(frame, (x1, y1), (x2, y2), color, line_thickness)
 
-    # 5) Recognition thresholds from config
-    SIM_THR = float(config["recognition"]["sim_threshold"])
-    MARGIN_THR = float(config["recognition"]["margin"])
-    logger.info(f"✅ Recognition thresholds: sim={SIM_THR} margin={MARGIN_THR}")
+        # Text background for readability
+        (tw, th), baseline = cv2.getTextSize(
+            label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, 1
+        )
+        
+        # Compute label position with boundary clipping
+        # Try to place above the box first
+        text_x = x1 + 2
+        text_y = y1 - 6
+        
+        # Text background box corners (top-left to bottom-right)
+        bg_left = text_x - 2
+        bg_right = text_x + tw + 2
+        bg_top = text_y - th - baseline - 2
+        bg_bottom = text_y + baseline
+        
+        # Adjust horizontally if text overflows right edge
+        if bg_right > W:
+            overshoot = bg_right - W
+            text_x = max(2, text_x - overshoot)
+            bg_left = text_x - 2
+            bg_right = text_x + tw + 2
+        
+        # Adjust vertically: if above top, move below the bbox instead
+        if bg_top < 0:
+            text_y = y2 + 6 + th
+            bg_top = text_y - th - baseline - 2
+            bg_bottom = text_y + baseline
+            # Clamp bottom if it overflows
+            if bg_bottom > H:
+                text_y = max(th + 6, H - baseline)
+                bg_top = text_y - th - baseline - 2
+                bg_bottom = text_y + baseline
+        
+        # Draw background rectangle
+        cv2.rectangle(
+            frame,
+            (int(bg_left), int(bg_top)),
+            (int(bg_right), int(bg_bottom)),
+            (0, 0, 0),
+            -1,
+        )
+        
+        # Draw text
+        cv2.putText(
+            frame,
+            label,
+            (int(text_x), int(text_y)),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            font_scale,
+            color,
+            1,
+            cv2.LINE_AA,
+        )
 
-    # 6) InsightFace (face detect + embedding) - lighter settings
-    logger.info("✅ Loading InsightFace (buffalo_l) ...")
-    try:
-        providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
-        app = FaceAnalysis(name="buffalo_l", providers=providers)
-        app.prepare(ctx_id=0, det_size=(480, 480))
-        logger.info("✅ InsightFace CUDA OK")
-    except Exception as e:
-        logger.warning(f"CUDA not available for InsightFace: {e}, fallback CPU.")
-        app = FaceAnalysis(name="buffalo_l", providers=["CPUExecutionProvider"])
-        app.prepare(ctx_id=-1, det_size=(480, 480))
-        logger.info("✅ InsightFace CPU OK")
 
-    # ------------------------
-    # Stable identity display (IMPORTANT)
-    # ------------------------
-    # Give each known person a fixed ID (stable)
-    FIXED_EMPLOYEE_ID = {
-        "Nour": "EMP_001",
-        "Amir": "EMP_002",
-        # add more...
+# ===========================================================================
+# Activity---track matching
+# ===========================================================================
+
+def _bbox_iou(a: tuple, b: tuple) -> float:
+    """Compute IoU between two (x1, y1, x2, y2) bounding boxes."""
+    ix1 = max(a[0], b[0])
+    iy1 = max(a[1], b[1])
+    ix2 = min(a[2], b[2])
+    iy2 = min(a[3], b[3])
+    if ix2 <= ix1 or iy2 <= iy1:
+        return 0.0
+    inter = (ix2 - ix1) * (iy2 - iy1)
+    area_a = max(1.0, (a[2] - a[0]) * (a[3] - a[1]))
+    area_b = max(1.0, (b[2] - b[0]) * (b[3] - b[1]))
+    return inter / max(1.0, area_a + area_b - inter)
+
+
+def _match_activity_to_track(
+    track_bbox: tuple,
+    raw_dets: list,
+    iou_threshold: float = 0.45,
+    exclusive_owner: dict | None = None,
+    track_id: int | None = None,
+) -> str:
+    """Return the activity label from the raw detection with highest IoU.
+
+    Two stricter rules over the original implementation:
+
+    1. **Center-containment guard** — the detection centroid must lie inside
+       the track bbox.  A neighbour sitting close by can overlap 20-30% of
+       the track box, but the *centre* of their detection almost never falls
+       inside the other person's box.  Requiring containment eliminates
+       the dominant bleed path.
+
+    2. **Exclusive-ownership check** — if ``exclusive_owner`` is supplied
+       (a dict mapping det_index → best_track_id built before the per-track
+       loop), only the detection whose best-matching track is *this* track
+       is eligible.  This prevents two adjacent tracks from both claiming
+       the same detection.
+
+    Falls back to ``"Unknown"`` when no detection passes both gates.
+    """
+    if not raw_dets:
+        return "Unknown"
+
+    tx1, ty1, tx2, ty2 = track_bbox
+    best_iou = 0.0
+    best_activity = "Unknown"
+
+    for di, det in enumerate(raw_dets):
+        # Exclusive-ownership gate: skip this detection if it belongs
+        # to a different track.
+        if exclusive_owner is not None and track_id is not None:
+            if exclusive_owner.get(di) != track_id:
+                continue
+
+        # Center-containment guard: detection centroid must be inside track box.
+        dc_x = (det["x1"] + det["x2"]) * 0.5
+        dc_y = (det["y1"] + det["y2"]) * 0.5
+        if not (tx1 <= dc_x <= tx2 and ty1 <= dc_y <= ty2):
+            continue
+
+        ix1 = max(tx1, det["x1"])
+        iy1 = max(ty1, det["y1"])
+        ix2 = min(tx2, det["x2"])
+        iy2 = min(ty2, det["y2"])
+
+        if ix2 <= ix1 or iy2 <= iy1:
+            continue
+
+        inter = (ix2 - ix1) * (iy2 - iy1)
+        area_t = max(1.0, (tx2 - tx1) * (ty2 - ty1))
+        area_d = max(1.0, (det["x2"] - det["x1"]) * (det["y2"] - det["y1"]))
+        iou = inter / max(1.0, area_t + area_d - inter)
+
+        if iou > best_iou:
+            best_iou = iou
+            best_activity = det["activity"]
+
+    return best_activity if best_iou >= iou_threshold else "Unknown"
+
+
+# ===========================================================================
+# Main loop
+# ===========================================================================
+
+def main() -> None:
+    settings_path = _HERE / "config" / "settings.yaml"
+    cfg = _load_settings(settings_path)
+
+    # --- Config values ---
+    video_source        = cfg.get("video_source", 0)
+    model_path          = _ROOT / cfg.get("model_path", "surveillance/models/best.pt")
+    conf_threshold      = float(cfg.get("conf_threshold", 0.4))
+    activity_conf_threshold = float(cfg.get("activity_conf_threshold", 0.35))
+    activity_conf_overrides: dict = {
+        k: float(v)
+        for k, v in cfg.get("activity_conf_overrides", {}).items()
+    }
+    imgsz               = int(cfg.get("imgsz", 640))
+    frame_drain_count   = int(cfg.get("frame_drain_count", 4))
+    activity_iou_thr    = float(cfg.get("activity_iou_threshold", 0.45))
+    activity_stable_frames = int(cfg.get("activity_stable_frames", 8))
+    working_to_inactive_extra = int(cfg.get("working_to_inactive_extra_frames", 3))
+    working_phone_extra        = int(cfg.get("working_phone_extra_frames", 2))
+    unknown_inactive_extra     = int(cfg.get("unknown_inactive_extra_frames", 2))
+    track_max_missing   = int(cfg.get("track_max_missing_frames", 30))
+    tracker_n_init      = int(cfg.get("tracker_n_init", 2))
+    save_csv            = bool(cfg.get("save_log_csv", True))
+    log_csv_path        = _ROOT / cfg.get("log_csv_path", "logs/surveillance_events.csv")
+    show_window         = bool(cfg.get("show_window", True))
+    line_thickness      = int(cfg.get("line_thickness", 2))
+    font_scale          = float(cfg.get("font_scale", 0.6))
+    debug_overlay       = bool(cfg.get("debug_overlay", False))
+    arcface_model       = cfg.get("arcface_model_path", "models/arcface/arcface.onnx")
+    identity_emb_dir    = cfg.get("identity_embeddings_dir", "models/embeddings")
+    id_threshold        = float(cfg.get("identity_match_threshold", 0.50))
+    id_margin           = float(cfg.get("identity_match_margin", 0.06))
+    face_every_n        = int(cfg.get("face_every_n_frames", 30))
+    bbox_expand_ratio   = float(cfg.get("bbox_expand_ratio", 0.2))
+    min_person_crop_px  = int(cfg.get("min_person_crop_px", 60))
+    face_fail_cooldown_threshold = int(cfg.get("face_fail_cooldown_threshold", 3))
+    face_fail_cooldown_frames    = int(cfg.get("face_fail_cooldown_frames", 60))
+    reassoc_max_gap     = float(cfg.get("reassoc_max_gap_sec", 5.0))
+    reassoc_max_dist    = float(cfg.get("reassoc_max_center_dist_px", 200.0))
+    reassoc_min_score   = float(cfg.get("reassoc_min_score", 0.25))
+    reassoc_fc_max_gap  = float(cfg.get("reassoc_face_confirmed_max_gap_sec", 15.0))
+    reassoc_fc_min_score = float(cfg.get("reassoc_face_confirmed_min_score", 0.15))
+    track_maturity_frames     = int(cfg.get("track_maturity_frames", 10))
+    checkedin_refresh_sec = float(cfg.get("daily_store_refresh_sec", 60.0))
+
+    # Activity class map: normalise keys to int
+    raw_classes = cfg.get("activity_classes", DEFAULT_ACTIVITY_CLASSES)
+    activity_classes: Dict[int, str] = {
+        int(k): str(v) for k, v in raw_classes.items()
     }
 
-    # track_identity: per track vote smoothing (as before)
-    track_identity = {}
-    ID_WINDOW = int(config.get("tuning", {}).get("identity_window", 20))
-    ID_MIN_HITS = int(config.get("tuning", {}).get("identity_min_hits", 6))
-    IDENTITY_TIMEOUT_SEC = 15.0
+    # --- Model ---
+    if not Path(model_path).exists():
+        raise FileNotFoundError(
+            f"Activity model not found: {model_path}\n"
+            "Place best.pt at surveillance/models/best.pt or update "
+            "settings.yaml --- model_path"
+        )
+    yolo_activity = YOLO(str(model_path))
+    log.info(f"Activity model loaded: {model_path}")
+    # Always derive class names from the loaded model so the mapping
+    # stays consistent regardless of what is written in settings.yaml.
+    # This fixes decoding when the model is replaced (e.g. 4-class → 3-class).
+    activity_classes = {int(k): str(v) for k, v in yolo_activity.model.names.items()}
+    log.info("Activity classes from model: %s", activity_classes)
 
-    # identity_to_primary_tid: to avoid duplicates when track_id changes
-    identity_to_primary_tid = {}  # name -> tid
-    identity_last_seen = {}        # name -> timestamp
+    # --- DeepSORT tracker ---
+    tracker = init_activity_tracker(
+        max_age=max(track_max_missing, 30),
+        n_init=tracker_n_init,
+    )
+    log.info("DeepSORT activity tracker initialized")
 
-    # Person detection tuning
-    PERSON_CONF = 0.15
-    MIN_W, MIN_H = 60, 120
+    # --- Reassociation cache ---
+    from surveillance.state_manager import ReassociationCache
+    reassoc_cache = ReassociationCache(
+        max_gap_sec=reassoc_max_gap,
+        max_center_dist_px=reassoc_max_dist,
+        min_score=reassoc_min_score,
+        face_confirmed_max_gap_sec=reassoc_fc_max_gap,
+        face_confirmed_min_score=reassoc_fc_min_score,
+    )
 
-    # ---- performance controls ----
-    YOLO_IMGSZ = 448
-    FACE_EVERY_N = 5
-    YOLO_EVERY_N = 2
-    last_person_dets = []
+    # --- State manager ---
+    state_mgr = StateManager(
+        max_missing_frames=track_max_missing,
+        reassoc_cache=reassoc_cache,
+    )
 
-    # FPS
+    # --- Checked-in identity store (read-only; used to feed StateManager) ---
+    _checkedin_store = None
+    if _DAILY_STORE_AVAILABLE:
+        try:
+            _checkedin_store = _DailyIdentityStore()
+            log.info("DailyIdentityStore opened for checked-in cohort tracking.")
+        except Exception as _exc:
+            log.warning("DailyIdentityStore unavailable; checked-in persistence inactive: %s", _exc)
+
+    # --- Identity matcher ---
+    identity_matcher = IdentityMatcher(
+        embeddings_dir=identity_emb_dir,
+        model_path=arcface_model,
+        threshold=id_threshold,
+        margin=id_margin,
+        face_every_n_frames=face_every_n,
+        bbox_expand_ratio=bbox_expand_ratio,
+        min_person_crop_px=min_person_crop_px,
+        face_fail_cooldown_threshold=face_fail_cooldown_threshold,
+        face_fail_cooldown_frames=face_fail_cooldown_frames,
+    )
+
+    # --- Event repository (CSV backend by default) ---
+    event_logger: Optional[SurveillanceRepository] = None
+    if save_csv:
+        event_logger = SurveillanceRepository(log_csv_path)
+
+    # --- Video capture ---
+    cap = _open_capture(video_source)
+
+    log.info(
+        "[SURVEILLANCE] runtime — imgsz=%d  conf=%.2f  face_every_n=%d  "
+        "frame_drain_count=%d  track_maturity=%d  activity_stable=%d  "
+        "activity_iou_thr=%.2f  working_to_inactive_extra=%d  "
+        "working_phone_extra=%d  unknown_inactive_extra=%d",
+        imgsz, conf_threshold, face_every_n,
+        frame_drain_count, track_maturity_frames, activity_stable_frames,
+        activity_iou_thr, working_to_inactive_extra, working_phone_extra,
+        unknown_inactive_extra,
+    )
+
     frame_count = 0
-    fps_last_t = time.time()
-    fps_text = ""
+    fps_timer   = time.time()
+    fps_text    = "FPS: --"
+    consecutive_failures = 0
+    # Trigger an immediate refresh on the first processed frame.
+    _checkedin_last_refresh: float = 0.0
 
     try:
         while True:
             ok, frame = cap.read()
-
-            invalid = (
-                (not ok) or
-                (frame is None) or
-                (not hasattr(frame, "shape")) or
-                (frame.size == 0)
-            )
-
-            if invalid:
-                consecutive_frame_fails += 1
-                if consecutive_frame_fails % 5 == 1:
-                    logger.warning(f"[RTSP] invalid frame ({consecutive_frame_fails}/{max_consecutive_fails})")
-
-                if consecutive_frame_fails >= max_consecutive_fails:
-                    logger.warning("[RTSP] Stream unstable. Reconnecting...")
-                    try:
-                        cap.release()
-                    except Exception:
-                        pass
-                    time.sleep(0.8)
-                    cap = open_rtsp_capture(rtsp_url)
-                    consecutive_frame_fails = 0
-                    same_frame_count = 0
-                    last_frame_sig = None
-
-                time.sleep(0.03)
+            if not ok or frame is None:
+                consecutive_failures += 1
+                if consecutive_failures >= 3:
+                    log.warning(
+                        "Stream dropped after %d consecutive failures — "
+                        "attempting reconnect to %r ...",
+                        consecutive_failures, video_source,
+                    )
+                    cap.release()
+                    cap = _open_capture(video_source)
+                    consecutive_failures = 0
+                else:
+                    log.warning(f"Frame read failed ({consecutive_failures}/3); retrying...")
+                time.sleep(0.05)
                 continue
 
-            consecutive_frame_fails = 0
+            consecutive_failures = 0
 
-            # frozen frame detection
-            try:
-                h, w = frame.shape[:2]
-                sig = (h, w, int(frame[0, 0, 0]), int(frame[h // 2, w // 2, 0]), int(frame[-1, -1, 0]))
-                if sig == last_frame_sig:
-                    same_frame_count += 1
-                else:
-                    same_frame_count = 0
-                    last_frame_sig = sig
-
-                if same_frame_count >= max_same_frames:
-                    logger.warning("[RTSP] Frozen frames detected. Reconnecting...")
-                    try:
-                        cap.release()
-                    except Exception:
-                        pass
-                    time.sleep(0.6)
-                    cap = open_rtsp_capture(rtsp_url)
-                    same_frame_count = 0
-                    last_frame_sig = None
-                    continue
-            except Exception:
-                pass
+            # Drain stale frames buffered while the previous iteration was
+            # processing.  cap.grab() on an FFmpeg-buffered MJPEG frame
+            # returns in <1 ms.  Once the internal queue is empty it has to
+            # wait for the camera (~33 ms at 30 fps).  We use that timing
+            # gap as the stop signal so we never block here longer than one
+            # live-frame interval.
+            _drained = 0
+            while _drained < frame_drain_count:
+                _grab_t0 = time.perf_counter()
+                if not cap.grab():
+                    break
+                if time.perf_counter() - _grab_t0 > 0.002:  # >2 ms → waited for live frame
+                    break
+                _drained += 1
+            if _drained:
+                _, frame = cap.retrieve()
 
             frame_count += 1
             H, W = frame.shape[:2]
 
-            # A) Person Detection (YOLO) with optional skipping
-            if frame_count % YOLO_EVERY_N == 0:
+            # -- FPS calculation (every 30 frames) --
+            if frame_count % 30 == 0:
+                elapsed = time.time() - fps_timer
+                fps_text = f"FPS: {30 / max(elapsed, 1e-6):.1f}"
+                fps_timer = time.time()
+
+            # -- Checked-in cohort refresh (time-gated) --
+            _ts_now = time.time()
+            if _checkedin_store is not None and (_ts_now - _checkedin_last_refresh) >= checkedin_refresh_sec:
                 try:
-                    res = yolo_person.predict(frame, imgsz=YOLO_IMGSZ, conf=PERSON_CONF, verbose=False)[0]
-                except Exception as e:
-                    logger.warning(f"[YOLO] predict failed, skipping frame: {repr(e)}")
-                    time.sleep(0.01)
-                    continue
+                    _daily_profiles = _checkedin_store.get_identities_for_today()
+                    _names = set(_daily_profiles.keys())
+                    state_mgr.update_checkedin_names(_names)
+                    log.info(
+                        "[CHECKEDIN] cohort refreshed: %d identity/-ies: %s",
+                        len(_names), sorted(_names) or "(none)",
+                    )
+                except Exception as _exc:
+                    log.warning("[CHECKEDIN] refresh failed (persistence inactive this cycle): %s", _exc)
+                _checkedin_last_refresh = _ts_now
 
-                person_dets = []
-                if res.boxes is not None:
-                    for b in res.boxes:
-                        if int(b.cls[0]) != 0:
+            # ------ A. YOLO activity inference ------------------------------------------------------------------------------------------
+            raw_dets: List[dict] = []
+            try:
+                results = yolo_activity.predict(
+                    frame, imgsz=imgsz, conf=conf_threshold, verbose=False
+                )[0]
+            except Exception as exc:
+                log.warning(f"YOLO inference error (skipping frame): {exc}")
+                results = None
+
+            if results is not None and results.boxes is not None:
+                for b in results.boxes:
+                    cls_idx = int(b.cls[0])
+                    score   = float(b.conf[0])
+                    
+                    # Reject weak activity predictions below per-class or global threshold.
+                    cls_name = activity_classes.get(cls_idx, "Unknown")
+                    required_conf = activity_conf_overrides.get(
+                        cls_name, activity_conf_threshold
+                    )
+                    if score < required_conf:
+                        activity_label = "Unknown"
+                    else:
+                        activity_label = cls_name
+                    
+                    x1, y1, x2, y2 = b.xyxy[0].tolist()
+
+                    # Clamp to frame bounds
+                    x1 = max(0.0, min(float(W - 1), x1))
+                    y1 = max(0.0, min(float(H - 1), y1))
+                    x2 = max(0.0, min(float(W - 1), x2))
+                    y2 = max(0.0, min(float(H - 1), y2))
+
+                    raw_dets.append({
+                        "x1": x1, "y1": y1, "x2": x2, "y2": y2,
+                        "score": score,
+                        "raw_label": cls_name,
+                        "activity": activity_label,
+                    })
+                    
+                    # Debug overlay: raw YOLO class/confidence
+                    if debug_overlay:
+                        x1i, y1i = int(x1), int(y1)
+                        debug_txt = f"[{cls_idx}] {score:.2f}"
+                        cv2.putText(
+                            frame, debug_txt,
+                            (x1i, y1i - 3),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.4, (200, 200, 200), 1
+                        )
+
+            # ------ B. Track ------------------------------------------------------------------------------------------------------------------------------------------------
+            tracks = update_tracks_activity(tracker, raw_dets, frame)
+
+            # Build exclusive-ownership map: for each raw detection, record
+            # which confirmed track has the highest IoU.  A detection is
+            # later only eligible for that one track — no other track may
+            # claim it, preventing the same YOLO box from assigning identical
+            # activity to two neighbouring persons.
+            _det_owner: dict = {}  # det_index -> track_id of best-matching track
+            if raw_dets:
+                _det_best_iou: dict = {}   # det_index -> best IoU seen so far
+                for _tr in tracks:
+                    if hasattr(_tr, "is_confirmed") and not _tr.is_confirmed():
+                        continue
+                    _ltrb = _tr.to_ltrb()
+                    _tbbox = (float(_ltrb[0]), float(_ltrb[1]),
+                              float(_ltrb[2]), float(_ltrb[3]))
+                    _tx1, _ty1, _tx2, _ty2 = _tbbox
+                    for _di, _det in enumerate(raw_dets):
+                        _ix1 = max(_tx1, _det["x1"])
+                        _iy1 = max(_ty1, _det["y1"])
+                        _ix2 = min(_tx2, _det["x2"])
+                        _iy2 = min(_ty2, _det["y2"])
+                        if _ix2 <= _ix1 or _iy2 <= _iy1:
                             continue
+                        _inter = (_ix2 - _ix1) * (_iy2 - _iy1)
+                        _area_t = max(1.0, (_tx2 - _tx1) * (_ty2 - _ty1))
+                        _area_d = max(1.0, (_det["x2"] - _det["x1"]) * (_det["y2"] - _det["y1"]))
+                        _iou = _inter / max(1.0, _area_t + _area_d - _inter)
+                        if _iou > _det_best_iou.get(_di, 0.0):
+                            _det_best_iou[_di] = _iou
+                            _det_owner[_di] = _tr.track_id
 
-                        x1, y1, x2, y2 = b.xyxy[0].tolist()
-                        conf = float(b.conf[0])
+            active_ids: set = set()
+            now = time.time()
 
-                        x1 = max(0.0, min(W - 1.0, x1))
-                        y1 = max(0.0, min(H - 1.0, y1))
-                        x2 = max(0.0, min(W - 1.0, x2))
-                        y2 = max(0.0, min(H - 1.0, y2))
-
-                        if (x2 - x1) < MIN_W or (y2 - y1) < MIN_H:
-                            continue
-
-                        person_dets.append({"x1": x1, "y1": y1, "x2": x2, "y2": y2, "score": conf})
-
-                last_person_dets = person_dets
-            else:
-                person_dets = last_person_dets
-
-            # B) Tracking
-            tracks = update_tracks_person(deepsort, person_dets, frame)
-
-            # track boxes
-            track_boxes = {}
             for tr in tracks:
                 if hasattr(tr, "is_confirmed") and not tr.is_confirmed():
                     continue
-                x1, y1, x2, y2 = tr.to_ltrb()
-                track_boxes[tr.track_id] = (float(x1), float(y1), float(x2), float(y2))
 
-            # C) Face detection only every N frames
-            faces = []
-            if frame_count % FACE_EVERY_N == 0:
-                faces = app.get(frame, max_num=10)
+                tid  = tr.track_id
+                ltrb = tr.to_ltrb()
+                bbox = (float(ltrb[0]), float(ltrb[1]),
+                        float(ltrb[2]), float(ltrb[3]))
 
-                for face in faces:
-                    fx1, fy1, fx2, fy2 = [float(v) for v in face.bbox]
-                    emb = face.normed_embedding if hasattr(face, "normed_embedding") else face.embedding
-                    emb = np.asarray(emb, dtype=np.float32).reshape(-1)
+                active_ids.add(tid)
 
-                    tid = assign_face_to_track((fx1, fy1, fx2, fy2), track_boxes)
-                    if tid is None:
-                        continue
+                # ------ C. State update ---------------------------------------------------------------------------------------------------------------
+                is_new = tid not in state_mgr._states
+                state = state_mgr.get_or_create(tid)
+                state.bbox           = bbox
+                state.last_seen_time = now
 
-                    label, sim, sim2 = match_identity(
-                        emb, known,
-                        sim_threshold=SIM_THR,
-                        margin=MARGIN_THR
+                # Short-term reassociation for brand-new Unknown tracks
+                if is_new and state.identity_name == "Unknown":
+                    reassoc_cache.try_reassociate(state)
+
+                # ------ C1. Detector label -----------------------------------------------
+                detected_act = _match_activity_to_track(
+                    bbox, raw_dets,
+                    iou_threshold=activity_iou_thr,
+                    exclusive_owner=_det_owner,
+                    track_id=tid,
+                )
+                # When no YOLO detection overlaps this track (IoU < threshold),
+                # _match_activity_to_track returns "Unknown".  Passing that
+                # "Unknown" to the smoother treats it as a new challenger and
+                # resets pending_count, breaking any in-progress streak for the
+                # real label.  Instead, hold the pending challenger (or the
+                # current confirmed activity) so detection gaps are transparent
+                # to the streak counter.
+                if detected_act == "Unknown":
+                    detected_act = (
+                        state.pending_activity
+                        if state.pending_activity not in (None, "Unknown")
+                        else state.current_activity
                     )
 
-                    if tid not in track_identity:
-                        track_identity[tid] = {
-                            "votes": deque(maxlen=ID_WINDOW),
-                            "stable": "Unknown",
-                            "last_ts": time.time(),
-                            "last_sim": 0.0
-                        }
-
-                    mem = track_identity[tid]
-                    mem["votes"].append(label)
-                    mem["last_ts"] = time.time()
-                    mem["last_sim"] = float(sim)
-
-                    # stable label by vote
-                    counts = {}
-                    for v in mem["votes"]:
-                        counts[v] = counts.get(v, 0) + 1
-                    best, c = max(counts.items(), key=lambda kv: kv[1])
-                    mem["stable"] = best if (best != "Unknown" and c >= ID_MIN_HITS) else "Unknown"
-
-                    # if identity stable, update primary tid mapping
-                    if mem["stable"] != "Unknown":
-                        name = mem["stable"]
-                        identity_to_primary_tid[name] = tid
-                        identity_last_seen[name] = time.time()
-
-            # timeout identities per track
-            now = time.time()
-            for tid in list(track_identity.keys()):
-                if now - track_identity[tid]["last_ts"] > IDENTITY_TIMEOUT_SEC:
-                    track_identity[tid]["stable"] = "Unknown"
-
-            # cleanup primary identity mapping if not seen recently
-            for name in list(identity_last_seen.keys()):
-                if now - identity_last_seen[name] > 6.0:  # seconds
-                    identity_last_seen.pop(name, None)
-                    identity_to_primary_tid.pop(name, None)
-
-            # D) Draw tracks (show FIXED id when recognized)
-            active = 0
-            for tr in tracks:
-                if hasattr(tr, "is_confirmed") and not tr.is_confirmed():
-                    continue
-                tid = tr.track_id
-                x1, y1, x2, y2 = tr.to_ltrb()
-                x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
-
-                name = track_identity.get(tid, {}).get("stable", "Unknown")
-                simv = track_identity.get(tid, {}).get("last_sim", 0.0)
-
-                # If this track has a stable name, but it's not the "primary" track for that name,
-                # hide it to avoid duplicates when track_id changes.
-                if name != "Unknown":
-                    primary_tid = identity_to_primary_tid.get(name, tid)
-                    if primary_tid != tid:
-                        name = "Unknown"
-
-                if name != "Unknown":
-                    fixed_id = FIXED_EMPLOYEE_ID.get(name, name)
-                    label_text = f"{fixed_id} {name} ({simv:.2f})"
-                    color = (0, 255, 0)
-                else:
-                    label_text = f"Track:{tid}"
-                    color = (0, 255, 255)
-
-                cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
-                cv2.putText(
-                    frame,
-                    label_text,
-                    (x1, max(0, y1 - 10)),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.6,
-                    color,
-                    2
+                # ------ C2. Smoothed / committed label -----------------------------------------
+                committed_act = should_switch_activity(
+                    state, detected_act, activity_stable_frames,
+                    working_to_inactive_extra=working_to_inactive_extra,
+                    working_phone_extra=working_phone_extra,
+                    unknown_identity_inactive_extra=unknown_inactive_extra,
+                    identity_known=(state.identity_name != "Unknown"),
                 )
-                active += 1
 
-            # FPS
-            dt = time.time() - fps_last_t
-            if dt >= 1.0:
-                fps = frame_count / dt
-                fps_text = f"FPS: {fps:.1f} | Tracks: {active} | Faces: {len(faces)}"
-                frame_count = 0
-                fps_last_t = time.time()
+                # ------ C2b. Track maturity gate -----------------------------------------
+                # Fresh tracks (tr.hits < track_maturity_frames) have unreliable
+                # detections: partial bboxes, degenerate crops, face-too-small.
+                # Suppress activity *transitions* on immature tracks to prevent
+                # visible flicker — but only when the track already has a known
+                # current activity.  If the track is still "Unknown", allow
+                # the first stable non-Unknown result through so the track can
+                # surface its activity instead of staying Unknown indefinitely.
+                if tr.hits < track_maturity_frames:
+                    if state.current_activity != "Unknown":
+                        # Track has a confirmed label — don't let noisy frames
+                        # switch it before maturity.
+                        committed_act = state.current_activity
+                    # else: current_activity is "Unknown" — let the smoother's
+                    # result through so the first stable label can surface.
 
+                # ------ C3. Final activity — direct from smoother -------------------------
+                # Meeting is no longer emitted by surveillance; activity comes
+                # solely from the 3-class detector (Inactive / Using_Phone / Working).
+                final_activity = committed_act
+
+                # Debug log — emitted at DEBUG level every frame per track
+                _raw_match = max(
+                    raw_dets,
+                    key=lambda d: _bbox_iou(bbox, (d["x1"], d["y1"], d["x2"], d["y2"])),
+                    default=None,
+                )
+                _raw_label = _raw_match["raw_label"] if _raw_match else "Unknown"
+                _raw_conf  = _raw_match["score"]     if _raw_match else 0.0
+                log.debug(
+                    "[ACT] track_%d | raw=%s/%.2f | detector=%s | final=%s",
+                    tid, _raw_label, _raw_conf, detected_act, final_activity,
+                )
+
+                # If activity changed, close old event and start new
+                if final_activity != state.current_activity:
+                    closed = state.close_current_activity(end_time=now)
+                    if closed is not None and event_logger is not None:
+                        event_logger.log_event(
+                            track_id=tid,
+                            identity_name=state.identity_name,
+                            activity=closed.activity,
+                            start_time=closed.start_time,
+                            end_time=closed.end_time,
+                            identity_confidence=state.identity_confidence,
+                            identity_source=state.identity_source,
+                            event_trigger="activity_change",
+                        )
+                    state.start_activity(final_activity, start_time=now)
+
+                # ------ D. Identity matching (ArcFace + MediaPipe) ----------
+                identity_matcher.try_match(state, frame, state_mgr)
+
+            # ------ E. Remove stale tracks ------------------------------------------------------------------------------------------------------
+            removed_states = state_mgr.remove_stale(active_ids)
+            for state in removed_states:
+                identity_matcher.remove_track(state.track_id)
+                closed = state.close_current_activity(end_time=now)
+                if closed is not None and event_logger is not None:
+                    event_logger.log_event(
+                        track_id=state.track_id,
+                        identity_name=state.identity_name,
+                        activity=closed.activity,
+                        start_time=closed.start_time,
+                        end_time=closed.end_time,
+                        identity_confidence=state.identity_confidence,
+                        identity_source=state.identity_source,
+                        event_trigger="track_lost",
+                    )
+                log.info(
+                    f"Track {state.track_id} ({state.identity_name}) lost --- "
+                    f"last: {state.current_activity}"
+                )
+
+            # ------ F. Draw overlays ------------------------------------------------------------------------------------------------------------------------
+            _draw_overlays(frame, state_mgr.get_all(), line_thickness, font_scale)
             cv2.putText(
                 frame, fps_text,
-                (20, 30),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.8,
-                (255, 255, 255),
-                2
+                (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255,   0), 2,
             )
 
-            cv2.imshow("Surveillance - Stable Identity Label", frame)
-            key = cv2.waitKey(1) & 0xFF
-            if key in (27, ord("q")):
-                break
+            if show_window:
+                cv2.imshow("Surveillance --- Activity Monitor", frame)
+                key = cv2.waitKey(1) & 0xFF
+                if key in (ord("q"), 27):   # q or Esc
+                    log.info("Exit requested by user (q/Esc).")
+                    break
 
     finally:
-        try:
-            cap.release()
-        except Exception:
-            pass
+        # Flush all remaining open tracks
+        now = time.time()
+        for tid, state in list(state_mgr.get_all().items()):
+            closed = state.close_current_activity(end_time=now)
+            if closed is not None and event_logger is not None:
+                event_logger.log_event(
+                    track_id=tid,
+                    identity_name=state.identity_name,
+                    activity=closed.activity,
+                    start_time=closed.start_time,
+                    end_time=closed.end_time,
+                    identity_confidence=state.identity_confidence,
+                    identity_source=state.identity_source,
+                    event_trigger="session_end",
+                )
+                log.info(f"[FINAL] Track {tid} ({state.identity_name}): {closed.activity} ({closed.duration_sec:.1f}s)")
+        
+        cap.release()
         cv2.destroyAllWindows()
+        if event_logger is not None:
+            event_logger.close()
+        log.info("Surveillance stopped.")
 
 
 if __name__ == "__main__":

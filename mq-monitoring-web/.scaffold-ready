@@ -1,0 +1,12 @@
+# mq-monitoring-web — Angular frontend (not yet scaffolded)
+#
+# This folder is reserved for the Angular SPA dashboard.
+#
+# To scaffold the Angular project here, run the following from the
+# project root (intelligent-monitoring-system/) once Node.js >= 20,
+# npm, and @angular/cli are installed:
+#
+#   npm install -g @angular/cli
+#   ng new mq-monitoring-web --routing --style=scss --skip-git
+#
+# After scaffolding, this file can be deleted.

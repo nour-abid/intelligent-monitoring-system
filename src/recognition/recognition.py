@@ -87,14 +87,14 @@ def match_identity(
     second_sim = sims[1][1] if len(sims) > 1 else -1.0
 
     if best_sim >= sim_threshold and (best_sim - second_sim) >= margin:
-        logger.debug(
-            f"[MATCH] {best_name} sim={best_sim:.3f}, second={second_sim:.3f}, "
-            f"margin={best_sim - second_sim:.3f} ✓"
+        logger.info(
+            "[MATCH] ✓ %s  sim=%.3f  second=%.3f  margin=%.3f",
+            best_name, best_sim, second_sim, best_sim - second_sim,
         )
         return best_name, best_sim, second_sim
 
-    logger.debug(
-        f"[MATCH] rejected best={best_name} sim={best_sim:.3f}, second={second_sim:.3f}, "
-        f"margin={best_sim - second_sim:.3f} ✗ (thr={sim_threshold}, m={margin})"
+    logger.warning(
+        "[MATCH] ✗ REJECTED best=%s sim=%.3f second=%.3f margin=%.3f  (need sim>=%.2f margin>=%.2f)",
+        best_name, best_sim, second_sim, best_sim - second_sim, sim_threshold, margin,
     )
     return "Unknown", best_sim, second_sim

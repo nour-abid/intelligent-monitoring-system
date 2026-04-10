@@ -1,0 +1,233 @@
+/* ============================================================
+   MQ Monitoring — Global Styles
+   Design tokens, reset, and shared utilities only.
+   Component-specific styles live in their own .scss files.
+   ============================================================ */
+
+/* ── Design Tokens ─────────────────────────────────────────── */
+:root {
+  /* Brand — MarQenti deep crimson */
+  --color-primary:       #c41230;
+  --color-primary-light: #e53935;
+  --color-primary-hover: #a80f28;
+
+  /* Status / Activity */
+  --color-success:  #10b981;
+  --color-warning:  #f59e0b;
+  --color-danger:   #ef4444;
+  --color-info:     #3b82f6;
+  --color-neutral:  #6b7280;
+
+  /* Surfaces — dark charcoal / near-black */
+  --color-bg:        #0f1117;
+  --color-surface:   #161b25;
+  --color-surface-2: #1d2333;
+  --color-border:    #252d3d;
+  --color-border-2:  #2e3850;
+
+  /* Text — off-white on dark */
+  --color-text-1: #e8eaf0;
+  --color-text-2: #8892a8;
+  --color-text-3: #545e75;
+
+  /* Elevation — heavier on dark backgrounds */
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.35), 0 1px 2px -1px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 12px 0 rgba(0, 0, 0, 0.50);
+
+  /* Shape */
+  --radius-sm:  4px;
+  --radius:     8px;
+  --radius-lg:  12px;
+  --radius-xl:  16px;
+
+  /* Typography */
+  --font: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+
+  /* Spacing scale (4-point) */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+
+  /* Browser color-scheme — ensures native controls (date inputs, scrollbars)
+     render in dark mode by default */
+  color-scheme: dark;
+}
+
+/* ── Reset ──────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text-1);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--color-primary-light);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input,
+select {
+  font-family: inherit;
+}
+
+/* ── Shared Utility Classes ─────────────────────────────────── */
+
+/* Badges / activity pills — referenced across multiple components */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  text-transform: uppercase;
+
+  &--working    { background: rgba(16,  185, 129, 0.16); color: #4ade80; }
+  &--meeting    { background: rgba(59,  130, 246, 0.16); color: #60a5fa; }
+  &--inactive   { background: rgba(245, 158,  11, 0.16); color: #fbbf24; }
+  &--using_phone { background: rgba(239,  68,  68, 0.16); color: #f87171; }
+  &--unknown    { background: rgba(107, 114, 128, 0.14); color: #9ca3af; }
+}
+
+/* Loader spinner */
+.spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-primary-light);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Light-mode token overrides ─────────────────────────────── */
+/* Applied via html.light-theme; custom properties cascade to body + all
+   descendants, so both html and body backgrounds switch correctly.      */
+html.light-theme {
+  /* Surfaces — page bg is distinctly darker than cards */
+  --color-bg:        #e8eaed;   /* visible canvas behind cards          */
+  --color-surface:   #ffffff;   /* card face — crisp white               */
+  --color-surface-2: #f1f3f6;   /* inset bg: bar tracks, table row hover */
+  --color-border:    #d1d5db;   /* medium-strength dividers              */
+  --color-border-2:  #b0b7c3;   /* stronger borders (inputs, separators) */
+
+  /* Browser color-scheme — switches native controls (date pickers,
+     scrollbars, form elements) to light rendering */
+  color-scheme: light;
+
+  /* Text — full three-level hierarchy */
+  --color-text-1: #0f172a;   /* headings, values — near-black     */
+  --color-text-2: #374151;   /* body, labels — dark grey          */
+  --color-text-3: #6b7280;   /* captions, section labels — medium */
+
+  /* Elevation — noticeable lift on light bg */
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.10), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 16px 0 rgba(0, 0, 0, 0.12);
+
+  /* Status badges — opaque enough bg, accessible dark text */
+  .badge {
+    &--working     { background: rgba(16,  185, 129, 0.14); color: #15803d; }
+    &--meeting     { background: rgba(59,  130, 246, 0.13); color: #1d4ed8; }
+    &--inactive    { background: rgba(245, 158,  11, 0.14); color: #92400e; }
+    &--using_phone { background: rgba(239,  68,  68, 0.13); color: #991b1b; }
+    &--unknown     { background: rgba(107, 114, 128, 0.12); color: #374151; }
+  }
+
+  /* Spinner */
+  .spinner {
+    border-color: var(--color-border);
+    border-top-color: var(--color-primary);
+  }
+
+  /* Empty-state messages: stronger than a faded grey */
+  .state-panel {
+    color: var(--color-text-2);
+  }
+
+  /* Chart/table empty cell text */
+  .chart-card__empty,
+  .table-card__empty,
+  .id-table__empty { // ensure empty rows are legible
+    color: var(--color-text-2);
+  }
+
+  /* SVG text labels inside charts */
+  .trend-label,
+  .obs-bar-label {
+    fill: var(--color-text-2);
+  }
+
+  /* Horizontal bar track: needs visible contrast on white card */
+  .hbar-item__track {
+    background: var(--color-surface-2);
+    border-color: var(--color-border);
+  }
+}
+
+/* Page-level loading / error / empty states */
+.state-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  padding: var(--sp-12);
+  color: var(--color-text-2);
+  font-size: 15px;
+
+  &__icon {
+    font-size: 32px;
+    opacity: 0.4;
+  }
+
+  &__title {
+    font-weight: 600;
+    color: var(--color-text-1);
+  }
+
+  &__message {
+    font-size: 13px;
+    max-width: 400px;
+    text-align: center;
+    color: var(--color-text-3);
+  }
+
+  &--error .state-panel__title {
+    color: var(--color-danger);
+  }
+}

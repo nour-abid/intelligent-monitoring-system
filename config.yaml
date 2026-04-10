@@ -1,5 +1,5 @@
 camera:
-  rtsp_url: "rtsp://admin:admin1234@169.254.77.55:554/Streaming/Channels/101"
+  rtsp_url: "http://192.168.100.34:8080/video"
 
 recognition:
   sim_threshold: 0.55

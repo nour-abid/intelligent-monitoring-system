@@ -1,0 +1,39 @@
+﻿<section class="alert-summary">
+  <div class="charts-grid">
+
+    <!-- Alert Trend - full width -->
+    <div class="chart-card chart-card--full">
+      <div class="chart-card__title">Alert Trend</div>
+      <p class="chart-card__sub">Behavioral alerts triggered over the selected period</p>
+      <app-trend-line-chart [points]="data().charts.alert_trend" />
+    </div>
+
+    <!-- Alerts by Type -->
+    <div class="chart-card" [class.chart-card--empty]="data().charts.alerts_by_type.length === 0">
+      <div class="chart-card__title">Alerts by Type</div>
+      <app-alerts-bar-chart [items]="data().charts.alerts_by_type" />
+    </div>
+
+    <!-- Top Affected Employees -->
+    <div class="chart-card" [class.chart-card--empty]="topEmployees().length === 0">
+      <div class="chart-card__title">Top Affected Employees</div>
+
+      @if (topEmployees().length === 0) {
+        <p class="chart-card__empty">No affected employees in this period.</p>
+      } @else {
+        <ul class="hbar-list">
+          @for (emp of topEmployees(); track emp.identity) {
+            <li class="hbar-item">
+              <span class="hbar-item__label">{{ emp.label }}</span>
+              <div class="hbar-item__track">
+                <div class="hbar-item__fill hbar-item__fill--neutral" [style.width]="emp.widthPct"></div>
+              </div>
+              <span class="hbar-item__value">{{ emp.count }}</span>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+  </div>
+</section>

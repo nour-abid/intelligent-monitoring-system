@@ -1,0 +1,45 @@
+<div class="replay-modal" (click)="close()">
+  <div class="replay-modal__panel" (click)="$event.stopPropagation()">
+
+    <div class="replay-modal__header">
+      <span class="replay-modal__title">Replay — {{ alertLabel }}</span>
+      <button class="replay-modal__close" type="button" (click)="close()" aria-label="Close">✕</button>
+    </div>
+
+    <div class="replay-modal__body">
+
+      @if (state().status === 'loading') {
+        <div class="replay-modal__state">
+          <div class="replay-modal__spinner"></div>
+          <p>Loading clip…</p>
+        </div>
+      }
+
+      @if (state().status === 'ready') {
+        <video
+          class="replay-modal__video"
+          controls
+          autoplay
+          [src]="$any(state()).objectUrl"
+        >
+          Your browser does not support HTML5 video.
+        </video>
+      }
+
+      @if (state().status === 'unavailable') {
+        <div class="replay-modal__state replay-modal__state--warn">
+          <span class="replay-modal__icon">🎬</span>
+          <p>{{ $any(state()).reason }}</p>
+        </div>
+      }
+
+      @if (state().status === 'error') {
+        <div class="replay-modal__state replay-modal__state--error">
+          <span class="replay-modal__icon">⚠️</span>
+          <p>{{ $any(state()).reason }}</p>
+        </div>
+      }
+
+    </div>
+  </div>
+</div>

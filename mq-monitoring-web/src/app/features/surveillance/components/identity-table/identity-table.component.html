@@ -1,0 +1,78 @@
+<div class="table-card">
+  <h3 class="table-card__title">Identity Summary</h3>
+
+  @if (rows().length === 0) {
+    <div class="table-card__empty">No identities recorded for the selected period.</div>
+  } @else {
+    <div class="table-wrapper">
+      <table class="id-table">
+        <thead>
+          <tr>
+            <th class="id-table__th">Identity</th>
+            <th class="id-table__th id-table__th--right">Total Time</th>
+            <th class="id-table__th id-table__th--right">Events</th>
+            <th class="id-table__th">Top Activity</th>
+            <th class="id-table__th id-table__th--center">View</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.identity_name) {
+            <tr
+              class="id-table__row"
+              (click)="select(row.identity_name)"
+              [attr.aria-label]="'View timeline for ' + row.identity_name"
+            >
+              <!-- Identity name -->
+              <td class="id-table__td id-table__td--name">
+                <div class="id-table__avatar" aria-hidden="true">
+                  {{ row.identity_name[0]?.toUpperCase() }}
+                </div>
+                <div class="id-table__name-cell">
+                  <span>{{ row.identity_name }}</span>
+                  @if (flags(row).length > 0) {
+                    <div class="id-table__flags">
+                      @for (flag of flags(row); track flag) {
+                        <span class="id-flag id-flag--{{ flag === 'High phone usage' ? 'phone' : flag === 'Most active' ? 'leader' : flag === 'Mostly inactive' ? 'idle' : 'low' }}">{{ flag }}</span>
+                      }
+                    </div>
+                  }
+                </div>
+              </td>
+
+              <!-- Total time -->
+              <td class="id-table__td id-table__td--right id-table__td--mono">
+                {{ row.total_sec | duration }}
+              </td>
+
+              <!-- Event count -->
+              <td class="id-table__td id-table__td--right id-table__td--mono">
+                {{ row.event_count }}
+              </td>
+
+              <!-- Top activity badge -->
+              <td class="id-table__td">
+                <span class="badge {{ badgeClass(row.top_activity) }}">
+                  {{ row.top_activity.replace(/_/g, ' ') }}
+                </span>
+              </td>
+
+              <!-- View button -->
+              <td class="id-table__td id-table__td--center">
+                <button
+                  class="id-table__view-btn"
+                  (click)="$event.stopPropagation(); select(row.identity_name)"
+                  [attr.aria-label]="'View ' + row.identity_name + ' timeline'"
+                >
+                  <!-- Arrow right chevron icon -->
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"/>
+                  </svg>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

@@ -1,0 +1,239 @@
+<div class="dashboard">
+
+  <!-- ── Page header ──────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="page-header__left">
+      <h1 class="page-header__title">Surveillance Analytics</h1>
+      <p class="page-header__sub">{{ isSuperviseur() ? 'Team activity overview and employee breakdown.' : 'Operational overview of employee activity and attention points.' }}</p>
+    </div>
+  </div>
+
+  <!-- ── Filter bar ───────────────────────────────────────────── -->
+  <div class="filter-bar">
+
+    <!-- Row 1: preset chips -->
+    <div class="filter-bar__presets">
+      <button class="filter-bar__preset-btn" [class.filter-bar__preset-btn--active]="activePreset === 'today'"     (click)="setPreset('today')">Today</button>
+      <button class="filter-bar__preset-btn" [class.filter-bar__preset-btn--active]="activePreset === 'yesterday'" (click)="setPreset('yesterday')">Yesterday</button>
+      <button class="filter-bar__preset-btn" [class.filter-bar__preset-btn--active]="activePreset === 'last7'"     (click)="setPreset('last7')">Last 7 days</button>
+      <button class="filter-bar__preset-btn" [class.filter-bar__preset-btn--active]="activePreset === 'month'"     (click)="setPreset('month')">This month</button>
+      <button class="filter-bar__preset-btn" [class.filter-bar__preset-btn--active]="activePreset === 'custom'"    (click)="setCustom()">Custom range</button>
+    </div>
+
+    <!-- Row 2: date inputs + optional checkbox + load button -->
+    <div class="filter-bar__controls">
+
+      <div class="filter-bar__group">
+        <label class="filter-bar__label" for="filterStart">From</label>
+        <input
+          id="filterStart"
+          class="filter-bar__input"
+          type="date"
+          [ngModel]="filterStart"
+          (ngModelChange)="onStartChange($event)"
+          [max]="today"
+          [disabled]="activePreset !== '' && activePreset !== 'custom'"
+          aria-label="Start date"
+        />
+      </div>
+
+      <div class="filter-bar__group">
+        <label class="filter-bar__label" for="filterEnd">To</label>
+        <input
+          id="filterEnd"
+          class="filter-bar__input"
+          type="date"
+          [ngModel]="filterEnd"
+          (ngModelChange)="onEndChange($event)"
+          [min]="filterStart"
+          [max]="today"
+          [disabled]="activePreset !== '' && activePreset !== 'custom'"
+          aria-label="End date"
+        />
+      </div>
+
+      <div class="filter-bar__actions">
+        @if (isAdmin()) {
+          <div class="filter-bar__group filter-bar__group--check">
+            <label class="filter-bar__check-label">
+              <input type="checkbox" [(ngModel)]="includeUnknown" aria-label="Include unknown identities" />
+              Include unknown
+            </label>
+          </div>
+        }
+
+        <button class="filter-bar__btn" (click)="load()" [disabled]="loadState() === 'loading'">
+          @if (loadState() === 'loading') {
+            <span class="spinner"></span>
+            Loading…
+          } @else {
+            Load
+          }
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+  @if (loadState() === 'loading') {
+    <div class="state-panel">
+      <span class="spinner"></span>
+      <div class="state-panel__title">Loading surveillance data…</div>
+    </div>
+  }
+
+  @if (loadState() === 'error') {
+    <div class="state-panel state-panel--error">
+      <div class="state-panel__icon">⚠️</div>
+      <div class="state-panel__title">Unable to load data</div>
+      <div class="state-panel__message">{{ errorMsg() }}</div>
+      <button class="filter-bar__btn" (click)="load()">Retry</button>
+    </div>
+  }
+
+  <!-- ── Main content (success state) ─────────────────────────── -->
+  @if (loadState() === 'success') {
+
+    <!-- ── Overview ─────────────────────────────────────────────── -->
+    <p class="page-section-label">Overview</p>
+
+    <!-- Primary KPI cards (4) -->
+    <app-kpi-cards [cards]="primaryKpiCards()" />
+
+    <!-- Secondary stat strip: contextual counts -->
+    <div class="stat-strip">
+      @for (s of secondaryKpis(); track s.label) {
+        <div class="stat-strip__item">
+          <span class="stat-strip__value">{{ s.value }}</span>
+          <span class="stat-strip__label">{{ s.label }}</span>
+        </div>
+      }
+    </div>
+
+    <!-- Insights bar -->
+    @if (insights().length > 0) {
+      <div class="insights-bar">
+        <span class="insights-bar__heading">Insights</span>
+        <ul class="insights-bar__list">
+          @for (tip of insights(); track tip) {
+            <li class="insights-bar__item">{{ tip }}</li>
+          }
+        </ul>
+      </div>
+    }
+
+    <!-- ── Anomalies block ────────────────────────────────────────── -->
+    <div class="anomaly-bar">
+      <span class="anomaly-bar__heading">Anomalies</span>
+      @if (anomalies().length === 0) {
+        <span class="anomaly-bar__clear">No notable anomalies detected in this period.</span>
+      } @else {
+        <ul class="anomaly-bar__list">
+          @for (a of anomalies(); track a.text) {
+            <li class="anomaly-bar__item anomaly-bar__item--{{ a.severity }}">
+              <span class="anomaly-bar__dot"></span>{{ a.text }}
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <!-- ── Alert Summary ─────────────────────────────────────────── -->
+    <p class="page-section-label">Alert Summary</p>
+    @if (summary(); as summaryData) {
+      <app-alert-summary [data]="summaryData" />
+    } @else {
+      <div class="summary-unavailable">Alert summary unavailable — analytics server may be offline.</div>
+    }
+
+    <!-- ── Supervisor: team panel ───────────────────────────────────────── -->
+    @if (isSuperviseur()) {
+      <div class="team-panel">
+        <h2 class="team-panel__title">My Team</h2>
+
+        <!-- Team-level KPI cards -->
+        <app-kpi-cards [cards]="teamKpis()" />
+
+        <!-- Ranked employee table -->
+        <div class="team-table-wrap">
+          <table class="team-table">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Total Time</th>
+                <th>Working</th>
+                <th>Inactive</th>
+                <th>Phone</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (emp of employeeRows(); track emp.name) {
+                <tr class="team-table__row">
+                  <td class="team-table__name">{{ emp.name }}</td>
+                  <td>{{ emp.totalFormatted }}</td>
+                  <td><span class="badge badge--working">{{ emp.workingFormatted }}</span></td>
+                  <td><span class="badge badge--inactive">{{ emp.inactiveFormatted }}</span></td>
+                  <td><span class="badge badge--using_phone">{{ emp.phoneFormatted }}</span></td>
+                  <td>
+                    <button class="team-table__view-btn" type="button" (click)="openIdentity(emp.name)">
+                      View Report
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6" class="team-table__empty">No employee data for the selected period.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+
+    <!-- ── Activity Breakdown ────────────────────────────────────────────── -->
+    <p class="page-section-label">Activity Breakdown</p>
+
+    <!-- Row 1: Activity Evolution (full width) -->
+    <div class="act-chart-card act-chart-card--full">
+      <div class="act-chart-card__title">Activity Evolution</div>
+      <p class="act-chart-card__sub">How activities shift over time — buckets with no recorded data are shown as zero</p>
+      <app-activity-evolution-chart [points]="activityEvolutionPoints()" />
+    </div>
+
+    <!-- Row 2: Activity by Employee (full width) -->
+    @if (identities().some(r => r.total_sec > 0)) {
+      <div class="act-chart-card act-chart-card--full">
+        <div class="act-chart-card__title">Activity by Employee</div>
+        <p class="act-chart-card__sub">Top 8 employees — Working · Meeting · Inactive · Phone (minutes)</p>
+        <app-activity-stacked-bar [rows]="identities()" />
+      </div>
+    }
+
+    <!-- Row 3: Activity Distribution doughnut + Identity Summary (2 columns) -->
+    <div class="act-charts-grid">
+
+      <div class="act-chart-card">
+        <div class="act-chart-card__title">Activity Distribution</div>
+        <p class="act-chart-card__sub">Observed time share by activity type</p>
+        @if (activityDistributionItems().length === 0) {
+          <p class="act-chart-card__empty">No activity data for this period.</p>
+        } @else {
+          <app-activity-doughnut-chart [items]="activityDistributionItems()" />
+        }
+      </div>
+
+      <div class="act-chart-card">
+        <app-identity-table
+          [rows]="identityRows()"
+          (identitySelected)="openIdentity($event)"
+        />
+      </div>
+
+    </div>
+
+  }
+
+</div>

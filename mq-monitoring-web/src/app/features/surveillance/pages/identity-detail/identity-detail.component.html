@@ -1,0 +1,347 @@
+<div class="detail-page">
+
+  <!-- ── Back navigation ─────────────────────────────────────── -->
+  <a class="back-link" routerLink="/surveillance" aria-label="Back to Surveillance Dashboard">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    Surveillance Dashboard
+  </a>
+
+  <!-- ── Identity header ─────────────────────────────────────── -->
+  <div class="identity-header">
+    <div class="identity-header__avatar" aria-hidden="true">
+      {{ name()[0]?.toUpperCase() }}
+    </div>
+    <div class="identity-header__info">
+      <h1 class="identity-header__name">{{ name() }}</h1>
+      @if (loadState() === 'success' && timeline()) {
+        <div class="identity-header__meta">
+          <span class="identity-header__stat">
+            {{ timeline()!.count }} segment{{ timeline()!.count !== 1 ? 's' : '' }}
+          </span>
+          <span class="identity-header__divider">·</span>
+          <span class="identity-header__stat">
+            {{ totalSec() | duration }} total
+          </span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ── Date range filter ────────────────────────────────────── -->
+  <div class="filter-bar">
+
+    <!-- Fixed preset chips; no chip is active in overview mode -->
+    <div class="filter-bar__presets">
+      <button class="filter-bar__preset-btn" [class.filter-bar__preset-btn--active]="filterMode === 'preset' && activePreset === 'today'"     (click)="setPreset('today')">Today</button>
+      <button class="filter-bar__preset-btn" [class.filter-bar__preset-btn--active]="filterMode === 'preset' && activePreset === 'yesterday'" (click)="setPreset('yesterday')">Yesterday</button>
+      <button class="filter-bar__preset-btn" [class.filter-bar__preset-btn--active]="filterMode === 'preset' && activePreset === 'last7'"     (click)="setPreset('last7')">Last 7 days</button>
+      <button class="filter-bar__preset-btn" [class.filter-bar__preset-btn--active]="filterMode === 'preset' && activePreset === 'month'"     (click)="setPreset('month')">This month</button>
+      <button class="filter-bar__preset-btn" [class.filter-bar__preset-btn--active]="filterMode === 'custom'"                                 (click)="setCustomMode()">Custom range</button>
+    </div>
+
+    <!-- Date inputs: visible in preset (disabled) and custom (enabled); hidden in overview -->
+    @if (filterMode !== 'overview') {
+      <div class="filter-bar__group">
+        <label class="filter-bar__label" for="detailStart">From</label>
+        <input
+          id="detailStart"
+          class="filter-bar__input"
+          type="date"
+          [ngModel]="filterStart"
+          (ngModelChange)="onStartChange($event)"
+          [disabled]="filterMode !== 'custom'"
+          aria-label="Start date filter"
+        />
+      </div>
+
+      <div class="filter-bar__group">
+        <label class="filter-bar__label" for="detailEnd">To</label>
+        <input
+          id="detailEnd"
+          class="filter-bar__input"
+          type="date"
+          [ngModel]="filterEnd"
+          (ngModelChange)="onEndChange($event)"
+          [min]="filterStart"
+          [disabled]="filterMode !== 'custom'"
+          aria-label="End date filter"
+        />
+      </div>
+    }
+
+    <!-- Custom mode: explicit Apply -->
+    @if (filterMode === 'custom') {
+      <button
+        class="filter-bar__btn"
+        (click)="applyFilter()"
+        [disabled]="loadState() === 'loading'"
+      >
+        @if (loadState() === 'loading') {
+          <span class="spinner"></span>
+          Loading…
+        } @else {
+          Apply filter
+        }
+      </button>
+    }
+
+
+    @if (loadState() === 'success' && timeline()) {
+      <button
+        type="button"
+        class="filter-bar__btn filter-bar__btn--export"
+        (click)="exportCsv()"
+        aria-label="Download report as CSV"
+        title="Download current report as CSV"
+      >
+        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Export CSV
+      </button>
+    }
+  </div>
+
+  <!-- ── States ──────────────────────────────────────────────── -->
+  @if (loadState() === 'loading') {
+    <div class="state-panel">
+      <span class="spinner"></span>
+      <div class="state-panel__title">Loading timeline…</div>
+    </div>
+  }
+
+  @if (loadState() === 'error') {
+    <div class="state-panel state-panel--error">
+      <div class="state-panel__icon">⚠️</div>
+      <div class="state-panel__title">Failed to load timeline</div>
+      <div class="state-panel__message">{{ errorMsg() }}</div>
+      <button class="filter-bar__btn" (click)="applyFilter()">Retry</button>
+    </div>
+  }
+
+  <!-- ── Success state ────────────────────────────────────────── -->
+  @if (loadState() === 'success' && timeline()) {
+
+    <!-- KPI summary cards -->
+    <app-kpi-cards [cards]="kpiCards()" />
+
+    <!-- ── Behavior Insights ───────────────────────────────────── -->
+    <div class="behavior-insights">
+      <span class="behavior-insights__heading">Behavior Insights</span>
+      @if (userInsights().length === 0) {
+        <span class="behavior-insights__clear">No behavioral anomalies detected in this period.</span>
+      } @else {
+        <ul class="behavior-insights__list">
+          @for (insight of userInsights(); track insight.text) {
+            <li class="behavior-insights__item behavior-insights__item--{{ insight.severity }}">
+              <span class="behavior-insights__dot"></span>{{ insight.text }}
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <!-- Activity mix flow card -->
+    @if (activityTotals().length > 0) {
+      <div class="flow-card">
+        <div class="flow-card__header">
+          <h3 class="flow-card__title">Activity Mix</h3>
+          <span class="flow-card__sub">Proportional time distribution across all activities</span>
+        </div>
+        <div
+          class="flow-strip"
+          role="img"
+          [attr.aria-label]="'Activity distribution for ' + name()"
+        >
+          @for (item of activityTotals(); track item.activity) {
+            <div
+              class="flow-strip__seg"
+              [style.width]="(item.share * 100) + '%'"
+              [style.background-color]="item.color"
+              [title]="item.activity.replace(/_/g, ' ') + ' — ' + item.formatted + ' (' + (item.share * 100).toFixed(1) + '%)'" 
+            ></div>
+          }
+        </div>
+        <div class="flow-legend">
+          @for (item of activityTotals(); track item.activity) {
+            <div class="flow-legend__item">
+              <span class="flow-legend__dot" [style.background-color]="item.color"></span>
+              <span class="flow-legend__name">{{ item.activity.replace(/_/g, ' ') }}</span>
+              <span class="flow-legend__pct">{{ (item.share * 100).toFixed(1) }}%</span>
+              <span class="flow-legend__dur">{{ item.formatted }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Dual charts: duration distribution (left) + activity frequency (right) -->
+    @if (activityTotals().length > 0) {
+      <div class="analytics-section">
+
+        <!-- Duration by activity — proportional share -->
+        <div class="analytics-section__chart">
+          <app-activity-chart [stats]="activityStats()" />
+        </div>
+
+        <!-- Segment count by activity — raw occurrence frequency -->
+        <div class="analytics-section__chart">
+          <div class="seg-chart">
+            <h3 class="seg-chart__title">Activity Frequency</h3>
+            <p class="seg-chart__sub">Number of detected segments per activity</p>
+            @for (item of activityTotals(); track item.activity) {
+              <div class="seg-chart__row">
+                <div class="seg-chart__label" [title]="item.activity">{{ item.activity.replace(/_/g, ' ') }}</div>
+                <div class="seg-chart__track">
+                  <div
+                    class="seg-chart__bar"
+                    [style.width]="segPct(item.segment_count)"
+                    [style.background-color]="item.color"
+                    role="progressbar"
+                    [attr.aria-valuenow]="item.segment_count"
+                    [attr.aria-valuemax]="maxSegmentCount()"
+                  ></div>
+                </div>
+                <div class="seg-chart__count">{{ item.segment_count }}</div>
+              </div>
+            }
+          </div>
+        </div>
+
+      </div>
+    }
+
+    <!-- Full detailed breakdown table -->
+    @if (activityTotals().length > 0) {
+      <div class="breakdown-card">
+        <h3 class="breakdown-card__title">Detailed Activity Breakdown</h3>
+        <table class="breakdown-table">
+          <thead>
+            <tr>
+              <th class="breakdown-table__th">Activity</th>
+              <th class="breakdown-table__th breakdown-table__th--num">Duration</th>
+              <th class="breakdown-table__th breakdown-table__th--num">Segments</th>
+              <th class="breakdown-table__th breakdown-table__th--num">Share</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of activityTotals(); track item.activity) {
+              <tr class="breakdown-table__row">
+                <td class="breakdown-table__td breakdown-table__td--activity">
+                  <span class="breakdown-dot" [style.background-color]="item.color"></span>
+                  <span class="badge {{ item.badgeClass }}">{{ item.activity.replace(/_/g, ' ') }}</span>
+                </td>
+                <td class="breakdown-table__td breakdown-table__td--num">{{ item.formatted }}</td>
+                <td class="breakdown-table__td breakdown-table__td--num">{{ item.segment_count }}</td>
+                <td class="breakdown-table__td breakdown-table__td--num">{{ (item.share * 100).toFixed(1) }}%</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- ── Moments Forts ─────────────────────────────────────── -->
+    <div class="highlights-section">
+      <div class="highlights-section__header">
+        <h2 class="highlights-section__title">Points of Attention</h2>
+        <span class="highlights-section__sub">Most relevant periods requiring review</span>
+      </div>
+
+      @if (highlightsState() === 'loading') {
+        <div class="highlights-section__state">
+          <span class="spinner"></span>
+          <span>Computing highlights…</span>
+        </div>
+      }
+
+      @if (highlightsState() === 'error') {
+        <div class="highlights-section__state highlights-section__state--warn">
+          ⚠️ Could not load highlights — alert data may be unavailable.
+        </div>
+      }
+
+      @if (highlightsState() === 'success' && highlights().length === 0) {
+        <div class="highlights-section__state highlights-section__state--empty">
+          No problematic periods detected in this range.
+        </div>
+      }
+
+      @if (highlightsState() === 'success' && highlights().length > 0) {
+        <ol class="highlights-list">
+          @for (h of highlights(); track h.timestamp; let i = $index) {
+            <li class="highlight-card" [class.highlight-card--top]="i === 0">
+
+              <div class="highlight-card__rank">{{ i + 1 }}</div>
+
+              <div class="highlight-card__body">
+                <div class="highlight-card__top-row">
+                  <span class="highlight-card__issue-badge highlight-card__issue-badge--{{ h.dominant_issue }}">
+                    {{ highlightIssueLabel(h.dominant_issue) }}
+                  </span>
+                  <span class="highlight-card__time">{{ h.timestamp | date:'dd/MM/yyyy HH:mm' }}</span>
+                  <span class="highlight-card__score" [title]="'Severity score: ' + h.score">
+                    Score {{ h.score }}
+                  </span>
+                </div>
+
+                <p class="highlight-card__summary">{{ h.summary }}</p>
+
+                <div class="highlight-card__details">
+                  @if (h.alert_count > 1) {
+                    <span class="highlight-card__pill">{{ h.alert_count }} alerts</span>
+                  }
+                  @if (h.phone_duration_min > 0) {
+                    <span class="highlight-card__pill highlight-card__pill--phone">📱 {{ h.phone_duration_min }} min</span>
+                  }
+                  @if (h.inactive_duration_min > 0) {
+                    <span class="highlight-card__pill highlight-card__pill--inactive">⏸ {{ h.inactive_duration_min }} min inactive</span>
+                  }
+                  @if (h.replay_available && h.replay_alert_id) {
+                    <button
+                      class="highlight-card__replay-btn"
+                      type="button"
+                      (click)="openHighlightReplay(h)"
+                      title="Open replay for this period"
+                    >&#9654; View Replay</button>
+                  }
+                </div>
+              </div>
+
+            </li>
+          }
+        </ol>
+      }
+    </div>
+
+    @if (replayAlertId()) {
+      <app-replay-modal
+        [alertId]="replayAlertId()!"
+        [alertLabel]="replayLabel()"
+        (closed)="closeReplay()"
+      />
+    }
+
+    <!-- Timeline card -->
+    <div class="timeline-card">
+      <div class="timeline-card__header">
+        <h2 class="timeline-card__title">Activity Timeline</h2>
+        @if (filterStart || filterEnd) {
+          <span class="timeline-card__filter-note">
+            @if (filterStart && filterEnd) { {{ filterStart }} – {{ filterEnd }} }
+            @else if (filterStart) { From {{ filterStart }} }
+            @else { Up to {{ filterEnd }} }
+          </span>
+        } @else {
+          <span class="timeline-card__filter-note">All time</span>
+        }
+      </div>
+
+      <app-timeline [segments]="timeline()!.segments" />
+    </div>
+
+  }
+
+</div>

@@ -1,0 +1,19 @@
+<div class="toast-container" aria-live="polite" aria-atomic="false">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div class="toast" [class]="'toast--' + toast.type">
+      <div class="toast__body">
+        <span class="toast__label">{{ alertLabel(toast.type) }}</span>
+        <span class="toast__identity">{{ toast.identity }}</span>
+        <span class="toast__detail">
+          {{ toast.duration_minutes }} min &mdash; threshold: {{ toast.threshold_minutes }} min
+        </span>
+      </div>
+      <button
+        class="toast__close"
+        type="button"
+        (click)="toastService.dismiss(toast.id)"
+        aria-label="Dismiss alert"
+      >×</button>
+    </div>
+  }
+</div>

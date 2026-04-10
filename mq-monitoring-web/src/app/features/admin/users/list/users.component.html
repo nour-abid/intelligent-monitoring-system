@@ -1,0 +1,404 @@
+<div class="admin-users">
+
+  <!-- ── Page header ───────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="page-header__left">
+      <h1 class="page-header__title">Users</h1>
+      <p class="page-header__sub">Manage accounts, roles, and supervisor assignments.</p>
+    </div>
+    <div class="page-header__actions">
+      <button class="btn btn--primary" type="button" (click)="openCreate()">
+        + New User
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Create / Edit form modal ──────────────────────────────── -->
+  @if (formOpen()) {
+    <div class="modal-overlay" (click)="closeForm()" role="dialog" aria-modal="true">
+      <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="user-form">
+      <div class="user-form__header">
+        <h2 class="user-form__title">
+          {{ editingId() !== null ? 'Edit User' : 'New User' }}
+        </h2>
+        <button class="user-form__close" type="button" (click)="closeForm()" aria-label="Close form">✕</button>
+      </div>
+
+      @if (formError()) {
+        <p class="user-form__error" role="alert">{{ formError() }}</p>
+      }
+
+      <form class="user-form__body" #f="ngForm" (ngSubmit)="submitForm(f)" novalidate>
+
+        <div class="form-grid">
+
+          <!-- Name -->
+          <div class="form-field">
+            <label class="form-field__label" for="uf-name">Full name *</label>
+            <input
+              class="form-field__input"
+              id="uf-name"
+              name="name"
+              type="text"
+              autocomplete="off"
+              required
+              maxlength="255"
+              [(ngModel)]="formData.name"
+              [disabled]="submitting()"
+            />
+          </div>
+
+          <!-- Email -->
+          <div class="form-field">
+            <label class="form-field__label" for="uf-email">Email *</label>
+            <input
+              class="form-field__input"
+              id="uf-email"
+              name="email"
+              type="email"
+              autocomplete="off"
+              required
+              maxlength="255"
+              [(ngModel)]="formData.email"
+              [disabled]="submitting()"
+            />
+          </div>
+
+          <!-- Password -->
+          <div class="form-field">
+            <label class="form-field__label" for="uf-password">
+              Password {{ editingId() !== null ? '(leave blank to keep unchanged)' : '*' }}
+            </label>
+            <input
+              class="form-field__input"
+              id="uf-password"
+              name="password"
+              type="password"
+              autocomplete="new-password"
+              [required]="editingId() === null"
+              minlength="8"
+              [(ngModel)]="formData.password"
+              [disabled]="submitting()"
+            />
+          </div>
+
+          <!-- Role -->
+          <div class="form-field">
+            <label class="form-field__label" for="uf-role">Role *</label>
+            <select
+              class="form-field__input"
+              id="uf-role"
+              name="role"
+              required
+              [(ngModel)]="formData.role"
+              [disabled]="submitting()"
+            >
+              <option value="admin">Admin</option>
+              <option value="superviseur">Superviseur</option>
+              <option value="viewer">Viewer</option>
+            </select>
+          </div>
+
+          <!-- Supervisor -->
+          <div class="form-field">
+            <label class="form-field__label" for="uf-supervisor">Supervisor</label>
+            <select
+              class="form-field__input"
+              id="uf-supervisor"
+              name="supervisor_id"
+              [(ngModel)]="formData.supervisor_id"
+              [disabled]="submitting()"
+            >
+              <option [ngValue]="null">— None —</option>
+              @for (s of supervisorOptions(); track s.id) {
+                <option [ngValue]="s.id">{{ s.name }}</option>
+              }
+            </select>
+            @if (supervisorOptions().length === 0) {
+              <span class="form-field__hint">No superviseurs exist yet. Create a user with the Superviseur role first.</span>
+            }
+          </div>
+
+          <!-- Surveillance identity -->
+          <div class="form-field">
+            <label class="form-field__label" for="uf-surv-id">Surveillance identity</label>
+            <input
+              class="form-field__input form-field__input--mono"
+              id="uf-surv-id"
+              name="surveillance_identity"
+              type="text"
+              autocomplete="off"
+              maxlength="100"
+              placeholder="e.g. bellaaj"
+              [(ngModel)]="formData.surveillance_identity"
+              [disabled]="submitting()"
+            />
+            <span class="form-field__hint">
+              Must match the identity token used by the surveillance runtime
+              (e.g.&nbsp;<code>bellaaj</code>). Leave blank if not yet mapped.
+            </span>
+          </div>
+
+          <!-- Attendance identity -->
+          <div class="form-field">
+            <label class="form-field__label" for="uf-att-id">Attendance identity</label>
+            <input
+              class="form-field__input form-field__input--mono"
+              id="uf-att-id"
+              name="attendance_identity"
+              type="text"
+              autocomplete="off"
+              maxlength="100"
+              placeholder="e.g. Nour"
+              [(ngModel)]="formData.attendance_identity"
+              [disabled]="submitting()"
+            />
+            <span class="form-field__hint">
+              Must match the <code>person</code> value in the attendance database
+              (e.g.&nbsp;<code>Nour</code>). Leave blank if not yet mapped.
+            </span>
+          </div>
+
+          <!-- Active -->
+          <div class="form-field form-field--check">
+            <label class="form-field__check-label">
+              <input
+                type="checkbox"
+                name="is_active"
+                [(ngModel)]="formData.is_active"
+                [disabled]="submitting()"
+              />
+              Active account
+            </label>
+          </div>
+
+        </div><!-- /form-grid -->
+
+        <div class="user-form__actions">
+          <button
+            class="btn btn--primary"
+            type="submit"
+            [disabled]="f.invalid || submitting()"
+          >
+            @if (submitting()) {
+              <span class="spinner spinner--sm"></span>
+            } @else {
+              {{ editingId() !== null ? 'Save changes' : 'Create user' }}
+            }
+          </button>
+          <button
+            class="btn btn--ghost"
+            type="button"
+            [disabled]="submitting()"
+            (click)="closeForm()"
+          >
+            Cancel
+          </button>
+        </div>
+
+      </form>
+    </div><!-- /.user-form -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal-overlay -->
+  }
+
+  <!-- ── Load states ───────────────────────────────────────────── -->
+  @if (loadState() === 'loading') {
+    <div class="state-panel">
+      <span class="spinner"></span>
+      <div class="state-panel__title">Loading users…</div>
+    </div>
+  }
+
+  @if (loadState() === 'error') {
+    <div class="state-panel state-panel--error">
+      <div class="state-panel__icon">⚠️</div>
+      <div class="state-panel__title">Unable to load users</div>
+      <div class="state-panel__message">{{ loadError() }}</div>
+    </div>
+  }
+
+  <!-- ── Users table ───────────────────────────────────────────── -->
+  @if (loadState() === 'success') {
+
+    @if (toggleError()) {
+      <p class="user-form__error" style="margin: 0 0 var(--sp-4);" role="alert">{{ toggleError() }}</p>
+    }
+
+    <!-- Status filter + search toolbar -->
+    <div class="users-toolbar">
+      <div class="users-filter">
+        <button
+          class="users-filter__btn"
+          [class.users-filter__btn--active]="statusFilter() === 'all'"
+          type="button"
+          (click)="statusFilter.set('all'); currentPage.set(1)"
+        >All</button>
+        <button
+          class="users-filter__btn"
+          [class.users-filter__btn--active]="statusFilter() === 'active'"
+          type="button"
+          (click)="statusFilter.set('active'); currentPage.set(1)"
+        >Active</button>
+        <button
+          class="users-filter__btn"
+          [class.users-filter__btn--active]="statusFilter() === 'inactive'"
+          type="button"
+          (click)="statusFilter.set('inactive'); currentPage.set(1)"
+        >Inactive</button>
+      </div>
+
+      <div class="users-search">
+        <svg class="users-search__icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          class="users-search__input"
+          type="search"
+          [ngModel]="searchTerm()"
+          (ngModelChange)="onSearchChange($event)"
+          placeholder="Search by name, email, or identity…"
+          aria-label="Search users"
+          autocomplete="off"
+        />
+        @if (searchTerm()) {
+          <button
+            class="users-search__clear"
+            type="button"
+            (click)="onSearchChange('')"
+            aria-label="Clear search"
+          >✕</button>
+        }
+      </div>
+    </div>
+
+    @if (users().length === 0) {
+      <div class="state-panel">
+        <div class="state-panel__icon">👤</div>
+        <div class="state-panel__title">No users yet</div>
+        <div class="state-panel__message">Create the first user with the button above.</div>
+      </div>
+    } @else if (filteredUsers().length === 0) {
+      <div class="state-panel">
+        <div class="state-panel__icon">👤</div>
+        <div class="state-panel__title">No {{ statusFilter() }} users</div>
+        <div class="state-panel__message">Switch to "All" or create a new user above.</div>
+      </div>
+    } @else if (searchedUsers().length === 0) {
+      <div class="state-panel">
+        <div class="state-panel__icon">🔍</div>
+        <div class="state-panel__title">No users match "{{ searchTerm() }}"</div>
+        <div class="state-panel__message">Try a different name, email, or surveillance / attendance ID.</div>
+      </div>
+    } @else {
+      <div class="users-table-wrap">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th class="users-table__th">Name</th>
+              <th class="users-table__th">Email</th>
+              <th class="users-table__th">Role</th>
+              <th class="users-table__th">Supervisor</th>
+              <th class="users-table__th users-table__th--center">Status</th>
+              <th class="users-table__th users-table__th--right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of pagedUsers(); track user.id) {
+              <tr class="users-table__row" [class.users-table__row--inactive]="!user.is_active">
+                <td class="users-table__td users-table__td--name">
+                  <span class="user-display-name">{{ user.name }}</span>
+                  @if (user.surveillance_identity) {
+                    <span class="user-surv-id">{{ user.surveillance_identity }}</span>
+                  }
+                  @if (user.attendance_identity) {
+                    <span class="user-surv-id">{{ user.attendance_identity }}</span>
+                  }
+                </td>
+                <td class="users-table__td users-table__td--muted">{{ user.email }}</td>
+                <td class="users-table__td">
+                  <span class="role-badge role-badge--{{ user.role }}">{{ user.role }}</span>
+                </td>
+                <td class="users-table__td users-table__td--muted">{{ supervisorName(user.supervisor_id) }}</td>
+                <td class="users-table__td users-table__td--center">
+                  <span class="status-dot" [class.status-dot--active]="user.is_active" [attr.title]="user.is_active ? 'Active' : 'Inactive'"></span>
+                </td>
+                <td class="users-table__td users-table__td--right">
+                  <div class="row-actions">
+                    <button class="btn btn--xs btn--ghost" type="button" (click)="openEdit(user)">
+                      Edit
+                    </button>
+                    <button
+                      class="btn btn--xs"
+                      [class.btn--danger-ghost]="user.is_active"
+                      [class.btn--ghost]="!user.is_active"
+                      type="button"
+                      (click)="toggleActive(user)"
+                    >
+                      {{ user.is_active ? 'Deactivate' : 'Activate' }}
+                    </button>
+                    <button
+                      class="btn btn--xs btn--ghost"
+                      type="button"
+                      [disabled]="!user.surveillance_identity"
+                      [title]="user.surveillance_identity ? 'View surveillance stats for ' + user.surveillance_identity : 'No surveillance identity mapped'"
+                      [attr.aria-label]="user.surveillance_identity ? 'View surveillance stats for ' + user.surveillance_identity : 'No surveillance identity mapped'"
+                      (click)="viewStats(user.surveillance_identity)"
+                    >
+                      <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                      </svg>
+                      View stats
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination controls -->
+      @if (pageCount() > 1) {
+        <div class="pagination">
+          <button
+            class="pagination__btn"
+            type="button"
+            [disabled]="currentPage() === 1"
+            (click)="prevPage()"
+            aria-label="Previous page"
+          >
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <span class="pagination__label">
+            Page {{ currentPage() }} of {{ pageCount() }}
+          </span>
+          <button
+            class="pagination__btn"
+            type="button"
+            [disabled]="currentPage() === pageCount()"
+            (click)="nextPage()"
+            aria-label="Next page"
+          >
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      }
+    }
+  }
+
+  <!-- ── User stats modal ─────────────────────────────────────── -->
+  @if (statsIdentity()) {
+    <div class="modal-overlay" (click)="closeStatsModal()" role="dialog" aria-modal="true" aria-label="User statistics">
+      <div class="modal-dialog modal-dialog--stats" (click)="$event.stopPropagation()">
+        <app-user-stats-modal
+          [identity]="statsIdentity()!"
+          (closeModal)="closeStatsModal()"
+        />
+      </div>
+    </div>
+  }
+
+</div>

@@ -1,20 +1,123 @@
-# Virtual environment
+# =============================================================================
+# Intelligent Monitoring System — .gitignore
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
 venv/
-.env/
-
-# Python cache
+.venv/
+env/
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+pip-wheel-metadata/
+*.egg
+MANIFEST
+.pytest_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
 
-# Models
-models/
-*.onnx
+# ---------------------------------------------------------------------------
+# ML model weights & binaries
+# ---------------------------------------------------------------------------
 *.pt
 *.pth
+*.onnx
+*.tflite
+*.pb
+*.h5
+*.pkl
+*.bin
+*.zip
 
-# Datasets
-data/
-datasets/
+# ---------------------------------------------------------------------------
+# Datasets & training outputs
+# ---------------------------------------------------------------------------
+/train/
+/valid/
+/test/
+/runs/
+/train/**
+/valid/**
+/test/**
+/runs/**
+*.cache
 
-# IDE
+# ---------------------------------------------------------------------------
+# Employee biometric data
+# ---------------------------------------------------------------------------
+data/employees/
+data/embeddings/
+models/embeddings/
+
+# ---------------------------------------------------------------------------
+# Runtime databases & embeddings
+# ---------------------------------------------------------------------------
+data/db/
+surveillance/data/
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+
+# ---------------------------------------------------------------------------
+# Logs & runtime output
+# ---------------------------------------------------------------------------
+logs/
+*.log
+surveillance/data/**/*.csv
+
+# ---------------------------------------------------------------------------
+# Laravel / PHP backend
+# ---------------------------------------------------------------------------
+mq-monitoring-api/vendor/
+mq-monitoring-api/.env
+mq-monitoring-api/storage/logs/
+mq-monitoring-api/storage/framework/cache/
+mq-monitoring-api/storage/framework/sessions/
+mq-monitoring-api/storage/framework/views/
+mq-monitoring-api/bootstrap/cache/
+mq-monitoring-api/public/storage
+
+# ---------------------------------------------------------------------------
+# Angular / Node frontend
+# ---------------------------------------------------------------------------
+mq-monitoring-web/node_modules/
+mq-monitoring-web/dist/
+mq-monitoring-web/.angular/
+
+# ---------------------------------------------------------------------------
+# Environment / secrets
+# ---------------------------------------------------------------------------
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+secrets.yaml
+secrets.json
+
+# ---------------------------------------------------------------------------
+# IDE & OS
+# ---------------------------------------------------------------------------
 .vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------------------------------------------------------------------------
+# Misc artifacts
+# ---------------------------------------------------------------------------
+_test_*.db
+*.cache
