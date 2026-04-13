@@ -35,6 +35,12 @@ export class ChatContextService {
   /** Whether the context is currently loading from the API. */
   readonly contextLoading = signal(false);
 
+  /**
+   * True after at least one load attempt completed (success or error).
+   * Used to show "No employees available" vs a blank during initial load.
+   */
+  readonly identitiesAttempted = signal(false);
+
   /** True when context was set by the user selector (not by a page). */
   readonly isSelectorMode = computed(() => this.selectedIdentity() !== '');
 
@@ -56,48 +62,101 @@ export class ChatContextService {
   // ── User-selector context ───────────────────────────────────────────
 
   /** Load identity list + context for the given selection. */
-  selectIdentity(identity: string): void {
+  selectIdentity(identity: string, start?: string, end?: string): void {
     this.selectedIdentity.set(identity);
     this.contextLoading.set(true);
+    console.log('[ChatContext] selectIdentity:', identity, 'start:', start, 'end:', end);
 
-    this.ai.getContext(identity || 'global').subscribe({
+    this.ai.getContext(identity || 'global', start, end).subscribe({
       next: (res) => {
+        console.log('[ChatContext] selectIdentity resolved — identities:', res.identities, 'label:', res.label);
         this.identityNames.set(res.identities);
         this.context.set(res.context);
         this.contextLabel.set(res.label);
         this.contextLoading.set(false);
       },
       error: (err) => {
-        // Still set selected identity even if context load fails
         this.contextLoading.set(false);
-        console.warn('Could not load context:', err);
-        // Optimistically set a generic context message
+        console.warn('[ChatContext] selectIdentity failed:', err?.status, err?.message);
         this.context.set('Ready to chat. Ask me questions!');
         this.contextLabel.set(identity === 'global' ? 'All Employees' : identity);
       },
     });
   }
 
-  /** Bootstrap: load identity list and default to global. */
-  loadIdentities(): void {
-    if (this.identityNames().length > 0) return; // already loaded
+  /**
+   * Called by the dashboard after a successful Load to synchronise the chat
+   * context label and data window with the active filter range.
+   *
+   * - Updates selectedIdentity to 'global' (team view) or keeps current individual.
+   * - Passes start/end so the backend fetches the same window the dashboard shows.
+   * - Updates contextLabel with a human-readable date range string.
+   */
+  pushDashboardRange(label: string, start?: string, end?: string): void {
+    // Only push if not already in page-driven mode (identity-detail overrides).
+    // Selector mode ('global' or named identity) always syncs with the dashboard.
+    const currentIdentity = this.selectedIdentity() || 'global';
+    console.log('[ChatContext] pushDashboardRange — label:', label, 'identity:', currentIdentity, 'start:', start, 'end:', end);
+    this.selectIdentity(currentIdentity, start, end);
+  }
+
+  /**
+   * Bootstrap: load identity list defaulting to global scope.
+   *
+   * Guards:
+   *  - Already loading  → skip to avoid concurrent requests
+   *  - Already have names → skip unless forceReload is true
+   *
+   * BUG FIX: always sets context + contextLabel from the API response,
+   * even when identities is empty, so the UI never shows "No data context"
+   * for a valid (but empty-identity) successful response.
+   */
+  loadIdentities(forceReload = false, start?: string, end?: string): void {
+    if (this.contextLoading()) {
+      console.log('[ChatContext] loadIdentities: already loading, skipping');
+      return;
+    }
+    if (!forceReload && this.identityNames().length > 0) {
+      console.log('[ChatContext] loadIdentities: already loaded', this.identityNames().length, 'identities, skipping');
+      return;
+    }
+
     this.contextLoading.set(true);
-    this.ai.getContext('global').subscribe({
+    console.log('[ChatContext] loadIdentities: calling GET /api/ai/context?identity=global', 'start:', start, 'end:', end);
+
+    this.ai.getContext('global', start, end).subscribe({
       next: (res) => {
+        console.log('[ChatContext] loadIdentities resolved — identities:', res.identities, 'label:', res.label, 'context length:', res.context?.length);
         this.identityNames.set(res.identities);
         this.contextLoading.set(false);
-        // Auto-select global if we have identities, but don't fail silently if we don't
-        if (res.identities.length > 0) {
-          this.selectedIdentity.set('global');
+        this.identitiesAttempted.set(true);
+
+        // ── KEY FIX ───────────────────────────────────────────────────────
+        // Always set context + label from the response so hasContext() is true
+        // and the header shows the correct label — even when identities = [].
+        if (res.context) {
           this.context.set(res.context);
           this.contextLabel.set(res.label);
         }
+
+        // Auto-select global only when identities are present and nothing
+        // is currently selected (don't overwrite page-driven state).
+        if (res.identities.length > 0 && !this.selectedIdentity()) {
+          this.selectedIdentity.set('global');
+        }
       },
       error: (err) => {
-        // Fail silently - context is optional
         this.contextLoading.set(false);
-        console.warn('Could not load identity list for context selector:', err);
+        this.identitiesAttempted.set(true);
+        console.warn('[ChatContext] loadIdentities failed — status:', err?.status, 'message:', err?.message);
       },
     });
+  }
+
+  /** Force-reload identities (clears cached list first). Used by the retry button. */
+  forceReloadIdentities(): void {
+    this.identityNames.set([]);
+    this.identitiesAttempted.set(false);
+    this.loadIdentities(true);
   }
 }

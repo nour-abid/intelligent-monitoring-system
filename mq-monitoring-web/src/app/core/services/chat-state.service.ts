@@ -45,11 +45,12 @@ export class ChatStateService {
 
   readonly loading = signal(false);
 
-  readonly contextLabel    = this.ctxSvc.contextLabel;
-  readonly hasContext       = computed(() => !!this.ctxSvc.context());
-  readonly identityNames   = this.ctxSvc.identityNames;
-  readonly selectedIdentity = this.ctxSvc.selectedIdentity;
-  readonly contextLoading  = this.ctxSvc.contextLoading;
+  readonly contextLabel        = this.ctxSvc.contextLabel;
+  readonly hasContext           = computed(() => !!this.ctxSvc.context());
+  readonly identityNames        = this.ctxSvc.identityNames;
+  readonly selectedIdentity     = this.ctxSvc.selectedIdentity;
+  readonly contextLoading       = this.ctxSvc.contextLoading;
+  readonly identitiesAttempted  = this.ctxSvc.identitiesAttempted;
 
   // ── Actions ──────────────────────────────────────────────────────────────
 
@@ -69,6 +70,11 @@ export class ChatStateService {
   /** Load identity list if not already loaded. */
   ensureIdentitiesLoaded(): void {
     this.ctxSvc.loadIdentities();
+  }
+
+  /** Force-reload identity list (e.g. user clicks "Retry" after failed load). */
+  retryIdentities(): void {
+    this.ctxSvc.forceReloadIdentities();
   }
 
   send(text: string): void {
@@ -91,7 +97,7 @@ export class ChatStateService {
       .filter(m => !m.loading)
       .map(m => ({ role: m.role, text: m.text }));
 
-    this.ai.sendMessage(text, this.ctxSvc.context(), history).subscribe({
+    this.ai.sendMessage(text, this.ctxSvc.context(), history, this.ctxSvc.selectedIdentity() || undefined).subscribe({
       next: (res) => {
         this.loading.set(false);
         const replyText = res.reply ?? res.error ?? 'No response received.';

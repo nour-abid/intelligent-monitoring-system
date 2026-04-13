@@ -7,11 +7,13 @@ import {
   AfterViewChecked,
   HostListener,
   OnInit,
+  computed,
 } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ChatStateService } from '../../../../core/services/chat-state.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-chat-page',
@@ -23,6 +25,10 @@ import { ChatStateService } from '../../../../core/services/chat-state.service';
 export class ChatPageComponent implements AfterViewChecked, OnInit {
   readonly chat = inject(ChatStateService);
   private readonly location = inject(Location);
+  private readonly auth     = inject(AuthService);
+
+  /** True when the logged-in user is a viewer — selector is hidden for viewers. */
+  readonly isViewer = computed(() => this.auth.user()?.role === 'viewer');
 
   input = signal('');
   selectorOpen = signal(false);
@@ -31,6 +37,7 @@ export class ChatPageComponent implements AfterViewChecked, OnInit {
   private shouldScroll = true; // scroll on load
 
   ngOnInit(): void {
+    console.log('[ChatPage] ngOnInit — role:', this.auth.user()?.role, '| isViewer:', this.isViewer());
     this.chat.ensureIdentitiesLoaded();
   }
 
@@ -63,6 +70,11 @@ export class ChatPageComponent implements AfterViewChecked, OnInit {
       this.chat.switchIdentity(identity);
       this.shouldScroll = true;
     }
+  }
+
+  retryIdentities(): void {
+    console.log('[ChatPage] retryIdentities triggered');
+    this.chat.retryIdentities();
   }
 
   @HostListener('document:click', ['$event'])

@@ -63,7 +63,8 @@
     </div>
 
     <!-- ── Identity selector bar ───────────────────────────────────────── -->
-    @if (chat.identityNames().length > 0) {
+    <!-- Viewers have no selector: their context is always their own identity. -->
+    @if (!isViewer() && chat.identityNames().length > 0) {
       <div class="cb-selector-bar">
         <div class="cb-selector" (click)="$event.stopPropagation()">
           <button class="cb-selector__trigger" type="button" (click)="toggleSelector()" [disabled]="chat.contextLoading()">

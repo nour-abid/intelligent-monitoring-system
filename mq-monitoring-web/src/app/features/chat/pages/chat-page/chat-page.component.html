@@ -20,54 +20,78 @@
 
     <div class="cp-header__right">
       <!-- ── Identity selector ──────────────────────────────────────── -->
-      @if (chat.identityNames().length > 0) {
-        <div class="cp-selector">
-          <button class="cp-selector__trigger" type="button" (click)="toggleSelector()" [disabled]="chat.contextLoading()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-            </svg>
-            @if (chat.contextLoading()) {
-              <span class="cp-selector__spinner"></span>
-            } @else if (chat.selectedIdentity() === 'global' || !chat.selectedIdentity()) {
-              All Employees
-            } @else {
-              {{ chat.selectedIdentity() }}
-            }
-            <svg class="cp-selector__caret" [class.cp-selector__caret--open]="selectorOpen()" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
-          </button>
+      <!-- Viewers always use the page-driven self-context; no selector needed. -->
+      @if (!isViewer()) {
 
-          @if (selectorOpen()) {
-            <div class="cp-selector__dropdown">
-              <button
-                class="cp-selector__option"
-                [class.cp-selector__option--active]="chat.selectedIdentity() === 'global' || !chat.selectedIdentity()"
-                type="button"
-                (click)="pickIdentity('global')"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                </svg>
+        <!-- State 1: loading -->
+        @if (chat.contextLoading()) {
+          <div class="cp-selector">
+            <button class="cp-selector__trigger" type="button" disabled>
+              <span class="cp-selector__spinner"></span>
+              Loading employees…
+            </button>
+          </div>
+
+        <!-- State 2: identities loaded -->
+        } @else if (chat.identityNames().length > 0) {
+          <div class="cp-selector">
+            <button class="cp-selector__trigger" type="button" (click)="toggleSelector()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+              @if (chat.selectedIdentity() === 'global' || !chat.selectedIdentity()) {
                 All Employees
-              </button>
-              @for (name of chat.identityNames(); track name) {
+              } @else {
+                {{ chat.selectedIdentity() }}
+              }
+              <svg class="cp-selector__caret" [class.cp-selector__caret--open]="selectorOpen()" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+
+            @if (selectorOpen()) {
+              <div class="cp-selector__dropdown">
                 <button
                   class="cp-selector__option"
-                  [class.cp-selector__option--active]="chat.selectedIdentity() === name"
+                  [class.cp-selector__option--active]="chat.selectedIdentity() === 'global' || !chat.selectedIdentity()"
                   type="button"
-                  (click)="pickIdentity(name)"
+                  (click)="pickIdentity('global')"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                   </svg>
-                  {{ name }}
+                  All Employees
                 </button>
-              }
-            </div>
-          }
-        </div>
+                @for (name of chat.identityNames(); track name) {
+                  <button
+                    class="cp-selector__option"
+                    [class.cp-selector__option--active]="chat.selectedIdentity() === name"
+                    type="button"
+                    (click)="pickIdentity(name)"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    {{ name }}
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
+        <!-- State 3: attempted but empty — show retry -->
+        } @else if (chat.identitiesAttempted()) {
+          <div class="cp-selector">
+            <button class="cp-selector__trigger" type="button" (click)="retryIdentities()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/>
+              </svg>
+              No employees found — Retry
+            </button>
+          </div>
+        }
+
       }
 
       @if (chat.hasContext()) {

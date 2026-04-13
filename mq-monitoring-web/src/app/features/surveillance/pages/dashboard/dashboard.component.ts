@@ -12,6 +12,7 @@ import { KpiCardsComponent, KpiCardDef } from '../../components/kpi-cards/kpi-ca
 import { IdentityTableComponent } from '../../components/identity-table/identity-table.component';
 import { toDateInputValue, formatDuration, toStartOfDay, toEndOfDay, DatePresetKey, datePreset } from '../../../../core/utils/duration.util';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ChatContextService } from '../../../../core/services/chat-context.service';
 import { DashboardSummaryResponse } from '../../models/summary.model';
 import { ActivityDistributionItem } from '../../models/summary.model';
 import { AlertSummaryComponent } from '../../components/alert-summary/alert-summary.component';
@@ -54,6 +55,7 @@ export class DashboardComponent implements OnInit {
   private readonly service     = inject(SurveillanceService);
   private readonly router      = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly ctxSvc      = inject(ChatContextService);
 
   readonly isSuperviseur = computed(() => this.authService.user()?.role === 'superviseur');
   readonly isAdmin       = computed(() => this.authService.user()?.role === 'admin');
@@ -469,6 +471,24 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  /** Returns a human-readable date range label matching the active filter. */
+  private buildDateLabel(): string {
+    const presetLabels: Record<string, string> = {
+      today:     'Today',
+      yesterday: 'Yesterday',
+      last7:     'Last 7 days',
+      month:     'This month',
+    };
+    if (this.activePreset && this.activePreset !== 'custom' && presetLabels[this.activePreset]) {
+      return presetLabels[this.activePreset];
+    }
+    if (this.filterStart && this.filterEnd) {
+      const fmt = (s: string) => s.split('-').reverse().join('/'); // YYYY-MM-DD → DD/MM/YYYY
+      return `${fmt(this.filterStart)} to ${fmt(this.filterEnd)}`;
+    }
+    return 'Custom range';
+  }
+
   load(): void {
     if (this.filterStart && this.filterEnd && this.filterStart > this.filterEnd) {
       this.errorMsg.set('Start date cannot be after end date.');
@@ -498,6 +518,12 @@ export class DashboardComponent implements OnInit {
         this.identities.set(identities);
         this.summary.set(summary);
         this.loadState.set('success');
+        // Sync chat context with the active dashboard date range
+        this.ctxSvc.pushDashboardRange(
+          this.buildDateLabel(),
+          toStartOfDay(this.filterStart),
+          toEndOfDay(this.filterEnd),
+        );
       },
       error: (err: unknown) => {
         const message =

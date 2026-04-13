@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ChatStateService } from '../../../core/services/chat-state.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-chatbot',
@@ -24,6 +25,10 @@ import { ChatStateService } from '../../../core/services/chat-state.service';
 export class ChatbotComponent implements AfterViewChecked, OnInit {
   readonly chat = inject(ChatStateService);
   private readonly router = inject(Router);
+  private readonly auth   = inject(AuthService);
+
+  /** True when the logged-in user is a viewer — selector is hidden for viewers. */
+  readonly isViewer = computed(() => this.auth.user()?.role === 'viewer');
 
   mode  = signal<'closed' | 'sidebar'>('closed');
   input = signal('');
@@ -36,10 +41,18 @@ export class ChatbotComponent implements AfterViewChecked, OnInit {
   private shouldScroll = false;
 
   ngOnInit(): void {
+    console.log('[Chatbot] ngOnInit — role:', this.auth.user()?.role, '| isViewer:', this.isViewer());
     this.chat.ensureIdentitiesLoaded();
   }
 
-  open(): void  { this.mode.set('sidebar'); }
+  open(): void {
+    this.mode.set('sidebar');
+    console.log('[Chatbot] open — identityNames:', this.chat.identityNames(), '| isViewer:', this.isViewer());
+    // Retry load if previous attempt failed or returned empty
+    if (!this.chat.contextLoading() && this.chat.identityNames().length === 0) {
+      this.chat.ensureIdentitiesLoaded();
+    }
+  }
   close(): void { this.mode.set('closed'); }
 
   openFullPage(): void {
@@ -77,6 +90,11 @@ export class ChatbotComponent implements AfterViewChecked, OnInit {
       this.chat.switchIdentity(identity);
       this.shouldScroll = true;
     }
+  }
+
+  retryIdentities(): void {
+    console.log('[Chatbot] retryIdentities triggered');
+    this.chat.retryIdentities();
   }
 
   ngAfterViewChecked(): void {

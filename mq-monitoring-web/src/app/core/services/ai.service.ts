@@ -52,16 +52,19 @@ export class AiService {
   /**
    * POST /api/ai/chat
    * Sends the user message with optional data context and prior turn history.
+   * The identity param narrows chart generation scope to the selected employee.
    */
   sendMessage(
     message: string,
     context: string,
     history: ChatTurn[],
+    identity?: string,
   ): Observable<ChatResponse> {
     return this.http.post<ChatResponse>(`${this.base}/chat`, {
       message,
       context: context || undefined,
       history: history.length ? history : undefined,
+      identity: identity && identity !== '' ? identity : undefined,
     });
   }
 
@@ -85,12 +88,15 @@ export class AiService {
   }
 
   /**
-   * GET /api/ai/context?identity=...
+   * GET /api/ai/context?identity=...&start=...&end=...
    * Fetches surveillance data formatted as AI context + identity list.
+   * Pass start/end (ISO strings) to match the dashboard's active date range.
    */
-  getContext(identity?: string): Observable<AiContextResponse> {
+  getContext(identity?: string, start?: string, end?: string): Observable<AiContextResponse> {
     const params: Record<string, string> = {};
     if (identity) params['identity'] = identity;
+    if (start)    params['start']    = start;
+    if (end)      params['end']      = end;
     return this.http.get<AiContextResponse>(`${this.base}/context`, { params });
   }
 }

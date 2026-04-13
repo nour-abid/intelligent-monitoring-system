@@ -7,6 +7,7 @@ use App\Services\GeminiService;
 use App\Services\Monitoring\ChartDataService;
 use App\Services\Monitoring\InsightExtractorService;
 use App\Services\Monitoring\SurveillanceAnalyticsService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -154,6 +155,7 @@ PROMPT;
      *   history  (array,  optional, max 20)    — prior chat turns
      *     history[].role  'user'|'assistant'
      *     history[].text  string
+     *   identity (string, optional, max 100)   — selected employee or 'global'
      */
     public function chat(Request $request): JsonResponse
     {
@@ -163,6 +165,7 @@ PROMPT;
             'history'        => 'nullable|array|max:20',
             'history.*.role' => 'required|in:user,assistant',
             'history.*.text' => 'required|string|max:2000',
+            'identity'       => 'nullable|string|max:100',
         ]);
 
         $message = $validated['message'];
@@ -232,27 +235,44 @@ PROMPT;
     }
 
     /**
-     * Resolve the analytics identity scope for the authenticated user.
+     * Resolve the analytics identity scope for chart generation.
      *
      * Returns:
-     *   null      — admin: no restriction (all identities visible)
-     *   string[]  — supervisor: supervised employees only; viewer: self only
+     *   null      — admin (no restriction) or admin with no valid selection
+     *   string[]  — role-scoped list, optionally narrowed to the UI-selected identity
      *   []        — viewer with no linked surveillance_identity
+     *
+     * When the body contains a valid `identity` that is within the user's
+     * RBAC scope, the chart is narrowed to that single identity.
      */
     private function resolveScope(Request $request): ?array
     {
-        $user = $request->user();
+        $user     = $request->user();
+        $selected = $request->input('identity');
 
-        return match ($user->role) {
-            'admin'      => null,
-            'supervisor' => User::where('supervisor_id', $user->id)
+        // Base RBAC scope
+        $rbac = match ($user->role) {
+            'admin'       => null, // unrestricted
+            'superviseur' => User::where('supervisor_id', $user->id)
                 ->whereNotNull('surveillance_identity')
                 ->pluck('surveillance_identity')
                 ->toArray(),
-            default      => $user->surveillance_identity
+            default       => $user->surveillance_identity
                 ? [$user->surveillance_identity]
                 : [],
         };
+
+        // Narrow to the UI-selected identity (intersection with RBAC scope)
+        if ($selected && $selected !== 'global') {
+            if ($rbac === null) {
+                // Admin selected a specific person
+                return [$selected];
+            }
+            // Supervisor/viewer: only allow if within their RBAC scope
+            return in_array($selected, $rbac) ? [$selected] : $rbac;
+        }
+
+        return $rbac;
     }
 
     /**
@@ -341,29 +361,68 @@ PROMPT;
     public function context(Request $request): JsonResponse
     {
         $identity = $request->query('identity');
-        $end   = now()->toDateTimeString();
-        $start = now()->subDays(7)->toDateTimeString();
+
+        // Accept optional start/end from the frontend so context matches
+        // whatever date range is currently loaded in the dashboard.
+        $start = $request->query('start')
+            ? Carbon::parse($request->query('start'))->toDateTimeString()
+            : now()->subDays(7)->toDateTimeString();
+        $end   = $request->query('end')
+            ? Carbon::parse($request->query('end'))->toDateTimeString()
+            : now()->toDateTimeString();
 
         try {
-            // Always fetch the identity list for the selector
+            $user          = $request->user();
+            $isAdmin       = $user->role === 'admin';
+            $isSuperviseur = $user->role === 'superviseur';
+
+            // ── Determine RBAC-allowed identities ────────────────────────────
+            $allowedIdentities = null; // null = no restriction (admin)
+            if ($isSuperviseur) {
+                $allowedIdentities = User::where('supervisor_id', $user->id)
+                    ->whereNotNull('surveillance_identity')
+                    ->pluck('surveillance_identity')
+                    ->toArray();
+            } elseif (!$isAdmin) {
+                // viewer: only own identity
+                $allowedIdentities = $user->surveillance_identity
+                    ? [$user->surveillance_identity]
+                    : [];
+            }
+
+            // ── Fetch scoped identity list ───────────────────────────────────
             $identitiesData = $this->analytics->identities(
-                start: $start,
-                end:   $end,
-                includeUnknown: false,
-            );
-            $names = array_map(
-                fn ($e) => $e['identity_name'],
-                $identitiesData['identities']
+                start:             $start,
+                end:               $end,
+                includeUnknown:    false,
+                allowedIdentities: $allowedIdentities,
             );
 
+            // Viewers have no selector — they always use the page-driven context
+            // pushed by identity-detail. Return empty identities so the selector
+            // is hidden in the UI.
+            $names = ($isAdmin || $isSuperviseur)
+                ? array_map(fn ($e) => $e['identity_name'], $identitiesData['identities'])
+                : [];
+
+            // ── Validate identity param is within scope ──────────────────────
             if ($identity && $identity !== 'global') {
-                // Single identity context
+                $inScope = $allowedIdentities === null
+                    || in_array($identity, $allowedIdentities);
+                if (!$inScope) {
+                    $identity = null; // fall back to global/team context
+                }
+            }
+
+            // ── Build context text ───────────────────────────────────────────
+            if ($identity && $identity !== 'global') {
                 $contextText = $this->buildIdentityContext($identity, $start, $end);
-                $label = "$identity — Last 7 days";
+                $label       = "$identity — Last 7 days";
             } else {
-                // Global context — all identities summary
                 $contextText = $this->buildGlobalContext($identitiesData, $start, $end);
-                $label = 'All employees — Last 7 days';
+                $label       = $isAdmin
+                    ? 'All employees — Last 7 days'
+                    : ($isSuperviseur ? 'My team — Last 7 days' : 'My data — Last 7 days');
             }
 
             return response()->json([
@@ -373,7 +432,6 @@ PROMPT;
             ]);
         } catch (\Exception $e) {
             Log::error('AI context error', ['error' => $e->getMessage()]);
-            // Fallback: return empty context but allow frontend to proceed
             return response()->json([
                 'identities' => [],
                 'context'    => 'No surveillance data available. Ask questions about general workplace analytics.',
