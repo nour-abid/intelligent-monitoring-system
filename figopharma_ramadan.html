@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Campagne Ramadan FIGOPHARMA - Plan d'Activation</title>
+  <style>
+    :root {
+      --accent: #dc3545;
+      --text: #333;
+      --muted: #666;
+      --line: #e6e6e6;
+      --bg: #f7f9fc;
+    }
+    @page { size: A4 portrait; margin: 6mm; }
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 11pt;
+      color: var(--text);
+      margin: 0;
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 900px;
+      margin: 24px auto;
+      padding: 18px 22px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    .logo { width: 120px; }
+    .company-info { text-align: right; font-size: 10pt; }
+    .company-name { font-size: 16pt; font-weight: 800; color: var(--accent); }
+    .doc-title {
+      text-align: center;
+      font-size: 20pt;
+      font-weight: bold;
+      color: var(--accent);
+      margin: 15px 0 25px;
+    }
+    .doc-title::after {
+      content: "";
+      display: block;
+      width: 70px;
+      height: 3px;
+      background: var(--accent);
+      margin: 8px auto 0;
+      border-radius: 3px;
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 12pt;
+      color: var(--muted);
+      margin: -15px 0 30px;
+      font-style: italic;
+    }
+    .section {
+      margin-bottom: 30px;
+    }
+    .section-title {
+      font-size: 14pt;
+      font-weight: bold;
+      color: var(--accent);
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid var(--line);
+    }
+    .section-subtitle {
+      font-size: 12pt;
+      font-weight: bold;
+      color: var(--text);
+      margin: 15px 0 8px;
+    }
+    .highlight-box {
+      border: 1px solid rgba(220,53,69,.35);
+      background: #fff7f8;
+      padding: 12px 15px;
+      margin: 10px 0 18px;
+      font-size: 10.5pt;
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+    }
+    .concept-box {
+      background: var(--bg);
+      padding: 15px 18px;
+      margin: 15px 0;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      text-align: center;
+      font-size: 13pt;
+      font-weight: bold;
+      color: var(--accent);
+    }
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin: 15px 0;
+    }
+    .product-card {
+      border: 1px solid var(--line);
+      padding: 12px;
+      border-radius: 8px;
+      background: #fcfdff;
+    }
+    .product-name {
+      font-weight: bold;
+      color: var(--accent);
+      font-size: 11pt;
+      margin-bottom: 5px;
+    }
+    .product-desc {
+      font-size: 10pt;
+      color: var(--muted);
+    }
+    .week-block {
+      background: #fcfdff;
+      border: 1px solid var(--line);
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 8px;
+    }
+    .week-title {
+      font-size: 12pt;
+      font-weight: bold;
+      color: var(--text);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .week-number {
+      background: var(--accent);
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 10pt;
+    }
+    ul {
+      margin: 8px 0;
+      padding-left: 25px;
+    }
+    li {
+      margin: 5px 0;
+      font-size: 10.5pt;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(220,53,69,.08);
+      color: var(--accent);
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 9.5pt;
+      letter-spacing: .2px;
+    }
+    .table-kpi {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 15px 0;
+    }
+    .table-kpi th {
+      background: var(--accent);
+      color: #fff;
+      padding: 10px 8px;
+      text-align: left;
+      font-size: 10pt;
+      text-transform: uppercase;
+      letter-spacing: .3px;
+    }
+    .table-kpi td {
+      border: 1px solid var(--line);
+      padding: 9px 8px;
+      font-size: 10pt;
+      vertical-align: top;
+    }
+    .table-kpi thead th:first-child { border-top-left-radius: 8px; }
+    .table-kpi thead th:last-child { border-top-right-radius: 8px; }
+    .table-kpi tbody tr:nth-child(even) td { background: #fcfdff; }
+    .footer {
+      font-size: 8pt;
+      color: var(--muted);
+      border-top: 1px solid #ddd;
+      padding-top: 10px;
+      margin-top: 40px;
+      text-align: center;
+    }
+    .budget-highlight {
+      font-size: 13pt;
+      font-weight: bold;
+      color: var(--accent);
+      text-align: center;
+      padding: 10px;
+      background: var(--bg);
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+    
+    @media print {
+      body { background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .container { box-shadow: none; margin: 0; padding: 6mm; max-width: initial; width: auto; }
+      .section { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+      <div><img src="https://www.marqenti.tn/images/maftoul.svg" class="logo" alt="Logo MarQenti"></div>
+      <div class="company-info">
+        <div class="company-name">MarQenti</div>
+        Route Tunis Km 9.5 , Imm Hamid App N°18  <br>
+        Email: contact@marqenti.tn<br>
+        Tél: +216 23 922 932
+      </div>
+    </div>
+
+    <!-- TITRE PRINCIPAL -->
+    <div class="doc-title">Campagne Ramadan FIGOPHARMA</div>
+    <div class="subtitle">Plan d'activation 2 semaines (Test)</div>
+
+    <!-- STRATÉGIE -->
+    <div class="highlight-box">
+      <strong>MarQenti Strategy</strong><br>
+      <strong style="color: var(--accent);">Symptôme → Solution → Pack</strong><br>
+      Langue des contenus courts (Reel/Stories/VO) : <em>tunisien (darja)</em>, ton simple et accessible.
+    </div>
+
+    <!-- SECTION 1: OBJECTIFS -->
+    <div class="section">
+      <div class="section-title">1) Objectifs (2 semaines)</div>
+      <ul>
+        <li>Amener l'audience à identifier les symptômes liés au rythme Ramadan (jeûne/iftar)</li>
+        <li>Déclencher le réflexe : demander la solution en officine (pharmacie)</li>
+        <li>Installer une idée forte : le Pack Ramadan = réponse structurée par symptôme</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 2: CONCEPT -->
+    <div class="section">
+      <div class="section-title">2) Concept & Logique Créative MarQenti</div>
+      
+      <div class="concept-box">
+        "Ton symptôme → ta solution → ton Pack"
+      </div>
+
+      <p><strong>La campagne fonctionne comme un mini-funnel :</strong></p>
+      <ul>
+        <li><span class="badge">Semaine 1</span> : on rend les symptômes "visibles" (diagnostic + pédagogie)</li>
+        <li><span class="badge">Semaine 2</span> : on rend la demande "facile" (mapping pack + timing + répétition)</li>
+      </ul>
+
+      <p><strong>Ce concept permet :</strong></p>
+      <ul>
+        <li>de simplifier la compréhension (une logique claire),</li>
+        <li>de faciliter l'acte en pharmacie (quoi demander),</li>
+        <li>de différencier FIGOPHARMA (pack structuré, pas une promesse isolée).</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 3: MESSAGES PAR PRODUIT -->
+    <div class="section">
+      <div class="section-title">3) Messages Clés par Produit (Logique Officine)</div>
+      
+      <div class="product-grid">
+        <div class="product-card">
+          <div class="product-name">FIGOLAX</div>
+          <div class="product-desc">Constipation du jeûne (solution douce)</div>
+        </div>
+        <div class="product-card">
+          <div class="product-name">GASTRACID</div>
+          <div class="product-desc">Brûlures / reflux après iftar (neutralisation douce)</div>
+        </div>
+        <div class="product-card">
+          <div class="product-name">COLOBAL</div>
+          <div class="product-desc">Ballonnements / gaz après repas lourds (action rapide)</div>
+        </div>
+        <div class="product-card">
+          <div class="product-name">HEPATOX</div>
+          <div class="product-desc">Soutien du foie (surcharge alimentaire Ramadan)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4: CANAUX & FORMATS -->
+    <div class="section">
+      <div class="section-title">4) Canaux & Formats (Production MarQenti)</div>
+      
+      <div class="highlight-box">
+        <strong>Canaux :</strong> Instagram + Facebook
+      </div>
+
+      <div class="section-subtitle">Production de Contenu MarQenti</div>
+      
+      <div class="product-grid">
+        <div class="product-card">
+          <div class="product-name">1 Reel</div>
+          <div class="product-desc">Format tunisien (darja) avec voice-over AI, introduction du concept "Symptôme → Solution → Pack"</div>
+        </div>
+        <div class="product-card">
+          <div class="product-name">6 Stories</div>
+          <div class="product-desc">Format tunisien (darja), quiz interactifs + mapping symptôme → solution</div>
+        </div>
+        <div class="product-card">
+          <div class="product-name">4 Visuels Produits</div>
+          <div class="product-desc">Création/adaptation Feed pour FIGOLAX, GASTRACID, COLOBAL, HEPATOX</div>
+        </div>
+        <div class="product-card">
+          <div class="product-name">Déclinaisons</div>
+          <div class="product-desc">Formats Feed & Story optimisés (ratios + safe margins), prêts pour publication & ads</div>
+        </div>
+      </div>
+
+      <div class="highlight-box">
+        <strong>Logique créative :</strong> Contenu "rapide à consommer", mémorisable, adapté à l'usage mobile. Mise en scène simple "pack/product-focused" cohérente avec l'univers Ramadan.
+      </div>
+    </div>
+
+    <!-- SECTION 5: PLAN CONTENU -->
+    <div class="section">
+      <div class="section-title">5) Plan Contenu (2 semaines)</div>
+
+      <!-- SEMAINE 1 -->
+      <div class="week-block">
+        <div class="week-title">
+          <span class="week-number">Semaine 1</span>
+          <span>Diagnostic & Éducation</span>
+        </div>
+        
+        <p><strong>Objectif :</strong> faire reconnaître les symptômes + installer le réflexe "je demande en pharmacie".</p>
+        
+        <div class="section-subtitle">Piliers</div>
+        <ul>
+          <li><strong>Éducation :</strong> pourquoi ces troubles apparaissent en Ramadan</li>
+          <li><strong>Auto-check :</strong> interaction (quiz/polls) pour que la personne se situe</li>
+          <li><strong>Solution :</strong> associer immédiatement un symptôme → un produit</li>
+          <li><strong>Mapping :</strong> rendre la demande en officine ultra simple</li>
+        </ul>
+
+        <div class="section-subtitle">Rythme (Semaine 1)</div>
+        <ul>
+          <li><strong>Posts Feed :</strong> focus symptômes + 2 produits prioritaires (constipation, reflux)</li>
+          <li><strong>Stories :</strong> quiz + réponses orientées "solution en officine"</li>
+          <li><strong>Reel :</strong> introduction globale du concept "symptôme → solution → pack" (format darja + VO)</li>
+        </ul>
+      </div>
+
+      <!-- SEMAINE 2 -->
+      <div class="week-block">
+        <div class="week-title">
+          <span class="week-number">Semaine 2</span>
+          <span>Pack Logic, Timing & Activation</span>
+        </div>
+        
+        <p><strong>Objectif :</strong> transformer l'intérêt en action (demande en pharmacie) + ancrer le Pack.</p>
+        
+        <div class="section-subtitle">Piliers</div>
+        <ul>
+          <li><strong>Explication simple :</strong> pourquoi un Pack et comment il est structuré</li>
+          <li><strong>Timing :</strong> quand agir (logique suhoor/iftar / après repas, sans posologie)</li>
+          <li><strong>Différenciation :</strong> pack + logique symptomatique = plus clair, plus complet</li>
+          <li><strong>Répétition :</strong> rappeler la mécanique "identifier → demander en officine"</li>
+        </ul>
+
+        <div class="section-subtitle">Rythme (Semaine 2)</div>
+        <ul>
+          <li><strong>Posts Feed :</strong> mapping pack + mise en avant COLOBAL & HEPATOX</li>
+          <li><strong>Stories :</strong> "choisis ton symptôme" + rappel Pack + activation officine</li>
+          <li><strong>Reel :</strong> (si on garde un seul reel sur toute la période) on le recycle en ads + retarget</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- SECTION 6: PAID ADS -->
+    <div class="section">
+      <div class="section-title">6) Paid Ads — Logique d'Optimisation IA (Meta)</div>
+      
+      <div class="budget-highlight">
+        Budget Media : 400 TND
+      </div>
+
+      <div class="section-subtitle">Structure Recommandée (Simple, Efficace, Pilotable)</div>
+
+      <div class="highlight-box">
+        <strong>Campagne 1 (Semaine 1) — Acquisition / Awareness</strong><br>
+        <strong>Objectif :</strong> Reach ou Video Views (si Reel au centre)<br>
+        <strong>Rôle :</strong> maximiser la couverture et alimenter l'audience engagée (vues/engagement)
+      </div>
+
+      <div class="highlight-box">
+        <strong>Campagne 2 (Semaine 2) — Retarget + Répétition Pack</strong><br>
+        <strong>Objectif :</strong> Reach (fréquence légère) + retarget (si disponible)<br>
+        <strong>Rôle :</strong> ré-exposer le mapping Pack et pousser le réflexe officine
+      </div>
+
+      <div class="section-subtitle">Paramétrage "IA-friendly"</div>
+      <ul>
+        <li>Peu de créas (1–2 principales) pour accélérer l'apprentissage</li>
+        <li>Placements automatiques (Meta optimise)</li>
+        <li>Retarget basé sur : vues vidéo / interactions (si possible)</li>
+        <li>Itérations légères : optimisation sur les 3–4 premiers jours puis stabilisation</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 7: DIFFÉRENCIATION -->
+    <div class="section">
+      <div class="section-title">7) Différenciation (1 Message Clair, Répété)</div>
+      
+      <ul>
+        <li><strong>Pack complet</strong> (pas un produit isolé)</li>
+        <li><strong>Logique symptomatique structurée</strong> (pédagogique, facile à demander)</li>
+        <li><strong>Adapté au rythme Ramadan</strong> (jeûne/iftar)</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 8: KPI -->
+    <div class="section">
+      <div class="section-title">8) KPI (2 semaines)</div>
+      
+      <table class="table-kpi">
+        <thead>
+          <tr>
+            <th>Indicateur</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Reach / CPM</strong></td>
+            <td>Couverture</td>
+          </tr>
+          <tr>
+            <td><strong>Vues vidéo</strong></td>
+            <td>Taux de complétion (si Reel)</td>
+          </tr>
+          <tr>
+            <td><strong>Engagement stories</strong></td>
+            <td>Votes/réponses</td>
+          </tr>
+          <tr>
+            <td><strong>Retarget</strong></td>
+            <td>Coût par vue engagée / fréquence</td>
+          </tr>
+          <tr>
+            <td><strong>Feedback terrain</strong></td>
+            <td>Demandes en officine (si possible)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 9: PRESTATIONS MARQENTI -->
+    <div class="section">
+      <div class="section-title">Prestations MarQenti (Services) — 400 TND (2 semaines)</div>
+      
+      <div class="section-subtitle">1) Stratégie & Cadrage</div>
+      <ul>
+        <li>Définition du concept de campagne "Symptôme → Solution → Pack"</li>
+        <li>Message map par symptôme et par produit (logique officine)</li>
+        <li>Structure de diffusion sur 2 semaines (S1 sensibilisation, S2 activation)</li>
+      </ul>
+
+      <div class="section-subtitle">2) Production Créative (Contenu & Visuels)</div>
+      
+      <div class="highlight-box">
+        <strong>1 Reel (tunisien/darja)</strong><br>
+        Avec voice-over (AI possible), format Reels-ready IG/FB
+      </div>
+
+      <div class="highlight-box">
+        <strong>6 Stories (tunisien/darja)</strong><br>
+        Orientées quiz + mapping symptôme → solution
+      </div>
+
+      <div class="highlight-box">
+        <strong>Visuels produits : création / adaptation de 4 visuels</strong><br>
+        1 par produit : FIGOLAX, GASTRACID, COLOBAL, HEPATOX
+      </div>
+
+      <ul>
+        <li>Déclinaisons formats Feed & Story (ratios + safe margins)</li>
+        <li>Mise en scène simple "pack/product-focused" cohérente avec l'univers Ramadan</li>
+        <li>Export final prêt publication & sponsorisation</li>
+      </ul>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      Document préparé par MarQenti Strategy | contact@marqenti.tn | +216 23 922 932
+    </div>
+
+  </div>
+
+</body>
+</html>

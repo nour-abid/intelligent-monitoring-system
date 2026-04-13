@@ -1,0 +1,150 @@
+// Personal Insights Box Styles
+
+.insights-box {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.insights-intro {
+  p {
+    margin: 0;
+    font-size: 1rem;
+    color: #1f2937;
+    font-weight: 500;
+  }
+}
+
+.insights-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.insight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border-left: 4px solid;
+  transition: all 250ms ease-in-out;
+
+  &:hover {
+    transform: translateX(4px);
+  }
+
+  // Type: Positive (encouragement)
+  &.insight-positive {
+    background-color: #f0fdf4;
+    border-left-color: #10b981;
+
+    .insight-icon {
+      color: #10b981;
+    }
+
+    .insight-title {
+      color: #065f46;
+    }
+
+    .insight-message {
+      color: #047857;
+    }
+  }
+
+  // Type: Tip (suggestion)
+  &.insight-tip {
+    background-color: #fff7ed;
+    border-left-color: #f97316;
+
+    .insight-icon {
+      color: #f97316;
+    }
+
+    .insight-title {
+      color: #7c2d12;
+    }
+
+    .insight-message {
+      color: #b45309;
+    }
+  }
+
+  // Type: Caution (warning)
+  &.insight-caution {
+    background-color: #fef3c7;
+    border-left-color: #f59e0b;
+
+    .insight-icon {
+      color: #f59e0b;
+    }
+
+    .insight-title {
+      color: #78350f;
+    }
+
+    .insight-message {
+      color: #b45309;
+    }
+  }
+}
+
+.insight-icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 100%;
+    height: 100%;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+}
+
+.insight-content {
+  flex: 1;
+}
+
+.insight-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.insight-message {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.insights-footer {
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+
+  .footer-text {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #6b7280;
+    font-style: italic;
+  }
+}
+
+@media (max-width: 768px) {
+  .insight-item {
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .insight-title {
+    font-size: 0.9rem;
+  }
+
+  .insight-message {
+    font-size: 0.8rem;
+  }
+}

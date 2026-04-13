@@ -1,0 +1,49 @@
+<!-- Personal Insights Box Template -->
+<div class="insights-box">
+  <div class="insights-intro">
+    <p>{{ userName }}, here's what we noticed this week:</p>
+  </div>
+
+  <div class="insights-list">
+    @for (insight of insights; track insight.title) {
+      <div class="insight-item" [class]="'insight-' + insight.type">
+        <div class="insight-icon" [class]="'icon-' + insight.icon">
+          @switch (insight.icon) {
+            @case ('star') {
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+            }
+            @case ('lightbulb') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="1"></circle>
+                <path d="M12 17v4M8 21h8M3.22 18.78a2.207 2.207 0 0 0 2.56 3.14c2.713-.26 6.183-.26 8.44 0a2.208 2.208 0 0 0 2.56-3.14M3 12.999a9 9 0 0 1 15.263-4.262M21 12.999a9 9 0 0 0-15.263-4.262"></path>
+              </svg>
+            }
+            @case ('clock') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            }
+            @case ('trending-up') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 17"></polyline>
+                <polyline points="17 6 23 6 23 12"></polyline>
+              </svg>
+            }
+          }
+        </div>
+
+        <div class="insight-content">
+          <h4 class="insight-title">{{ insight.title }}</h4>
+          <p class="insight-message">{{ insight.message }}</p>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="insights-footer">
+    <p class="footer-text">💡 Check your weekly summary email for more detailed metrics and recommendations.</p>
+  </div>
+</div>

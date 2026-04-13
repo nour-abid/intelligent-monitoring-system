@@ -1,0 +1,138 @@
+// Personal Daily Breakdown Styles
+
+.daily-breakdown {
+  overflow-x: auto;
+
+  .table-responsive {
+    overflow-x: auto;
+
+    @media (max-width: 768px) {
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+    }
+  }
+}
+
+.breakdown-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+
+  thead {
+    background-color: #f9fafb;
+    border-bottom: 2px solid #e5e7eb;
+
+    th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+
+      @media (max-width: 768px) {
+        padding: 0.75rem;
+        font-size: 0.75rem;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid #e5e7eb;
+      transition: background-color 250ms ease-in-out;
+
+      &:hover {
+        background-color: #f9fafb;
+      }
+
+      td {
+        padding: 1rem;
+        color: #1f2937;
+
+        @media (max-width: 768px) {
+          padding: 0.75rem;
+          font-size: 0.85rem;
+        }
+      }
+    }
+  }
+}
+
+.date-cell {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.time-cell {
+  color: #374151;
+}
+
+.activity-cell {
+  color: #3b82f6;
+  font-weight: 500;
+}
+
+.phone-cell {
+  color: #f97316;
+}
+
+.focus-cell {
+  .focus-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.25rem;
+    font-weight: 600;
+    font-size: 0.85rem;
+
+    &.focus-high {
+      background-color: #dcfce7;
+      color: #166534;
+    }
+
+    &.focus-low {
+      background-color: #fef3c7;
+      color: #b45309;
+    }
+  }
+}
+
+.alerts-col {
+  text-align: center;
+}
+
+.alerts-cell {
+  .alert-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &.badge-warning {
+    background-color: #fef3c7;
+    color: #b45309;
+  }
+
+  &.badge-info {
+    background-color: #dbeafe;
+    color: #1e40af;
+  }
+}
+
+@media (max-width: 768px) {
+  .breakdown-table {
+    min-width: 600px;
+  }
+}

@@ -31,3 +31,33 @@ export interface TimelineParams {
   end?: string;
   include_triggers?: string[];
 }
+
+/** Response from GET /api/monitoring/surveillance/identities/{name}/summary */
+export interface IdentityPersonalSummary {
+  working_sec:  number;
+  phone_sec:    number;
+  inactive_sec: number;
+  other_sec:    number;
+  total_sec:    number;
+  /**
+   * Backend-computed: working_sec / (working_sec + phone_sec + inactive_sec) × 100.
+   * Integer 0–100, or null when all three are zero.
+   */
+  focus_score: number | null;
+}
+
+/** One day entry in the per-day breakdown response. */
+export interface IdentityDayEntry {
+  date:         string;   // 'YYYY-MM-DD'
+  working_sec:  number;
+  phone_sec:    number;
+  inactive_sec: number;
+  other_sec:    number;
+  total_sec:    number;
+  focus_score:  number | null;
+}
+
+/** Response from GET /api/monitoring/surveillance/identities/{name}/daily */
+export interface IdentityDailyResponse {
+  days: IdentityDayEntry[];
+}

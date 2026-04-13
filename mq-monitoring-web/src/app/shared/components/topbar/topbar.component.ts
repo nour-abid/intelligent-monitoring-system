@@ -4,7 +4,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { AlertService } from '../../../core/services/alert.service';
 import { ThemeService } from '../../../core/services/theme.service';
-import { AlertItem } from '../../../core/models/alert.model';
+import { AlertItem, EvidenceMeta } from '../../../core/models/alert.model';
 import { ReplayModalComponent } from '../replay-modal/replay-modal.component';
 
 @Component({
@@ -22,6 +22,7 @@ export class TopbarComponent {
   protected panelOpen      = signal(false);
   protected replayAlertId  = signal<number | null>(null);
   protected replayLabel    = signal('');
+  protected replayMeta     = signal<EvidenceMeta | null>(null);
 
   togglePanel(): void {
     this.panelOpen.update(o => !o);
@@ -43,10 +44,17 @@ export class TopbarComponent {
     this.panelOpen.set(false);
     this.replayLabel.set(`${a.identity} — ${this.alertLabel(a.type)}`);
     this.replayAlertId.set(a.serverId!);
+    this.replayMeta.set({
+      identity_name:    a.identity,
+      event_type:       a.type,
+      started_at:       a.timestamp,
+      duration_minutes: a.duration_minutes,
+    });
   }
 
   closeReplay(): void {
     this.replayAlertId.set(null);
+    this.replayMeta.set(null);
   }
 
   logout(): void {

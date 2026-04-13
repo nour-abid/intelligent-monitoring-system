@@ -1,0 +1,522 @@
+// Viewer Dashboard Styles
+// ─────────────────────────────────────────────────────────────────────────
+
+// Configuration
+$primary-color: #3b82f6;
+$secondary-color: #8b5cf6;
+$accent-color: #f97316;
+$success-color: #10b981;
+$warning-color: #f59e0b;
+$danger-color: #ef4444;
+
+$bg-primary: #ffffff;
+$bg-secondary: #f9fafb;
+$border-color: #e5e7eb;
+$text-primary: #1f2937;
+$text-secondary: #6b7280;
+
+$spacing-xs: 0.5rem;
+$spacing-sm: 1rem;
+$spacing-md: 1.5rem;
+$spacing-lg: 2rem;
+$spacing-xl: 3rem;
+
+$border-radius: 0.5rem;
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.15);
+
+$transition-fast: 150ms ease-in-out;
+$transition-normal: 250ms ease-in-out;
+
+// ─────────────────────────────────────────────────────────────────────────
+// Main Container
+// ─────────────────────────────────────────────────────────────────────────
+
+.viewer-dashboard {
+  padding: $spacing-lg;
+  background-color: $bg-secondary;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  color: $text-primary;
+
+  @media (max-width: 768px) {
+    padding: $spacing-md;
+  }
+
+  @media (max-width: 480px) {
+    padding: $spacing-sm;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Header
+// ─────────────────────────────────────────────────────────────────────────
+
+.dashboard-header {
+  margin-bottom: $spacing-xl;
+  padding-bottom: $spacing-lg;
+  border-bottom: 1px solid $border-color;
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: $spacing-lg;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: $spacing-md;
+    }
+  }
+
+  .title-section {
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 700;
+      color: $text-primary;
+
+      @media (max-width: 768px) {
+        font-size: 1.5rem;
+      }
+    }
+
+    .subtitle {
+      margin: $spacing-xs 0 0 0;
+      font-size: 0.95rem;
+      color: $text-secondary;
+    }
+  }
+
+  .user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: $spacing-xs;
+    text-align: right;
+
+    @media (max-width: 768px) {
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    .user-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: $text-primary;
+    }
+
+    .period-label {
+      font-size: 0.85rem;
+      color: $text-secondary;
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Alert Block
+// ─────────────────────────────────────────────────────────────────────────
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  margin-bottom: $spacing-lg;
+  border-radius: $border-radius;
+  border-left: 4px solid;
+
+  &.alert-error {
+    background-color: #fef2f2;
+    border-left-color: $danger-color;
+    color: #991b1b;
+
+    .alert-icon {
+      color: $danger-color;
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .alert-content {
+    flex: 1;
+
+    .alert-title {
+      margin: 0 0 $spacing-xs 0;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .alert-message {
+      margin: 0;
+      font-size: 0.85rem;
+    }
+  }
+
+  .alert-close {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Filter Section
+// ─────────────────────────────────────────────────────────────────────────
+
+.filter-section {
+  display: flex;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background-color: $bg-primary;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  margin-bottom: $spacing-lg;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+
+  .filter-row {
+    display: flex;
+    gap: $spacing-md;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 100%;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: $spacing-md;
+    }
+  }
+
+  .preset-buttons {
+    display: flex;
+    gap: $spacing-xs;
+    overflow-x: auto;
+
+    @media (max-width: 768px) {
+      width: 100%;
+      overflow-x: auto;
+      padding-bottom: $spacing-xs;
+
+      &::-webkit-scrollbar {
+        height: 4px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: $bg-secondary;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: $border-color;
+        border-radius: 2px;
+
+        &:hover {
+          background: $text-secondary;
+        }
+      }
+    }
+  }
+
+  .preset-btn {
+    padding: $spacing-xs $spacing-md;
+    border: 1px solid $border-color;
+    background-color: $bg-primary;
+    color: $text-secondary;
+    border-radius: $border-radius;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all $transition-fast;
+
+    &:hover:not(:disabled) {
+      border-color: $primary-color;
+      color: $primary-color;
+    }
+
+    &.active {
+      background-color: $primary-color;
+      border-color: $primary-color;
+      color: white;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .filter-options {
+    display: flex;
+    gap: $spacing-md;
+    flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+      width: 100%;
+    }
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    cursor: pointer;
+    font-size: 0.9rem;
+    user-select: none;
+
+    input[type='checkbox'] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: $primary-color;
+
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Loading State
+// ─────────────────────────────────────────────────────────────────────────
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: $spacing-md;
+
+  .spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid $border-color;
+    border-top-color: $primary-color;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  p {
+    color: $text-secondary;
+    font-size: 1rem;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Dashboard Content Grid
+// ─────────────────────────────────────────────────────────────────────────
+
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Section Styles
+// ─────────────────────────────────────────────────────────────────────────
+
+section {
+  background-color: $bg-primary;
+  border-radius: $border-radius;
+  border: 1px solid $border-color;
+  padding: $spacing-lg;
+  box-shadow: $shadow-sm;
+  transition: box-shadow $transition-normal;
+
+  @media (max-width: 768px) {
+    padding: $spacing-md;
+  }
+
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+
+  .section-title {
+    margin: 0 0 $spacing-md 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: $text-primary;
+
+    @media (max-width: 768px) {
+      font-size: 1.1rem;
+      margin-bottom: $spacing-md;
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Time-Series Section Specific
+// ─────────────────────────────────────────────────────────────────────────
+
+.timeseries-section {
+  .timeseries-controls {
+    display: flex;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-lg;
+    flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: $spacing-xs;
+    }
+
+    .metric-btn {
+      padding: $spacing-xs $spacing-md;
+      border: 1px solid $border-color;
+      background-color: $bg-secondary;
+      color: $text-secondary;
+      border-radius: $border-radius;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all $transition-fast;
+
+      &:hover:not(:disabled) {
+        border-color: $secondary-color;
+        color: $secondary-color;
+      }
+
+      &.active {
+        background-color: $secondary-color;
+        border-color: $secondary-color;
+        color: white;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      @media (max-width: 768px) {
+        flex: 1;
+      }
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Stats Section
+// ─────────────────────────────────────────────────────────────────────────
+
+.stats-section {
+  // Child component (personal-stats-cards) handles grid layout
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Metrics Section
+// ─────────────────────────────────────────────────────────────────────────
+
+.metrics-section {
+  // Child component handles horizontal scrolling layout
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Breakdown Section
+// ─────────────────────────────────────────────────────────────────────────
+
+.breakdown-section {
+  // Child component handles pie/doughnut chart
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Daily Section
+// ─────────────────────────────────────────────────────────────────────────
+
+.daily-section {
+  // Child component handles table/card layout
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Insights Section
+// ─────────────────────────────────────────────────────────────────────────
+
+.insights-section {
+  background: linear-gradient(135deg, #f0f4ff 0%, #fff7ed 100%);
+
+  // Child component handles insights layout
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Responsive Grid (for stats cards)
+// ─────────────────────────────────────────────────────────────────────────
+
+@media print {
+  .filter-section,
+  .load-more-btn {
+    display: none;
+  }
+
+  section {
+    page-break-inside: avoid;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Accessibility
+// ─────────────────────────────────────────────────────────────────────────
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  // Dark mode styles (optional)
+  .viewer-dashboard {
+    background-color: #111827;
+    color: #f3f4f6;
+  }
+
+  section {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+
+  .preset-btn,
+  .metric-btn {
+    background-color: #374151;
+    color: #d1d5db;
+
+    &.active {
+      background-color: $primary-color;
+      color: white;
+    }
+  }
+}

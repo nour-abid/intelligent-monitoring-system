@@ -1,0 +1,46 @@
+// Personal Time Series Styles
+
+.timeseries-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.chart-placeholder {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  overflow: hidden;
+
+  svg.line-chart {
+    width: 100%;
+    height: auto;
+    min-height: 300px;
+  }
+}
+
+.chart-legend {
+  padding: 1rem;
+  background-color: #f0f4ff;
+  border-radius: 0.5rem;
+
+  .metric-label {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #8b5cf6;
+  }
+
+  .metric-description {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.85rem;
+    color: #6b7280;
+  }
+}
+
+@media (max-width: 768px) {
+  .chart-placeholder {
+    padding: 1rem;
+  }
+}

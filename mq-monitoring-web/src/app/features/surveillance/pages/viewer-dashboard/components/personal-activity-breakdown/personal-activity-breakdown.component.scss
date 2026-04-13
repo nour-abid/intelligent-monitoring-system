@@ -1,0 +1,69 @@
+// Personal Activity Breakdown Styles
+
+.breakdown-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: center;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.chart-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  svg.doughnut-chart {
+    width: 200px;
+    height: 200px;
+    max-width: 100%;
+  }
+}
+
+.legend-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background-color: #f9fafb;
+  border-radius: 0.375rem;
+  transition: all 250ms ease-in-out;
+
+  &:hover {
+    background-color: #f3f4f6;
+    transform: translateX(4px);
+  }
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 0.25rem;
+  flex-shrink: 0;
+}
+
+.legend-content {
+  flex: 1;
+}
+
+.legend-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+}
+
+.legend-value {
+  font-size: 0.8rem;
+  color: #6b7280;
+}

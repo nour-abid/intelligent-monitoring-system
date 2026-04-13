@@ -26,10 +26,14 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withMiddleware(function (Middleware $middleware) {
         // This is a pure JSON API — there is no web login page.
-        // Returning null from redirectGuestsTo tells the Authenticate middleware
-        // to throw an AuthenticationException (caught below) instead of trying
-        // to redirect to a named 'login' route that does not exist.
-        $middleware->redirectGuestsTo(fn (Request $request) => null);
+        // For API requests, throw AuthenticationException instead of redirecting.
+        $middleware->redirectGuestsTo(function (Request $request) {
+            if ($request->expectsJson()) {
+                throw new AuthenticationException('Unauthenticated.');
+            }
+            // Fallback for non-API routes (shouldn't occur)
+            return redirect('/');
+        });
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Always respond with a JSON 401 for unauthenticated requests.

@@ -7,14 +7,11 @@ return [
     | Cross-Origin Resource Sharing (CORS) Configuration
     |--------------------------------------------------------------------------
     |
-    | The following paths are served with CORS headers.  The wildcard '*' for
-    | allowed_origins, methods, and headers is intentional for local dev;
-    | restrict these in a production deployment.
+    | The following paths are served with CORS headers. For local development,
+    | we allow all origins. In production, restrict to known frontend URLs.
     |
-    | 'broadcasting/auth' must be included so the Angular client (running on a
-    | different port) can POST to the Laravel Reverb channel-auth endpoint.
-    | Without this, Echo's private-channel subscription silently fails and no
-    | realtime alerts are delivered to the frontend.
+    | 'supports_credentials' => true allows sending cookies/auth headers
+    | from the Angular client (running on a different port).
     |
     */
 
@@ -30,12 +27,21 @@ return [
 
     'allowed_origins_patterns' => [],
 
-    'allowed_headers' => ['*'],
+    'allowed_headers' => [
+        'Accept',
+        'Authorization',
+        'Content-Type',
+        'X-Requested-With',
+        'X-CSRF-TOKEN',
+    ],
 
-    'exposed_headers' => [],
+    'exposed_headers' => [
+        'Authorization',
+        'Content-Type',
+    ],
 
-    'max_age' => 0,
+    'max_age'               => 86400,
 
-    'supports_credentials' => false,
+    'supports_credentials'  => true,
 
 ];

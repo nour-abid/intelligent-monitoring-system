@@ -1,0 +1,31 @@
+<!-- Personal Activity Breakdown Template -->
+<div class="breakdown-container">
+  <div class="chart-section">
+    <!-- Placeholder for doughnut chart -->
+    <svg viewBox="0 0 200 200" class="doughnut-chart">
+      <circle cx="100" cy="100" r="80" fill="none" stroke="#10b981" stroke-width="30" 
+              stroke-dasharray="163 408" stroke-dashoffset="0"/>
+      <circle cx="100" cy="100" r="80" fill="none" stroke="#f59e0b" stroke-width="30" 
+              stroke-dasharray="61 408" stroke-dashoffset="-163"/>
+      <circle cx="100" cy="100" r="80" fill="none" stroke="#ef4444" stroke-width="30" 
+              stroke-dasharray="49 408" stroke-dashoffset="-224"/>
+      <circle cx="100" cy="100" r="80" fill="none" stroke="#f97316" stroke-width="30" 
+              stroke-dasharray="32 408" stroke-dashoffset="-273"/>
+      <text x="100" y="105" text-anchor="middle" font-size="24" font-weight="bold" fill="#1f2937">
+        12h
+      </text>
+    </svg>
+  </div>
+
+  <div class="legend-section">
+    @for (activity of activities; track activity.name) {
+      <div class="legend-item">
+        <div class="legend-color" [style.background-color]="activity.color"></div>
+        <div class="legend-content">
+          <div class="legend-name">{{ activity.name }}</div>
+          <div class="legend-value">{{ activity.value }}% ({{ activity.duration }})</div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,43 +1,159 @@
-<div class="replay-modal" (click)="close()">
-  <div class="replay-modal__panel" (click)="$event.stopPropagation()">
+<!-- Evidence Viewer — backdrop -->
+<div class="ev-backdrop" (click)="close()" role="dialog" aria-modal="true" aria-label="Evidence Viewer">
 
-    <div class="replay-modal__header">
-      <span class="replay-modal__title">Replay — {{ alertLabel }}</span>
-      <button class="replay-modal__close" type="button" (click)="close()" aria-label="Close">✕</button>
+  <div class="ev-panel" (click)="$event.stopPropagation()">
+
+    <!-- ── Header ────────────────────────────────────────────────────── -->
+    <div class="ev-header">
+      <div class="ev-header__left">
+        <span class="ev-header__eyebrow">Evidence Viewer</span>
+        @if (alertLabel) {
+          <span class="ev-header__title">{{ alertLabel }}</span>
+        }
+      </div>
+      <button class="ev-header__close" type="button" (click)="close()" aria-label="Close Evidence Viewer">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="1" y1="1" x2="13" y2="13"/><line x1="13" y1="1" x2="1" y2="13"/>
+        </svg>
+      </button>
     </div>
 
-    <div class="replay-modal__body">
+    <!-- ── Body: video (left) + metadata (right) ─────────────────────── -->
+    <div class="ev-body" [class.ev-body--no-meta]="!metadata">
 
-      @if (state().status === 'loading') {
-        <div class="replay-modal__state">
-          <div class="replay-modal__spinner"></div>
-          <p>Loading clip…</p>
-        </div>
-      }
+      <!-- LEFT: video column -->
+      <div class="ev-video-col">
 
-      @if (state().status === 'ready') {
-        <video
-          class="replay-modal__video"
-          controls
-          autoplay
-          [src]="$any(state()).objectUrl"
-        >
-          Your browser does not support HTML5 video.
-        </video>
-      }
+        @if (state().status === 'loading') {
+          <div class="ev-state">
+            <div class="ev-spinner"></div>
+            <p class="ev-state__title">Generating clip…</p>
+            <p class="ev-state__sub">This may take a few seconds</p>
+          </div>
+        }
 
-      @if (state().status === 'unavailable') {
-        <div class="replay-modal__state replay-modal__state--warn">
-          <span class="replay-modal__icon">🎬</span>
-          <p>{{ $any(state()).reason }}</p>
-        </div>
-      }
+        @if (state().status === 'ready') {
+          <video
+            class="ev-video"
+            controls
+            autoplay
+            [src]="$any(state()).objectUrl"
+          >
+            Your browser does not support HTML5 video.
+          </video>
+        }
 
-      @if (state().status === 'error') {
-        <div class="replay-modal__state replay-modal__state--error">
-          <span class="replay-modal__icon">⚠️</span>
-          <p>{{ $any(state()).reason }}</p>
-        </div>
+        @if (state().status === 'unavailable') {
+          <div class="ev-state ev-state--warn">
+            <svg class="ev-state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M10 17v4M14 17v4M7 21h10"/>
+            </svg>
+            <p class="ev-state__title">Clip Not Available</p>
+            <p class="ev-state__sub">{{ $any(state()).reason }}</p>
+          </div>
+        }
+
+        @if (state().status === 'error') {
+          <div class="ev-state ev-state--error">
+            <svg class="ev-state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            </svg>
+            <p class="ev-state__title">Load Error</p>
+            <p class="ev-state__sub">{{ $any(state()).reason }}</p>
+          </div>
+        }
+
+      </div>
+
+      <!-- RIGHT: Evidence metadata panel (only when metadata is provided) -->
+      @if (metadata) {
+        <aside class="ev-meta">
+
+          <!-- Identity block -->
+          <div class="ev-meta__identity">
+            <div class="ev-meta__avatar">{{ initials(metadata.identity_name) }}</div>
+            <div class="ev-meta__id-text">
+              <span class="ev-meta__name">{{ metadata.identity_name ?? '—' }}</span>
+              <span class="ev-meta__sub">Monitored employee</span>
+            </div>
+          </div>
+
+          <div class="ev-meta__divider"></div>
+
+          <!-- Detail rows -->
+          <dl class="ev-meta__rows">
+
+            @if (metadata.event_type) {
+              <div class="ev-meta__row">
+                <dt class="ev-meta__label">Event</dt>
+                <dd class="ev-meta__value">
+                  <span class="ev-event-badge ev-event-badge--{{ eventBadgeMod(metadata.event_type) }}">
+                    {{ eventLabel(metadata.event_type) }}
+                  </span>
+                </dd>
+              </div>
+            }
+
+            @if (metadata.started_at) {
+              <div class="ev-meta__row">
+                <dt class="ev-meta__label">Started</dt>
+                <dd class="ev-meta__value">{{ metadata.started_at | date:'dd MMM yyyy, HH:mm' }}</dd>
+              </div>
+            }
+
+            @if (metadata.ended_at) {
+              <div class="ev-meta__row">
+                <dt class="ev-meta__label">Ended</dt>
+                <dd class="ev-meta__value">{{ metadata.ended_at | date:'dd MMM yyyy, HH:mm' }}</dd>
+              </div>
+            }
+
+            @if (metadata.duration_minutes != null) {
+              <div class="ev-meta__row">
+                <dt class="ev-meta__label">Duration</dt>
+                <dd class="ev-meta__value ev-meta__value--mono">{{ durationLabel(metadata.duration_minutes) }}</dd>
+              </div>
+            }
+
+            @if (metadata.confidence != null) {
+              <div class="ev-meta__row ev-meta__row--conf">
+                <dt class="ev-meta__label">Confidence</dt>
+                <dd class="ev-meta__value">
+                  <div class="ev-conf-bar">
+                    <div class="ev-conf-bar__fill" [style.width]="(metadata.confidence * 100) + '%'"></div>
+                  </div>
+                  <span class="ev-conf-pct">{{ (metadata.confidence * 100).toFixed(0) }}%</span>
+                </dd>
+              </div>
+            }
+
+          </dl>
+
+          <div class="ev-meta__divider"></div>
+
+          <!-- Clip status indicator -->
+          <div class="ev-meta__status-row">
+            <span class="ev-meta__status-label">Clip status</span>
+            @if (state().status === 'loading') {
+              <span class="ev-status ev-status--loading">
+                <span class="ev-status__dot"></span>Generating
+              </span>
+            } @else if (state().status === 'ready') {
+              <span class="ev-status ev-status--ready">
+                <span class="ev-status__dot"></span>Ready
+              </span>
+            } @else if (state().status === 'unavailable') {
+              <span class="ev-status ev-status--warn">
+                <span class="ev-status__dot"></span>Not registered
+              </span>
+            } @else if (state().status === 'error') {
+              <span class="ev-status ev-status--error">
+                <span class="ev-status__dot"></span>Load failed
+              </span>
+            }
+          </div>
+
+        </aside>
       }
 
     </div>

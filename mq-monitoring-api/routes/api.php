@@ -1,15 +1,19 @@
 <?php
 
+use App\Http\Controllers\AiController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Monitoring\AlertHistoryController;
 use App\Http\Controllers\Monitoring\AnalyticsViewController;
 use App\Http\Controllers\Monitoring\DashboardSummaryController;
 use App\Http\Controllers\Monitoring\EmployeeHighlightsController;
+use App\Http\Controllers\Monitoring\ClipIngestionController;
+use App\Http\Controllers\Monitoring\ExportController;
 use App\Http\Controllers\Monitoring\ReplayController;
 use App\Http\Controllers\Monitoring\SurveillanceAnalyticsController;
 use App\Http\Controllers\Users\UserController;
 use App\Http\Middleware\EnsureAdmin;
+use App\Http\Middleware\EnsureInternalToken;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -83,8 +87,31 @@ Route::prefix('monitoring/surveillance')
             ->name('identity.timeline')
             ->where('identityName', '[A-Za-z][A-Za-z0-9_\-]*');
 
+        // GET /api/monitoring/surveillance/identities/{identityName}/summary
+        // Aggregated personal summary: working_sec, phone_sec, inactive_sec, focus_score.
+        Route::get('identities/{identityName}/summary', [SurveillanceAnalyticsController::class, 'personalSummary'])
+            ->name('identity.summary')
+            ->where('identityName', '[A-Za-z][A-Za-z0-9_\-]*');
+
+        // GET /api/monitoring/surveillance/identities/{identityName}/daily
+        // Per-day activity breakdown with backend-computed focus_score per day.
+        Route::get('identities/{identityName}/daily', [SurveillanceAnalyticsController::class, 'personalDaily'])
+            ->name('identity.daily')
+            ->where('identityName', '[A-Za-z][A-Za-z0-9_\-]*');
+
+        // GET /api/monitoring/surveillance/export/overview
+        // Admin/superviseur: download a multi-sheet Excel workbook for the overview page.
+        Route::get('export/overview', [ExportController::class, 'overview'])
+            ->name('export.overview');
+
+        // GET /api/monitoring/surveillance/identities/{identityName}/export/xlsx
+        // Personal multi-sheet Excel workbook: Summary, Daily, Timeline, Alerts.
+        Route::get('identities/{identityName}/export/xlsx', [ExportController::class, 'person'])
+            ->name('identity.export.xlsx')
+            ->where('identityName', '[A-Za-z][A-Za-z0-9_\-]*');
+
         // GET /api/monitoring/surveillance/identities/{identityName}/export/csv
-        // Export timeline segments for one identity as downloadable CSV.
+        // Legacy CSV export — kept for compatibility.
         Route::get('identities/{identityName}/export/csv', [SurveillanceAnalyticsController::class, 'exportCsv'])
             ->name('identity.export.csv')
             ->where('identityName', '[A-Za-z][A-Za-z0-9_\-]*');
@@ -206,4 +233,65 @@ Route::prefix('analytics')
             Route::get('by-employee', [AnalyticsViewController::class, 'alertsByEmployee'])
                 ->name('by-employee');
         });
+    });
+
+/*
+|--------------------------------------------------------------------------
+| Internal Machine-to-Machine Routes
+|--------------------------------------------------------------------------
+|
+| These endpoints are consumed by internal services (e.g. the Python
+| surveillance pipeline) and are NOT exposed to browser clients.
+|
+| Protected by EnsureInternalToken (X-Internal-Token header) — no Sanctum
+| session or user account is required or expected.
+|
+*/
+
+Route::prefix('internal')
+    ->name('internal.')
+    ->middleware(EnsureInternalToken::class)
+    ->group(function () {
+
+        // POST /api/internal/clips
+        // The Python surveillance pipeline calls this after saving a confirmed
+        // alert clip to disk.  Laravel persists only the metadata in
+        // surveillance.surveillance_clips — no video data is transmitted.
+        Route::post('clips', [ClipIngestionController::class, 'store'])
+            ->name('clips.store');
+    });
+
+/*
+|--------------------------------------------------------------------------
+| AI / Business Intelligence Routes
+|--------------------------------------------------------------------------
+|
+| Gemini-backed endpoints for the chatbot assistant and AI report export.
+| Both require a valid Sanctum bearer token.
+| Rate-limited to protect free-tier API quota.
+|
+*/
+
+Route::prefix('ai')
+    ->name('ai.')
+    ->middleware(['auth:sanctum', 'throttle:30,1'])
+    ->group(function () {
+
+        // POST /api/ai/chat
+        // Conversational BI assistant grounded only in the data context sent
+        // by the client. Maintains history for multi-turn conversations.
+        Route::post('chat', [AiController::class, 'chat'])
+            ->name('chat');
+
+        // POST /api/ai/report
+        // Generates a structured AI-formulated analytical report from
+        // a serialised employee data snapshot.
+        Route::post('report', [AiController::class, 'report'])
+            ->name('report');
+
+        // GET /api/ai/context?identity=...
+        // Returns serialised surveillance data for the AI context
+        // and the list of available identities for the selector.
+        Route::get('context', [AiController::class, 'context'])
+            ->name('context');
     });

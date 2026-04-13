@@ -1,0 +1,557 @@
+@keyframes arm-backdrop {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes arm-panel {
+  from { opacity: 0; transform: translate(-50%, -50%) translateY(20px) scale(0.97); }
+  to   { opacity: 1; transform: translate(-50%, -50%) translateY(0)    scale(1); }
+}
+
+@keyframes arm-spin {
+  to { transform: rotate(360deg); }
+}
+
+// ── Backdrop ─────────────────────────────────────────────────────────────────
+.arm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 600;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(3px);
+  animation: arm-backdrop 0.18s ease both;
+}
+
+// ── Panel ─────────────────────────────────────────────────────────────────────
+.arm-panel {
+  position: fixed;
+  z-index: 601;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);   // fallback before animation runs
+  width: min(1100px, 92vw);
+  max-height: min(85vh, 900px);
+  background: var(--color-surface, #161b25);
+  border: 1px solid var(--color-border, #252d3d);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: arm-panel 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+.arm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--color-border, #252d3d);
+  flex-shrink: 0;
+  background: var(--color-surface-2, #1d2333);
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(196, 18, 48, 0.12);
+    border: 1px solid rgba(196, 18, 48, 0.25);
+    color: var(--color-primary, #c41230);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  &__title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text-2, #8892a8);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+}
+
+// ── Buttons ───────────────────────────────────────────────────────────────────
+.arm-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 7px;
+  padding: 5px 10px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+
+  &--ghost {
+    background: transparent;
+    border-color: var(--color-border, #252d3d);
+    color: var(--color-text-2, #8892a8);
+
+    &:hover {
+      background: var(--color-bg, #0f1117);
+      color: var(--color-text-1, #e8eaf0);
+    }
+  }
+
+  &--primary {
+    background: var(--color-primary, #c41230);
+    color: #fff;
+
+    &:hover { background: color-mix(in srgb, var(--color-primary) 85%, #fff); }
+  }
+}
+
+.arm-icon-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--color-text-3, #545e75);
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+
+  &:hover {
+    color: var(--color-text-1, #e8eaf0);
+    background: var(--color-surface, #161b25);
+    border-color: var(--color-border, #252d3d);
+  }
+}
+
+// ── Body ──────────────────────────────────────────────────────────────────────
+.arm-body {
+  flex: 1;
+  overflow-y: auto;
+  background: #0b0e15;
+  padding: 32px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+// ── Loading / error states ────────────────────────────────────────────────────
+.arm-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 24px;
+  text-align: center;
+
+  &__icon {
+    width: 44px;
+    height: 44px;
+    color: var(--color-danger, #ef4444);
+    opacity: 0.7;
+  }
+
+  &__title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-1, #e8eaf0);
+    margin: 0;
+  }
+
+  &__sub {
+    font-size: 0.85rem;
+    color: var(--color-text-2, #8892a8);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  &--error &__title { color: var(--color-danger, #ef4444); }
+}
+
+.arm-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--color-border, #252d3d);
+  border-top-color: var(--color-primary, #c41230);
+  border-radius: 50%;
+  animation: arm-spin 0.8s linear infinite;
+}
+
+// ── Document (white paper) inside dark viewer ─────────────────────────────────
+.arm-doc {
+  background: #fff;
+  color: #111;
+  border-radius: 6px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+  width: 100%;
+  max-width: 820px;
+  padding: 40px 48px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.65;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 14px;
+    border-bottom: 2px solid #c41230;
+    margin-bottom: 28px;
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__brand-icon {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+
+  &__brand-name {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #c41230;
+    letter-spacing: -0.01em;
+  }
+
+  &__company {
+    text-align: right;
+  }
+
+  &__company-title {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #444;
+  }
+
+  &__company-sub {
+    font-size: 0.7rem;
+    color: #999;
+    margin-top: 2px;
+  }
+
+  &__title-block {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #c41230;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+
+  &__subtitle {
+    font-size: 0.85rem;
+    color: #666;
+    font-style: italic;
+  }
+
+  &__section {
+    margin-bottom: 28px;
+  }
+
+  &__section-title {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #c41230;
+    padding-bottom: 8px;
+    border-bottom: 1.5px solid #eee;
+    margin-bottom: 16px;
+  }
+
+  &__footer {
+    margin-top: 32px;
+    padding-top: 12px;
+    border-top: 1px solid #eee;
+    font-size: 0.68rem;
+    color: #bbb;
+    text-align: center;
+  }
+}
+
+// ── KPI grid (light theme inside .arm-doc) ────────────────────────────────────
+.arm-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 4px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.arm-kpi-item {
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  padding: 14px;
+  background: #fafafa;
+}
+
+.arm-kpi-label {
+  font-size: 0.63rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #888;
+}
+
+.arm-kpi-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #111;
+  margin: 6px 0 3px;
+  font-variant-numeric: tabular-nums;
+}
+
+.arm-kpi-sub {
+  font-size: 0.68rem;
+  color: #aaa;
+  line-height: 1.35;
+}
+
+// ── Charts side-by-side row ───────────────────────────────────────────────────
+.arm-charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+
+  @media (max-width: 620px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.arm-chart-card {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 14px;
+  background: #fafafa;
+
+  &__label {
+    font-size: 0.63rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #888;
+    margin-bottom: 10px;
+  }
+}
+
+// ── Activity distribution bar chart (inline, light theme) ─────────────────────
+.arm-dist {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+
+  &__row { /* each activity row */ }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 5px;
+  }
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &__name {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  &__spacer { flex: 1; }
+
+  &__dur {
+    font-size: 0.72rem;
+    color: #999;
+  }
+
+  &__pct {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #111;
+    min-width: 40px;
+    text-align: right;
+  }
+
+  &__track {
+    background: #f0f0f0;
+    border-radius: 100px;
+    height: 7px;
+    overflow: hidden;
+  }
+
+  &__bar {
+    height: 100%;
+    border-radius: 100px;
+    min-width: 3px;
+  }
+}
+
+// ── Time-series SVG (light theme) ─────────────────────────────────────────────
+.arm-ts-chart {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.ts-chart__grid      { stroke: #eee;    stroke-width: 1; }
+.ts-chart__baseline  { stroke: #ddd;    stroke-width: 1.5; }
+.ts-chart__line      { stroke: #c41230; stroke-width: 2; }
+.ts-chart__dot       { fill: #c41230; }
+.ts-chart__axis-label  { fill: #aaa; font-size: 10px; font-family: inherit; }
+.ts-chart__date-label  { fill: #ccc; font-size:  9px; font-family: inherit; }
+
+// ── AI unavailable notice (fallback state) ────────────────────────────────────
+.arm-ai-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #7c5700;
+  line-height: 1.4;
+
+  svg {
+    flex-shrink: 0;
+    color: #f59e0b;
+  }
+}
+
+// ── AI report text (light theme inside .arm-doc) ──────────────────────────────
+.arm-report {
+  color: #222;
+  font-size: 0.9rem;
+  line-height: 1.75;
+
+  :is(h2) {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #c41230;
+    margin: 22px 0 8px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #f0d0d0;
+
+    &:first-child { margin-top: 0; }
+  }
+
+  :is(h3) {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+    margin: 14px 0 5px;
+  }
+
+  p { margin: 9px 0; }
+
+  ul {
+    padding-left: 20px;
+    margin: 6px 0;
+    list-style: disc;
+
+    li { margin: 3px 0; }
+  }
+
+  strong { font-weight: 700; color: #111; }
+  em     { font-style: italic; color: #555; }
+
+  code {
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-size: 0.82rem;
+    font-family: var(--font-mono, monospace);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    margin: 10px 0;
+
+    th, td {
+      border: 1px solid #e0e0e0;
+      padding: 7px 10px;
+      text-align: left;
+    }
+
+    th {
+      background: #c41230;
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:nth-child(even) td { background: #fafafa; }
+  }
+}
+
+// ── Print styles ──────────────────────────────────────────────────────────────
+@media print {
+  .arm-backdrop,
+  .arm-header__actions { display: none; }
+
+  .arm-panel {
+    position: static;
+    transform: none;
+    width: 100%;
+    max-height: none;
+    border: none;
+    box-shadow: none;
+  }
+
+  .arm-body {
+    overflow: visible;
+    background: #fff;
+    padding: 0;
+  }
+
+  .arm-doc {
+    box-shadow: none;
+    padding: 0;
+  }
+}

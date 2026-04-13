@@ -1,0 +1,193 @@
+<!-- Viewer Dashboard Template -->
+<div class="viewer-dashboard">
+  <!-- Header: Title & Quick Info -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1>Your Activity Insights</h1>
+        <p class="subtitle">Personal surveillance analytics dashboard</p>
+      </div>
+      <div class="user-info">
+        <span class="user-name">{{ userName() }}</span>
+        <span class="period-label">{{ currentPresetLabel }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alert Block: Error State -->
+  @if (isError) {
+    <div class="alert alert-error">
+      <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <div class="alert-content">
+        <p class="alert-title">Unable to Load Dashboard</p>
+        <p class="alert-message">{{ errorMessage }}</p>
+      </div>
+      <button class="alert-close" aria-label="Close alert">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  }
+
+  <!-- Filter Section: Date Range & Options -->
+  <div class="filter-section">
+    <div class="filter-row">
+      <div class="preset-buttons">
+        <button
+          class="preset-btn"
+          [class.active]="datePreset() === 'today'"
+          (click)="selectPreset('today')"
+          [disabled]="isLoading"
+        >
+          Today
+        </button>
+        <button
+          class="preset-btn"
+          [class.active]="datePreset() === 'yesterday'"
+          (click)="selectPreset('yesterday')"
+          [disabled]="isLoading"
+        >
+          Yesterday
+        </button>
+        <button
+          class="preset-btn"
+          [class.active]="datePreset() === 'week'"
+          (click)="selectPreset('week')"
+          [disabled]="isLoading"
+        >
+          This Week
+        </button>
+        <button
+          class="preset-btn"
+          [class.active]="datePreset() === 'last7'"
+          (click)="selectPreset('last7')"
+          [disabled]="isLoading"
+        >
+          Last 7 Days
+        </button>
+        <button
+          class="preset-btn"
+          [class.active]="datePreset() === 'last30'"
+          (click)="selectPreset('last30')"
+          [disabled]="isLoading"
+        >
+          Last 30 Days
+        </button>
+      </div>
+
+      <div class="filter-options">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            [checked]="excludeWeekends()"
+            (change)="toggleWeekendFilter()"
+            [disabled]="isLoading"
+          />
+          <span>Business days only</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Loading your insights...</p>
+    </div>
+  } @else if (!isError) {
+    <!-- Main Content Grid -->
+    <div class="dashboard-content">
+      <!-- Section 1: Personal Stats Cards (4 KPIs) -->
+      <section class="stats-section">
+        <h2 class="section-title">Today's Snapshot</h2>
+        <app-personal-stats-cards
+          [overview]="overview()"
+          [timeline]="timeline()"
+          [summary]="summary()"
+        ></app-personal-stats-cards>
+      </section>
+
+      <!-- Section 2: Personal Metrics Strip (6 horizontal items) -->
+      <section class="metrics-section">
+        <h2 class="section-title">Key Metrics</h2>
+        <app-personal-metrics-strip
+          [overview]="overview()"
+          [timeline]="timeline()"
+          [summary]="summary()"
+        ></app-personal-metrics-strip>
+      </section>
+
+      <!-- Section 3: Personal Time-Series Chart with Metric Toggle -->
+      <section class="timeseries-section">
+        <h2 class="section-title">Your Activity Trend</h2>
+        <div class="timeseries-controls">
+          <button
+            class="metric-btn"
+            [class.active]="selectedMetric() === 'working_time'"
+            (click)="selectMetric('working_time')"
+          >
+            Working Time
+          </button>
+          <button
+            class="metric-btn"
+            [class.active]="selectedMetric() === 'phone_usage'"
+            (click)="selectMetric('phone_usage')"
+          >
+            Phone Usage
+          </button>
+          <button
+            class="metric-btn"
+            [class.active]="selectedMetric() === 'inactivity'"
+            (click)="selectMetric('inactivity')"
+          >
+            Inactivity
+          </button>
+          <button
+            class="metric-btn"
+            [class.active]="selectedMetric() === 'focus_score'"
+            (click)="selectMetric('focus_score')"
+          >
+            Focus Score
+          </button>
+        </div>
+        <app-personal-time-series
+          [timeline]="timeline()"
+          [selectedMetric]="selectedMetric()"
+          [dateRange]="dateRange()"
+        ></app-personal-time-series>
+      </section>
+
+      <!-- Section 4: Personal Activity Breakdown (Pie/Doughnut) -->
+      <section class="breakdown-section">
+        <h2 class="section-title">Activity Distribution</h2>
+        <app-personal-activity-breakdown [overview]="overview()"></app-personal-activity-breakdown>
+      </section>
+
+      <!-- Section 5: Personal Daily Breakdown (Table/Cards) -->
+      <section class="daily-section">
+        <h2 class="section-title">Day-by-Day Breakdown</h2>
+        <app-personal-daily-breakdown
+          [timeline]="timeline()"
+          [dateRange]="dateRange()"
+        ></app-personal-daily-breakdown>
+      </section>
+
+      <!-- Section 6: Personal Insights & Coaching -->
+      <section class="insights-section">
+        <h2 class="section-title">This Week's Insights</h2>
+        <app-personal-insights-box
+          [summary]="summary()"
+          [timeline]="timeline()"
+          [userName]="userName()"
+        ></app-personal-insights-box>
+      </section>
+    </div>
+  }
+</div>

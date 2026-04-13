@@ -1,0 +1,42 @@
+<!-- Personal Daily Breakdown Template -->
+<div class="daily-breakdown">
+  <div class="table-responsive">
+    <table class="breakdown-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Observed Time</th>
+          <th>Top Activity</th>
+          <th>Phone Usage</th>
+          <th>Focus Score</th>
+          <th class="alerts-col">Alerts</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (day of dailyData; track day.date) {
+          <tr>
+            <td class="date-cell">{{ day.date }}</td>
+            <td class="time-cell">{{ day.time }}</td>
+            <td class="activity-cell">{{ day.topActivity }}</td>
+            <td class="phone-cell">{{ day.phone }}</td>
+            <td class="focus-cell">
+              <span class="focus-badge" [class]="'focus-' + (parseFloat(day.focus) >= 70 ? 'high' : 'low')">
+                {{ day.focus }}
+              </span>
+            </td>
+            <td class="alerts-cell">
+              <div class="alert-badges">
+                @if (day.late) {
+                  <span class="badge badge-warning">Late</span>
+                }
+                @if (day.early) {
+                  <span class="badge badge-info">Early</span>
+                }
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

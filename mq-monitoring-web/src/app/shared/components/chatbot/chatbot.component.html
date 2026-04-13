@@ -1,0 +1,194 @@
+<!-- ── Floating action button (always visible) ──────────────────────────── -->
+<button
+  class="cb-fab"
+  [class.cb-fab--active]="isOpen()"
+  type="button"
+  (click)="isOpen() ? close() : open()"
+  aria-label="Toggle Marqi assistant"
+  title="Marqi — AI Analytics Companion"
+>
+  @if (!isOpen()) {
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      <circle cx="9"  cy="10" r="0.8" fill="currentColor"/>
+      <circle cx="12" cy="10" r="0.8" fill="currentColor"/>
+      <circle cx="15" cy="10" r="0.8" fill="currentColor"/>
+    </svg>
+    <span class="cb-fab__label">Marqi</span>
+  } @else {
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  }
+</button>
+
+<!-- ── Sidebar panel ──────────────────────────────────────────────────────── -->
+@if (isOpen()) {
+  <div
+    class="cb-panel cb-panel--sidebar"
+    role="dialog"
+    aria-label="Marqi AI Analytics Companion"
+  >
+    <!-- ── Header ──────────────────────────────────────────────────────── -->
+    <div class="cb-header">
+      <div class="cb-header__left">
+        <div class="cb-header__icon" aria-hidden="true">MQ</div>
+        <div>
+          <div class="cb-header__title">Marqi</div>
+          @if (chat.hasContext()) {
+            <div class="cb-header__ctx">{{ chat.contextLabel() || 'Current page data' }}</div>
+          } @else {
+            <div class="cb-header__ctx cb-header__ctx--none">No data context</div>
+          }
+        </div>
+      </div>
+      <div class="cb-header__actions">
+        <button class="cb-icon-btn" type="button" (click)="chat.clearChat()" title="Clear conversation" aria-label="Clear conversation">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+          </svg>
+        </button>
+        <button class="cb-icon-btn" type="button" (click)="openFullPage()" title="Open full chat experience" aria-label="Open full chat">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
+            <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+          </svg>
+        </button>
+        <button class="cb-icon-btn" type="button" (click)="close()" title="Close" aria-label="Close Marqi">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Identity selector bar ───────────────────────────────────────── -->
+    @if (chat.identityNames().length > 0) {
+      <div class="cb-selector-bar">
+        <div class="cb-selector" (click)="$event.stopPropagation()">
+          <button class="cb-selector__trigger" type="button" (click)="toggleSelector()" [disabled]="chat.contextLoading()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+            @if (chat.contextLoading()) {
+              <span class="cb-selector__spinner"></span>
+            } @else if (chat.selectedIdentity() === 'global' || !chat.selectedIdentity()) {
+              All Employees
+            } @else {
+              {{ chat.selectedIdentity() }}
+            }
+            <svg class="cb-selector__caret" [class.cb-selector__caret--open]="selectorOpen()" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+
+          @if (selectorOpen()) {
+            <div class="cb-selector__dropdown">
+              <button
+                class="cb-selector__option"
+                [class.cb-selector__option--active]="chat.selectedIdentity() === 'global' || !chat.selectedIdentity()"
+                type="button"
+                (click)="pickIdentity('global')"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                All Employees
+              </button>
+              @for (name of chat.identityNames(); track name) {
+                <button
+                  class="cb-selector__option"
+                  [class.cb-selector__option--active]="chat.selectedIdentity() === name"
+                  type="button"
+                  (click)="pickIdentity(name)"
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                  </svg>
+                  {{ name }}
+                </button>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- ── Messages ────────────────────────────────────────────────────── -->
+    <div class="cb-messages" #messageList>
+      @for (msg of chat.messages(); track $index) {
+        <div class="cb-msg" [class.cb-msg--user]="msg.role === 'user'" [class.cb-msg--assistant]="msg.role === 'assistant'" [class.cb-msg--error]="msg.error">
+          @if (msg.role === 'assistant') {
+            <div class="cb-msg__avatar" aria-hidden="true">MQ</div>
+          }
+          <div class="cb-msg__body">
+            @if (msg.loading) {
+              <div class="cb-typing">
+                <span></span><span></span><span></span>
+              </div>
+            } @else {
+              @for (seg of chat.splitSegments(msg); track $index) {
+                @if (seg.type === 'html' && seg.html) {
+                  <div class="cb-msg__text" [innerHTML]="seg.html"></div>
+                }
+                @if (seg.type === 'chart' && msg.chartSpecs && msg.chartSpecs[seg.chartIndex!]) {
+                  <div class="cb-chart">
+                    <div class="cb-chart__viz-label">Visualization</div>
+                    @if (msg.chartSpecs[seg.chartIndex!].title) {
+                      <div class="cb-chart__title">{{ msg.chartSpecs[seg.chartIndex!].title }}</div>
+                    }
+                    @for (label of msg.chartSpecs[seg.chartIndex!].labels; track label; let i = $index) {
+                      <div class="cb-chart__row">
+                        <div class="cb-chart__label">{{ label }}</div>
+                        <div class="cb-chart__bar-wrap">
+                          <div
+                            class="cb-chart__bar"
+                            [style.width]="chat.chartBarWidth(msg.chartSpecs![seg.chartIndex!], i)"
+                            [style.background]="msg.chartSpecs[seg.chartIndex!].colors[i] ?? '#6366f1'"
+                          ></div>
+                        </div>
+                        <div class="cb-chart__value">{{ chat.chartBarLabel(msg.chartSpecs[seg.chartIndex!].values[i], msg.chartSpecs[seg.chartIndex!].unit) }}</div>
+                      </div>
+                    }
+                  </div>
+                }
+              }
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- ── Input ───────────────────────────────────────────────────────── -->
+    <div class="cb-input-row">
+      <textarea
+        class="cb-input"
+        id="marqi-sidebar-input"
+        name="marqi-sidebar-input"
+        [value]="input()"
+        (input)="input.set($any($event.target).value)"
+        (keydown)="onKey($event)"
+        placeholder="Ask Marqi anything…"
+        rows="1"
+        [disabled]="chat.loading()"
+        aria-label="Type your question"
+      ></textarea>
+      <button
+        class="cb-send-btn"
+        type="button"
+        (click)="send()"
+        [disabled]="!input().trim() || chat.loading()"
+        aria-label="Send"
+      >
+        @if (chat.loading()) {
+          <span class="cb-send-btn__spinner"></span>
+        } @else {
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        }
+      </button>
+    </div>
+  </div>
+}

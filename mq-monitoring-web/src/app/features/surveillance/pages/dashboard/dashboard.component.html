@@ -70,6 +70,31 @@
             Load
           }
         </button>
+
+        @if (loadState() === 'success' && !isViewer()) {
+          <button
+            type="button"
+            class="filter-bar__btn filter-bar__btn--export"
+            (click)="exportXlsx()"
+            [disabled]="exportState() === 'loading'"
+            aria-label="Download Excel report"
+            title="Download current overview as a formatted Excel workbook"
+          >
+            @if (exportState() === 'loading') {
+              <span class="spinner"></span>
+              Exporting…
+            } @else if (exportState() === 'error') {
+              Export Failed
+            } @else {
+              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Export Excel
+            }
+          </button>
+        }
       </div>
 
     </div>
@@ -138,6 +163,13 @@
         </ul>
       }
     </div>
+
+    <!-- ── Guidance / Performance Coach (role-aware) ─────────────── -->
+    @if (isViewer()) {
+      <app-performance-coach [activityTotals]="activityDistributionItems()" />
+    } @else {
+      <app-smart-guidance [messages]="smartGuidance()" />
+    }
 
     <!-- ── Alert Summary ─────────────────────────────────────────── -->
     <p class="page-section-label">Alert Summary</p>

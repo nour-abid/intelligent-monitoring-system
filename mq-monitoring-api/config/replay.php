@@ -63,4 +63,20 @@ return [
     */
     'ffmpeg_binary' => env('FFMPEG_PATH', 'ffmpeg'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Internal Surveillance Token
+    |--------------------------------------------------------------------------
+    |
+    | A shared secret that the Python surveillance pipeline sends as the
+    | X-Internal-Token request header when POSTing clip metadata.
+    |
+    | Set SURVEILLANCE_INTERNAL_TOKEN in .env to any long random string.
+    | Must match the clip_api_token value in surveillance/config/settings.yaml.
+    |
+    | Example (generate with):  php artisan key:generate --show | head -c 64
+    |
+    */
+    'internal_token' => env('SURVEILLANCE_INTERNAL_TOKEN', ''),
+
 ];

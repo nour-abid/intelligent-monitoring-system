@@ -1,0 +1,195 @@
+<!-- Backdrop -->
+<div class="arm-backdrop" (click)="close()"></div>
+
+<!-- Panel -->
+<div class="arm-panel" role="dialog" aria-modal="true" [attr.aria-label]="title">
+
+  <!-- Header -->
+  <div class="arm-header">
+    <div class="arm-header__left">
+      <div class="arm-header__badge">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/>
+          <path d="M12 8v4l3 3"/>
+        </svg>
+        AI Report
+      </div>
+      <h2 class="arm-header__title">{{ title }}</h2>
+    </div>
+    <div class="arm-header__actions">
+      @if (status() === 'ready') {
+        <button class="arm-btn arm-btn--ghost" type="button" (click)="copyToClipboard()" [attr.aria-label]="copying() ? 'Copied!' : 'Copy to clipboard'">
+          @if (copying()) {
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Copied
+          } @else {
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            Copy
+          }
+        </button>
+        <button class="arm-btn arm-btn--ghost" type="button" (click)="print()" aria-label="Print / Save as PDF">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+            <rect x="6" y="14" width="12" height="8"/>
+          </svg>
+          Print
+        </button>
+      }
+      <button class="arm-icon-btn" type="button" (click)="close()" aria-label="Close report">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="arm-body">
+
+    @if (status() === 'loading') {
+      <div class="arm-state">
+        <div class="arm-spinner"></div>
+        <p class="arm-state__title">Generating AI report…</p>
+        <p class="arm-state__sub">Analysing employee data with Gemini AI</p>
+      </div>
+    }
+
+    @if (status() === 'error') {
+      <div class="arm-state arm-state--error">
+        <svg class="arm-state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        </svg>
+        <p class="arm-state__title">Failed to generate report</p>
+        <p class="arm-state__sub">{{ errorMsg() }}</p>
+        <button class="arm-btn arm-btn--primary" type="button" (click)="close()">Close</button>
+      </div>
+    }
+
+    @if (status() === 'ready') {
+      <div class="arm-doc">
+
+        <!-- ── Document header ───────────────────────────────────────── -->
+        <div class="arm-doc__header">
+          <div class="arm-doc__brand">
+            <svg class="arm-doc__brand-icon" viewBox="0 0 24 24" fill="none" stroke="#c41230" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 7l-7 5 7 5V7z"/>
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+            </svg>
+            <span class="arm-doc__brand-name">MQ Monitoring</span>
+          </div>
+          <div class="arm-doc__company">
+            <div class="arm-doc__company-title">Intelligent Monitoring System</div>
+            <div class="arm-doc__company-sub">AI Analytics Report &middot; {{ today }}</div>
+          </div>
+        </div>
+
+        <!-- ── Title block ───────────────────────────────────────────── -->
+        <div class="arm-doc__title-block">
+          <div class="arm-doc__title">AI Activity Report</div>
+          <div class="arm-doc__subtitle">{{ title }}</div>
+        </div>
+
+        <!-- ── Performance overview ──────────────────────────────────── -->
+        @if (kpis.length) {
+          <div class="arm-doc__section">
+            <div class="arm-doc__section-title">Performance Overview</div>
+            <div class="arm-kpi-grid">
+              @for (k of kpis; track k.label) {
+                <div class="arm-kpi-item">
+                  <div class="arm-kpi-label">{{ k.label }}</div>
+                  <div class="arm-kpi-value">{{ k.value }}</div>
+                  @if (k.sub) { <div class="arm-kpi-sub">{{ k.sub }}</div> }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- ── Visual insights ───────────────────────────────────────── -->
+        @if (activityStats.length || chartPoints.length) {
+          <div class="arm-doc__section">
+            <div class="arm-doc__section-title">Visual Insights</div>
+            <div class="arm-charts-row">
+              @if (activityStats.length) {
+                <div class="arm-chart-card">
+                  <div class="arm-chart-card__label">Activity Distribution</div>
+                  <div class="arm-dist">
+                    @for (s of activityStats; track s.activity) {
+                      <div class="arm-dist__row">
+                        <div class="arm-dist__head">
+                          <span class="arm-dist__dot" [style.background]="distColor(s.activity)"></span>
+                          <span class="arm-dist__name">{{ distLabel(s.activity) }}</span>
+                          <span class="arm-dist__spacer"></span>
+                          <span class="arm-dist__dur">{{ s.formatted }}</span>
+                          <span class="arm-dist__pct">{{ distPct(s.share) }}</span>
+                        </div>
+                        <div class="arm-dist__track">
+                          <div class="arm-dist__bar"
+                               [style.width]="distPct(s.share)"
+                               [style.background]="distColor(s.activity)"></div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+              @if (chartPoints.length) {
+                <div class="arm-chart-card">
+                  <div class="arm-chart-card__label">{{ chartLabel }} — Daily Trend</div>
+                  <svg class="arm-ts-chart" viewBox="0 0 580 178" [attr.aria-label]="chartLabel + ' trend'">
+                    <text x="38" y="20" class="ts-chart__axis-label" text-anchor="end">{{ chartMaxLabel }}</text>
+                    <text x="38" y="157" class="ts-chart__axis-label" text-anchor="end">0</text>
+                    <line x1="44" y1="16" x2="572" y2="16" class="ts-chart__grid"/>
+                    <line x1="44" y1="86" x2="572" y2="86" class="ts-chart__grid"/>
+                    <line x1="44" y1="156" x2="572" y2="156" class="ts-chart__baseline"/>
+                    @if (chartPoints.length >= 2) {
+                      <polyline [attr.points]="chartPolyline" class="ts-chart__line" fill="none"/>
+                    }
+                    @for (p of chartPoints; track p.date) {
+                      <circle [attr.cx]="p.x" [attr.cy]="p.y" r="3.5" class="ts-chart__dot">
+                        <title>{{ p.date }}: {{ p.value % 1 === 0 ? p.value : p.value.toFixed(1) }}{{ chartUnit }}</title>
+                      </circle>
+                    }
+                    @if (chartFirstDate) {
+                      <text [attr.x]="chartPoints[0].x" y="173" class="ts-chart__date-label" text-anchor="middle">{{ chartFirstDate }}</text>
+                    }
+                    @if (chartLastDate && chartPoints.length > 1) {
+                      <text [attr.x]="chartPoints[chartPoints.length - 1].x" y="173" class="ts-chart__date-label" text-anchor="end">{{ chartLastDate }}</text>
+                    }
+                  </svg>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- ── AI Analysis ───────────────────────────────────────────── -->
+        <div class="arm-doc__section">
+          <div class="arm-doc__section-title">AI Analysis</div>
+          @if (isFallback()) {
+            <div class="arm-ai-notice">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              </svg>
+              AI summary temporarily unavailable. Showing analytics only.
+            </div>
+          } @else {
+            <div class="arm-report" [innerHTML]="renderMarkdown(report())"></div>
+          }
+        </div>
+
+        <!-- ── Footer ───────────────────────────────────────────────── -->
+        <div class="arm-doc__footer">
+          Generated by MQ Monitoring &mdash; AI Analytics Engine &middot; {{ today }}
+        </div>
+
+      </div>
+    }
+
+  </div>
+
+</div>

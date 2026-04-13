@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 /**
  * DashboardSummaryController
@@ -97,9 +98,16 @@ class DashboardSummaryController extends Controller
             ->when($end,                        fn ($q) => $q->where('bucket', '<=', $end))
             ->when($allowedIdentities !== null, fn ($q) => $q->whereIn('identity_name', $allowedIdentities));
 
-        $totalAlerts  = (int) $alertBase()->sum('alert_count');
-        $lateArrivals = (int) $alertBase()->where('alert_type', 'late_arrival')->sum('alert_count');
-        $earlyLeaves  = (int) $alertBase()->where('alert_type', 'early_leave')->sum('alert_count');
+        try {
+            $totalAlerts  = (int) $alertBase()->sum('alert_count');
+            $lateArrivals = (int) $alertBase()->where('alert_type', 'late_arrival')->sum('alert_count');
+            $earlyLeaves  = (int) $alertBase()->where('alert_type', 'early_leave')->sum('alert_count');
+        } catch (\Exception $e) {
+            Log::warning('DashboardSummary: daily_alerts_by_employee unavailable', [
+                'error' => $e->getMessage(),
+            ]);
+            $totalAlerts = $lateArrivals = $earlyLeaves = 0;
+        }
 
         // Active employees — distinct identities observed in the time window.
         // daily_activity_totals_by_employee is a TimescaleDB continuous aggregate (daily buckets).
@@ -166,15 +174,20 @@ class DashboardSummaryController extends Controller
                 ->get();
         } else {
             // Daily path — pre-aggregated analytics view.
-            $rows = DB::connection(self::ANALYTICS_CONN)
-                ->table('daily_alerts_by_employee')
-                ->when($start,                      fn ($q) => $q->where('bucket', '>=', $start))
-                ->when($end,                        fn ($q) => $q->where('bucket', '<=', $end))
-                ->when($allowedIdentities !== null, fn ($q) => $q->whereIn('identity_name', $allowedIdentities))
-                ->selectRaw("TO_CHAR(bucket, 'YYYY-MM-DD') AS bucket, SUM(alert_count) AS cnt")
-                ->groupByRaw('1')
-                ->orderByRaw('1')
-                ->get();
+            try {
+                $rows = DB::connection(self::ANALYTICS_CONN)
+                    ->table('daily_alerts_by_employee')
+                    ->when($start,                      fn ($q) => $q->where('bucket', '>=', $start))
+                    ->when($end,                        fn ($q) => $q->where('bucket', '<=', $end))
+                    ->when($allowedIdentities !== null, fn ($q) => $q->whereIn('identity_name', $allowedIdentities))
+                    ->selectRaw("TO_CHAR(bucket, 'YYYY-MM-DD') AS bucket, SUM(alert_count) AS cnt")
+                    ->groupByRaw('1')
+                    ->orderByRaw('1')
+                    ->get();
+            } catch (\Exception $e) {
+                Log::warning('DashboardSummary: alertTrend daily view unavailable', ['error' => $e->getMessage()]);
+                $rows = collect();
+            }
         }
 
         return $rows
@@ -190,15 +203,20 @@ class DashboardSummaryController extends Controller
      */
     private function alertsByType(?string $start, ?string $end, ?array $allowedIdentities): array
     {
-        $rows = DB::connection(self::ANALYTICS_CONN)
-            ->table('daily_alerts_by_employee')
-            ->when($start,                      fn ($q) => $q->where('bucket', '>=', $start))
-            ->when($end,                        fn ($q) => $q->where('bucket', '<=', $end))
-            ->when($allowedIdentities !== null, fn ($q) => $q->whereIn('identity_name', $allowedIdentities))
-            ->selectRaw('alert_type, SUM(alert_count) AS cnt')
-            ->groupBy('alert_type')
-            ->orderByRaw('cnt DESC')
-            ->get();
+        try {
+            $rows = DB::connection(self::ANALYTICS_CONN)
+                ->table('daily_alerts_by_employee')
+                ->when($start,                      fn ($q) => $q->where('bucket', '>=', $start))
+                ->when($end,                        fn ($q) => $q->where('bucket', '<=', $end))
+                ->when($allowedIdentities !== null, fn ($q) => $q->whereIn('identity_name', $allowedIdentities))
+                ->selectRaw('alert_type, SUM(alert_count) AS cnt')
+                ->groupBy('alert_type')
+                ->orderByRaw('cnt DESC')
+                ->get();
+        } catch (\Exception $e) {
+            Log::warning('DashboardSummary: alertsByType view unavailable', ['error' => $e->getMessage()]);
+            return [];
+        }
 
         return $rows
             ->map(fn ($r) => ['type' => (string) $r->alert_type, 'count' => (int) $r->cnt])
@@ -213,16 +231,21 @@ class DashboardSummaryController extends Controller
      */
     private function topAffectedEmployees(?string $start, ?string $end, ?array $allowedIdentities): array
     {
-        $rows = DB::connection(self::ANALYTICS_CONN)
-            ->table('daily_alerts_by_employee')
-            ->when($start,                      fn ($q) => $q->where('bucket', '>=', $start))
-            ->when($end,                        fn ($q) => $q->where('bucket', '<=', $end))
-            ->when($allowedIdentities !== null, fn ($q) => $q->whereIn('identity_name', $allowedIdentities))
-            ->selectRaw('identity_name, SUM(alert_count) AS cnt')
-            ->groupBy('identity_name')
-            ->orderByRaw('cnt DESC')
-            ->limit(self::TOP_N)
-            ->get();
+        try {
+            $rows = DB::connection(self::ANALYTICS_CONN)
+                ->table('daily_alerts_by_employee')
+                ->when($start,                      fn ($q) => $q->where('bucket', '>=', $start))
+                ->when($end,                        fn ($q) => $q->where('bucket', '<=', $end))
+                ->when($allowedIdentities !== null, fn ($q) => $q->whereIn('identity_name', $allowedIdentities))
+                ->selectRaw('identity_name, SUM(alert_count) AS cnt')
+                ->groupBy('identity_name')
+                ->orderByRaw('cnt DESC')
+                ->limit(self::TOP_N)
+                ->get();
+        } catch (\Exception $e) {
+            Log::warning('DashboardSummary: topAffectedEmployees view unavailable', ['error' => $e->getMessage()]);
+            return [];
+        }
 
         $identities = $rows->pluck('identity_name')->all();
         $nameMap    = User::whereIn('surveillance_identity', $identities)

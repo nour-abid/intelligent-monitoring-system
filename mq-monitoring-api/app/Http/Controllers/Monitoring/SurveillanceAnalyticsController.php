@@ -179,6 +179,86 @@ class SurveillanceAnalyticsController extends Controller
     // -----------------------------------------------------------------------
 
     /**
+     * Personal aggregated summary for one identity.
+     * Returns working_sec, phone_sec, inactive_sec, total_sec, focus_score.
+     * Intended for viewer self-insight; accessible to any role (scope-gated).
+     *
+     * Route param:
+     *   identityName      (string)
+     *
+     * Query params:
+     *   start             (optional)
+     *   end               (optional)
+     */
+    public function personalSummary(TimelineRequest $request, string $identityName): JsonResponse
+    {
+        if ($identityName === '' || strlen($identityName) > 120) {
+            return response()->json(['message' => 'Invalid identity name.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $scope = $this->resolveScope($request);
+        if ($scope !== null && ! in_array($identityName, $scope, true)) {
+            return response()->json(['message' => 'Access denied.'], Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $data = $this->analytics->identitySummary(
+                identityName: $identityName,
+                start:        $request->validated('start'),
+                end:          $request->validated('end'),
+            );
+        } catch (RuntimeException $e) {
+            return $this->dbNotReady($e);
+        }
+
+        return response()->json($data);
+    }
+
+    // -----------------------------------------------------------------------
+    // GET /api/monitoring/surveillance/identities/{identityName}/daily
+    // -----------------------------------------------------------------------
+
+    /**
+     * Per-day activity aggregation for one identity.
+     * Returns an array of day objects each with working_sec, phone_sec,
+     * inactive_sec, total_sec, and a backend-computed focus_score integer.
+     *
+     * Route param:
+     *   identityName      (string)
+     *
+     * Query params:
+     *   start             (optional)
+     *   end               (optional)
+     */
+    public function personalDaily(TimelineRequest $request, string $identityName): JsonResponse
+    {
+        if ($identityName === '' || strlen($identityName) > 120) {
+            return response()->json(['message' => 'Invalid identity name.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $scope = $this->resolveScope($request);
+        if ($scope !== null && ! in_array($identityName, $scope, true)) {
+            return response()->json(['message' => 'Access denied.'], Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $data = $this->analytics->identityDaily(
+                identityName: $identityName,
+                start:        $request->validated('start'),
+                end:          $request->validated('end'),
+            );
+        } catch (RuntimeException $e) {
+            return $this->dbNotReady($e);
+        }
+
+        return response()->json($data);
+    }
+
+    // -----------------------------------------------------------------------
+    // GET /api/monitoring/surveillance/identities/{identityName}/export/csv (original)
+    // -----------------------------------------------------------------------
+
+    /**
      * Export timeline segments for one identity as CSV.
      *
      * Route params:

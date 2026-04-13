@@ -1,3 +1,30 @@
+/**
+ * Metadata passed into ReplayModalComponent so the Evidence Viewer
+ * panel can display identity, event, and timing details alongside
+ * the video.
+ *
+ * All fields are optional so the modal degrades gracefully when only
+ * a subset is available (e.g. alert-dropdown context vs. highlight context).
+ */
+export interface EvidenceMeta {
+  /** Recognised identity name, e.g. "Amir". */
+  identity_name?: string;
+  /**
+   * Raw event/alert type slug.
+   * Accepted values: 'phone' | 'Using_Phone' | 'inactive' | 'Inactive' |
+   *                  'late_arrival' | 'early_leave'.
+   */
+  event_type?: string;
+  /** ISO-8601 timestamp of when the suspicious event began. */
+  started_at?: string;
+  /** ISO-8601 timestamp of when the event window ended. */
+  ended_at?: string;
+  /** Accumulated alert duration in minutes. */
+  duration_minutes?: number;
+  /** Face-recognition confidence in [0, 1]. */
+  confidence?: number;
+}
+
 export interface AlertItem {
   /** Client-generated UUID for list tracking. */
   id: string;

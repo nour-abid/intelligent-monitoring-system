@@ -48,6 +48,7 @@ from surveillance.state_manager import StateManager, SurveillanceTrackState
 from surveillance.activity_logic import should_switch_activity
 from surveillance.repositories.surveillance_repository import SurveillanceRepository
 from surveillance.identity_matcher import IdentityMatcher
+from surveillance.clip_writer import ClipManager
 
 # Optional: checked-in identity bridge (Camera A → Camera B).
 # Guarded so that missing/unavailable store never breaks the surveillance loop.
@@ -446,6 +447,11 @@ def main() -> None:
     if save_csv:
         event_logger = SurveillanceRepository(log_csv_path)
 
+    # --- Alert clip capture ---
+    clip_mgr: Optional[ClipManager] = None
+    if bool(cfg.get("clip_capture_enabled", True)):
+        clip_mgr = ClipManager(cfg, video_source)
+
     # --- Video capture ---
     cap = _open_capture(video_source)
 
@@ -504,6 +510,10 @@ def main() -> None:
                 _drained += 1
             if _drained:
                 _, frame = cap.retrieve()
+
+            # Pre-event ring buffer for alert clip capture.
+            if clip_mgr is not None:
+                clip_mgr.push_frame(frame)
 
             frame_count += 1
             H, W = frame.shape[:2]
@@ -700,6 +710,9 @@ def main() -> None:
                     tid, _raw_label, _raw_conf, detected_act, final_activity,
                 )
 
+                # Capture current activity before potential transition for clip manager.
+                _prev_activity = state.current_activity
+
                 # If activity changed, close old event and start new
                 if final_activity != state.current_activity:
                     closed = state.close_current_activity(end_time=now)
@@ -716,12 +729,26 @@ def main() -> None:
                         )
                     state.start_activity(final_activity, start_time=now)
 
+                # Notify clip manager each frame for every confirmed track.
+                if clip_mgr is not None:
+                    clip_mgr.on_track_update(
+                        track_id=tid,
+                        identity_name=state.identity_name,
+                        current_activity=state.current_activity,
+                        prev_activity=_prev_activity,
+                        activity_start_time=state.activity_start_time,
+                        frame=frame,
+                        now=now,
+                    )
+
                 # ------ D. Identity matching (ArcFace + MediaPipe) ----------
                 identity_matcher.try_match(state, frame, state_mgr)
 
             # ------ E. Remove stale tracks ------------------------------------------------------------------------------------------------------
             removed_states = state_mgr.remove_stale(active_ids)
             for state in removed_states:
+                if clip_mgr is not None:
+                    clip_mgr.on_track_lost(state.track_id)
                 identity_matcher.remove_track(state.track_id)
                 closed = state.close_current_activity(end_time=now)
                 if closed is not None and event_logger is not None:
@@ -776,6 +803,8 @@ def main() -> None:
         cv2.destroyAllWindows()
         if event_logger is not None:
             event_logger.close()
+        if clip_mgr is not None:
+            clip_mgr.flush_all()
         log.info("Surveillance stopped.")
 
 

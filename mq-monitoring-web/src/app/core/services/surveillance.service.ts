@@ -14,7 +14,7 @@ import {
   IdentityEntry,
   IdentityRow,
 } from '../../features/surveillance/models/identities.model';
-import { TimelineResponse, TimelineParams } from '../../features/surveillance/models/timeline.model';
+import { TimelineResponse, TimelineParams, IdentityPersonalSummary, IdentityDailyResponse } from '../../features/surveillance/models/timeline.model';
 import { DashboardSummaryResponse, DashboardSummaryParams } from '../../features/surveillance/models/summary.model';
 import { HighlightsResponse, HighlightsParams } from '../../features/surveillance/models/highlight.model';
 import {
@@ -61,8 +61,7 @@ export class SurveillanceService {
 
   /**
    * GET /api/monitoring/surveillance/identities/{name}/export/csv
-   * Downloads timeline segments as CSV file.
-   * Returns blob to enable browser download.
+   * Legacy CSV export — kept for backward compatibility.
    */
   exportTimelineCsv(
     identityName: string,
@@ -71,6 +70,35 @@ export class SurveillanceService {
     const encoded = encodeURIComponent(identityName);
     return this.http.get(
       `${this.base}/identities/${encoded}/export/csv`,
+      { params: this.toHttpParams(params), responseType: 'blob' },
+    );
+  }
+
+  /**
+   * GET /api/monitoring/surveillance/identities/{name}/export/xlsx
+   * Downloads a professional multi-sheet XLSX personal report.
+   * Sheets: Summary, Daily Breakdown, Activity Timeline, Alerts & Highlights.
+   */
+  exportPersonXlsx(
+    identityName: string,
+    params: TimelineParams = {},
+  ): Observable<Blob> {
+    const encoded = encodeURIComponent(identityName);
+    return this.http.get(
+      `${this.base}/identities/${encoded}/export/xlsx`,
+      { params: this.toHttpParams(params), responseType: 'blob' },
+    );
+  }
+
+  /**
+   * GET /api/monitoring/surveillance/export/overview
+   * Downloads a professional multi-sheet XLSX overview workbook.
+   * Sheets: Overview, Rankings, one sheet per accessible employee.
+   * Admin and superviseur only.
+   */
+  exportOverviewXlsx(params: OverviewParams): Observable<Blob> {
+    return this.http.get(
+      `${this.base}/export/overview`,
       { params: this.toHttpParams(params), responseType: 'blob' },
     );
   }
@@ -93,6 +121,37 @@ export class SurveillanceService {
     const encoded = encodeURIComponent(identityName);
     return this.http.get<HighlightsResponse>(
       `${this.base}/identities/${encoded}/highlights`,
+      { params: this.toHttpParams(params) },
+    );
+  }
+
+  /**
+   * GET /api/monitoring/surveillance/identities/{name}/summary
+   * Returns aggregated working_sec, phone_sec, inactive_sec, total_sec,
+   * and backend-computed focus_score for the given identity.
+   */
+  getPersonalSummary(
+    identityName: string,
+    params: TimelineParams = {},
+  ): Observable<IdentityPersonalSummary> {
+    const encoded = encodeURIComponent(identityName);
+    return this.http.get<IdentityPersonalSummary>(
+      `${this.base}/identities/${encoded}/summary`,
+      { params: this.toHttpParams(params) },
+    );
+  }
+
+  /**
+   * GET /api/monitoring/surveillance/identities/{name}/daily
+   * Returns per-day breakdown with backend-computed focus_score per day.
+   */
+  getPersonalDaily(
+    identityName: string,
+    params: TimelineParams = {},
+  ): Observable<IdentityDailyResponse> {
+    const encoded = encodeURIComponent(identityName);
+    return this.http.get<IdentityDailyResponse>(
+      `${this.base}/identities/${encoded}/daily`,
       { params: this.toHttpParams(params) },
     );
   }

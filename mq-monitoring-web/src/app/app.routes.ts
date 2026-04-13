@@ -1,6 +1,9 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { adminSuperviseurGuard } from './core/guards/admin-superviseur.guard';
+import { viewerOnlyGuard } from './core/guards/viewer-only.guard';
+import { viewerIdentityResolver } from './core/resolvers/viewer-identity.resolver';
 
 export const routes: Routes = [
   {
@@ -49,7 +52,7 @@ export const routes: Routes = [
       },
       {
         path: 'surveillance',
-        canActivate: [authGuard],
+        canActivate: [authGuard, adminSuperviseurGuard],
         loadComponent: () =>
           import(
             './features/surveillance/pages/dashboard/dashboard.component'
@@ -57,8 +60,18 @@ export const routes: Routes = [
         title: 'Surveillance Dashboard — MQ Monitoring',
       },
       {
+        path: 'surveillance/my-insights',
+        canActivate: [authGuard, viewerOnlyGuard],
+        resolve: { name: viewerIdentityResolver },
+        loadComponent: () =>
+          import(
+            './features/surveillance/pages/identity-detail/identity-detail.component'
+          ).then((m) => m.IdentityDetailComponent),
+        title: 'My Activity Insights — MQ Monitoring',
+      },
+      {
         path: 'surveillance/identity/:name',
-        canActivate: [authGuard],
+        canActivate: [authGuard, adminSuperviseurGuard],
         loadComponent: () =>
           import(
             './features/surveillance/pages/identity-detail/identity-detail.component'
@@ -73,6 +86,15 @@ export const routes: Routes = [
             (m) => m.UsersComponent
           ),
         title: 'User Management — MQ Monitoring',
+      },
+      {
+        path: 'chat',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./features/chat/pages/chat-page/chat-page.component').then(
+            (m) => m.ChatPageComponent
+          ),
+        title: 'Marqi — AI Chat — MQ Monitoring',
       },
       {
         path: '**',

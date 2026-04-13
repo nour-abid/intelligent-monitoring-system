@@ -149,6 +149,52 @@ reassoc_max_center_dist_px: 200.0
 # Score = 0.55 * distance_score + 0.25 * identity_confidence + 0.20 * iou
 reassoc_min_score: 0.25
 
+# ── Alert clip capture ─────────────────────────────────────────────────────
+# Set to false to disable event-driven clip capture entirely.
+clip_capture_enabled: true
+
+# Camera identifier used in clip directory paths.
+# Defaults to a sanitised form of video_source if not set.
+# camera_id: "cam_main"   # uncomment to override
+
+# Root directory for clip files (relative to project root or absolute).
+clip_output_dir: clips
+
+# Rolling pre-event buffer: seconds of footage kept before a new clip is confirmed.
+clip_pre_buffer_sec: 10
+
+# Post-event buffer: seconds to continue recording after the suspicious activity stops.
+clip_post_buffer_sec: 5
+
+# FPS written into the output mp4.  The actual display rate depends on
+# processing throughput; this value controls the VideoWriter header.
+clip_capture_fps: 15
+
+# Seconds of Using_Phone activity required to confirm a clip.
+# Should match the Laravel phone alert threshold (alerts.php: phone_threshold_minutes * 60).
+clip_phone_threshold_sec: 300     # 5 minutes
+
+# Seconds of Inactive activity required to confirm a clip.
+# Should match the Laravel inactive alert threshold (alerts.php: inactive_threshold_minutes * 60).
+clip_inactive_threshold_sec: 600  # 10 minutes
+
+# ── Clip metadata API (Python → Laravel) ───────────────────────────────────
+# Set to false to disable the metadata POST entirely (clips still saved locally).
+clip_api_enabled: true
+
+# Full URL of the Laravel internal clips endpoint.
+# Must match the port Laravel is listening on (php artisan serve --port=8081).
+clip_api_url: "http://127.0.0.1:8081/api/internal/clips"
+
+# Shared secret sent as X-Internal-Token.
+# MUST match the value of SURVEILLANCE_INTERNAL_TOKEN in mq-monitoring-api/.env exactly.
+# Generate with:  php -r "echo bin2hex(random_bytes(32));"
+# Then set the same value in both files before starting either service.
+clip_api_token: "change-me-in-production"
+
+# Seconds to wait for a response before giving up.  Keep low — the pipeline must not block.
+clip_api_timeout_sec: 3
+
 # Face-confirmed entries: longer window + lower score bar (person had a verified face match)
 # was_face_confirmed is only set when identity_source == "face" (never inherited from reassoc)
 reassoc_face_confirmed_max_gap_sec: 15.0

@@ -5,7 +5,7 @@ import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { SurveillanceService } from '../../../../core/services/surveillance.service';
-import { OverviewResponse } from '../../models/overview.model';
+import { OverviewResponse, OverviewParams } from '../../models/overview.model';
 import { IdentityEntry, IdentityRow } from '../../models/identities.model';
 import { ActivityStat } from '../../models/overview.model';
 import { KpiCardsComponent, KpiCardDef } from '../../components/kpi-cards/kpi-cards.component';
@@ -18,6 +18,8 @@ import { AlertSummaryComponent } from '../../components/alert-summary/alert-summ
 import { ActivityDoughnutChartComponent } from '../../components/activity-doughnut-chart/activity-doughnut-chart.component';
 import { ActivityStackedBarComponent } from '../../components/activity-stacked-bar/activity-stacked-bar.component';
 import { ActivityEvolutionChartComponent } from '../../components/activity-evolution-chart/activity-evolution-chart.component';
+import { SmartGuidanceComponent, GuidanceMessage } from '../../components/smart-guidance/smart-guidance.component';
+import { PerformanceCoachComponent } from '../../components/performance-coach/performance-coach.component';
 
 type LoadState = 'idle' | 'loading' | 'success' | 'error';
 
@@ -42,6 +44,8 @@ interface EmployeeMetric {
     ActivityDoughnutChartComponent,
     ActivityStackedBarComponent,
     ActivityEvolutionChartComponent,
+    SmartGuidanceComponent,
+    PerformanceCoachComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
@@ -53,6 +57,7 @@ export class DashboardComponent implements OnInit {
 
   readonly isSuperviseur = computed(() => this.authService.user()?.role === 'superviseur');
   readonly isAdmin       = computed(() => this.authService.user()?.role === 'admin');
+  readonly isViewer      = computed(() => (this.authService.user()?.role ?? 'viewer') === 'viewer');
 
   // ── Template utilities ──────────────────────────────────────────────────
   readonly formatDuration = formatDuration;
@@ -66,8 +71,9 @@ export class DashboardComponent implements OnInit {
   includeUnknown = false;
 
   // ── Load state ──────────────────────────────────────────────────────────
-  readonly loadState  = signal<LoadState>('idle');
-  readonly errorMsg   = signal<string>('');
+  readonly loadState   = signal<LoadState>('idle');
+  readonly errorMsg    = signal<string>('');
+  readonly exportState = signal<'idle' | 'loading' | 'error'>('idle');
 
   // ── Raw data signals ────────────────────────────────────────────────────
   readonly overview    = signal<OverviewResponse | null>(null);
@@ -305,6 +311,75 @@ export class DashboardComponent implements OnInit {
     return result.slice(0, 5);
   });
 
+  /** Operational Guidance for admin and superviseur roles. Viewer/employee sees Performance Coach. */
+  readonly smartGuidance = computed<GuidanceMessage[]>(() => {
+    const role = this.authService.user()?.role ?? 'viewer';
+    const msgs: GuidanceMessage[] = [];
+
+    // Viewer sees Performance Coach card — skip text guidance entirely.
+    if (role === 'viewer') return msgs;
+
+    const ids  = this.identities().filter(r => r.identity_name !== 'Unknown' && r.total_sec > 0);
+    const sum  = this.summary();
+    const dist = this.activityDistributionItems();
+    const anom = this.anomalies();
+
+    if (role === 'admin') {
+      // ── Operational / strategic ──────────────────────────────────
+      const criticalCount = anom.filter(a => a.severity === 'critical').length;
+      if (criticalCount > 0) {
+        msgs.push({ category: 'insight', text: `${criticalCount} critical anomaly pattern${criticalCount > 1 ? 's' : ''} detected — immediate operational review recommended` });
+      }
+
+      const phoneFlagged = ids.filter(r => r.total_sec > 0 && (r.activities['Using_Phone'] ?? 0) / r.total_sec > 0.25).length;
+      if (phoneFlagged >= 2) {
+        msgs.push({ category: 'advice', text: `Phone-related anomalies are widespread (${phoneFlagged} employees) — consider reviewing acceptable-use policies` });
+      }
+
+      if (anom.some(a => a.text.includes('Incomplete tracking'))) {
+        msgs.push({ category: 'advice', text: 'Tracking coverage is incomplete — verify that monitoring is running continuously for all targets' });
+      }
+
+      if (sum && sum.kpis.total_alerts > 0) {
+        const byType = sum.charts.alerts_by_type ?? [];
+        if (byType.length > 0 && byType[0].count / sum.kpis.total_alerts > 0.60) {
+          msgs.push({ category: 'insight', text: `Alerts concentrate on "${byType[0].type.replace(/_/g, ' ')}" — targeted intervention may reduce the overall alert rate` });
+        }
+      }
+
+      if (msgs.length === 0) {
+        msgs.push({ category: 'recognition', text: 'Operations appear stable — no critical anomalies or dominant alert patterns detected in this period' });
+      }
+
+    } else {
+      // ── superviseur — coaching / team follow-up ──────────────────
+      const phoneCount    = ids.filter(r => (r.activities['Using_Phone'] ?? 0) / r.total_sec > 0.25).length;
+      const inactiveCount = ids.filter(r => (r.activities['Inactive']    ?? 0) / r.total_sec > 0.40).length;
+
+      if (phoneCount > 0) {
+        msgs.push({ category: 'advice', text: `${phoneCount} team member${phoneCount > 1 ? 's' : ''} show elevated phone usage — consider a brief discussion on focus time` });
+      }
+      if (inactiveCount > 0) {
+        msgs.push({ category: 'advice', text: `${inactiveCount} employee${inactiveCount > 1 ? 's' : ''} have above-average inactivity — a one-on-one check-in may help` });
+      }
+
+      if (sum && sum.kpis.late_arrivals > 0) {
+        msgs.push({ category: 'insight', text: `${sum.kpis.late_arrivals} late arrival${sum.kpis.late_arrivals > 1 ? 's' : ''} this period — track whether this is a recurring pattern` });
+      }
+
+      const workingItem = dist.find(d => d.activity === 'Working');
+      if (workingItem && workingItem.share >= 0.55) {
+        msgs.push({ category: 'recognition', text: `Team working time is solid at ${Math.round(workingItem.share * 100)}% — keep supporting this momentum` });
+      }
+
+      if (phoneCount === 0 && inactiveCount === 0 && msgs.length === 0) {
+        msgs.push({ category: 'recognition', text: 'No major behavioral issues detected in your team this period — strong collective performance' });
+      }
+    }
+
+    return msgs.slice(0, 4);
+  });
+
   readonly employeeRows = computed<EmployeeMetric[]>(() =>
     this.identities()
       .filter(r => r.identity_name !== 'Unknown')
@@ -443,5 +518,36 @@ export class DashboardComponent implements OnInit {
 
   openIdentity(name: string): void {
     this.router.navigate(['/surveillance/identity', name]);
+  }
+
+  /** Download the current view as a formatted Excel workbook. */
+  exportXlsx(): void {
+    if (this.exportState() === 'loading') return;
+    this.exportState.set('loading');
+
+    const params: OverviewParams = {};
+    if (this.filterStart) params.start = toStartOfDay(this.filterStart);
+    if (this.filterEnd)   params.end   = toEndOfDay(this.filterEnd);
+    if (this.isAdmin())   params.include_unknown = this.includeUnknown;
+
+    this.service.exportOverviewXlsx(params).subscribe({
+      next: (blob) => {
+        const ts       = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
+        const filename = `overview_report_${ts}.xlsx`;
+        const url  = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href     = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        this.exportState.set('idle');
+      },
+      error: () => {
+        this.exportState.set('error');
+        setTimeout(() => this.exportState.set('idle'), 3000);
+      },
+    });
   }
 }

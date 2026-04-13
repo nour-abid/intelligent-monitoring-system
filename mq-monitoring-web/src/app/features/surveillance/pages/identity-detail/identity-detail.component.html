@@ -1,12 +1,14 @@
 <div class="detail-page">
 
-  <!-- ── Back navigation ─────────────────────────────────────── -->
-  <a class="back-link" routerLink="/surveillance" aria-label="Back to Surveillance Dashboard">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <polyline points="15 18 9 12 15 6"/>
-    </svg>
-    Surveillance Dashboard
-  </a>
+  <!-- ── Back navigation (admin/supervisor only) ─────────────── -->
+  @if (role() !== 'viewer') {
+    <a class="back-link" routerLink="/surveillance" aria-label="Back to Surveillance Dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Surveillance Dashboard
+    </a>
+  }
 
   <!-- ── Identity header ─────────────────────────────────────── -->
   <div class="identity-header">
@@ -17,10 +19,12 @@
       <h1 class="identity-header__name">{{ name() }}</h1>
       @if (loadState() === 'success' && timeline()) {
         <div class="identity-header__meta">
-          <span class="identity-header__stat">
-            {{ timeline()!.count }} segment{{ timeline()!.count !== 1 ? 's' : '' }}
-          </span>
-          <span class="identity-header__divider">·</span>
+          @if (role() !== 'viewer') {
+            <span class="identity-header__stat">
+              {{ timeline()!.count }} segment{{ timeline()!.count !== 1 ? 's' : '' }}
+            </span>
+            <span class="identity-header__divider">·</span>
+          }
           <span class="identity-header__stat">
             {{ totalSec() | duration }} total
           </span>
@@ -92,14 +96,31 @@
       <button
         type="button"
         class="filter-bar__btn filter-bar__btn--export"
-        (click)="exportCsv()"
-        aria-label="Download report as CSV"
-        title="Download current report as CSV"
+        (click)="exportXlsx()"
+        aria-label="Download Excel report for this employee"
+        title="Download a formatted Excel report: Summary, Daily Breakdown, Timeline, Alerts"
       >
         <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
         </svg>
-        Export CSV
+        Download Personal Report
+      </button>
+      <button
+        type="button"
+        class="filter-bar__btn filter-bar__btn--ai"
+        (click)="openAiReport()"
+        [disabled]="aiReportOpen() || aiReportCooldownSec() > 0"
+        aria-label="Generate AI-formulated report"
+        title="Generate an AI-formulated analytical report for this employee"
+      >
+        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 8v4l3 3"/>
+        </svg>
+        @if (aiReportCooldownSec() > 0) {
+          AI Report ({{ aiReportCooldownSec() }}s)
+        } @else {
+          AI Report
+        }
       </button>
     }
   </div>
@@ -126,7 +147,49 @@
 
     <!-- KPI summary cards -->
     <app-kpi-cards [cards]="kpiCards()" />
-
+    <!-- ── Personal trend chart (viewer only) ─────────────────── -->
+    @if (role() === 'viewer') {
+      <div class="ts-card">
+        <div class="ts-card__header">
+          <h3 class="ts-card__title">My Activity Trend</h3>
+          <div class="ts-toggle">
+            <button class="ts-toggle__btn" [class.ts-toggle__btn--active]="selectedMetric() === 'working_time'" (click)="selectedMetric.set('working_time')">Working Time</button>
+            <button class="ts-toggle__btn" [class.ts-toggle__btn--active]="selectedMetric() === 'phone_usage'"  (click)="selectedMetric.set('phone_usage')">Phone Usage</button>
+            <button class="ts-toggle__btn" [class.ts-toggle__btn--active]="selectedMetric() === 'inactivity'"   (click)="selectedMetric.set('inactivity')">Inactivity</button>
+            <button class="ts-toggle__btn" [class.ts-toggle__btn--active]="selectedMetric() === 'focus_score'"  (click)="selectedMetric.set('focus_score')">Focus Score</button>
+          </div>
+        </div>
+        <svg class="ts-chart" viewBox="0 0 580 178" aria-label="Personal activity trend">
+          <!-- Y-axis labels -->
+          <text x="38" y="20" class="ts-chart__axis-label" text-anchor="end">{{ timeSeriesData().length ? timeSeriesMaxLabel() : '' }}</text>
+          <text x="38" y="157" class="ts-chart__axis-label" text-anchor="end">{{ timeSeriesData().length ? '0' : '' }}</text>
+          <!-- Grid lines -->
+          <line x1="44" y1="16" x2="572" y2="16" class="ts-chart__grid"/>
+          <line x1="44" y1="86" x2="572" y2="86" class="ts-chart__grid"/>
+          <line x1="44" y1="156" x2="572" y2="156" class="ts-chart__baseline"/>
+          @if (timeSeriesData().length === 0) {
+            <!-- No-data state inside the chart area -->
+            <text x="308" y="92" class="ts-chart__axis-label" text-anchor="middle">No activity data for this period.</text>
+          }
+          @if (timeSeriesData().length >= 2) {
+            <!-- Polyline only makes sense with ≥2 points -->
+            <polyline [attr.points]="timeSeriesPolyline()" class="ts-chart__line" fill="none"/>
+          }
+          @for (p of timeSeriesData(); track p.date) {
+            <circle [attr.cx]="p.x" [attr.cy]="p.y" r="3.5" class="ts-chart__dot">
+              <title>{{ p.date }}: {{ p.value % 1 === 0 ? p.value : p.value.toFixed(1) }}{{ metricUnit() }}</title>
+            </circle>
+          }
+          @if (timeSeriesData().length > 0) {
+            <!-- X-axis date labels -->
+            <text [attr.x]="timeSeriesData()[0].x" y="173" class="ts-chart__date-label" text-anchor="middle">{{ formatDateLabel(dailyMetrics()[0].date) }}</text>
+            @if (timeSeriesData().length > 1) {
+              <text [attr.x]="timeSeriesData()[timeSeriesData().length - 1].x" y="173" class="ts-chart__date-label" text-anchor="end">{{ formatDateLabel(dailyMetrics()[dailyMetrics().length - 1].date) }}</text>
+            }
+          }
+        </svg>
+      </div>
+    }
     <!-- ── Behavior Insights ───────────────────────────────────── -->
     <div class="behavior-insights">
       <span class="behavior-insights__heading">Behavior Insights</span>
@@ -142,6 +205,13 @@
         </ul>
       }
     </div>
+
+    <!-- ── Guidance / Performance Coach (role-aware) ─────────── -->
+    @if (role() === 'viewer') {
+      <app-performance-coach [activityTotals]="activityTotals()" />
+    } @else {
+      <app-smart-guidance [messages]="smartGuidance()" />
+    }
 
     <!-- Activity mix flow card -->
     @if (activityTotals().length > 0) {
@@ -177,44 +247,45 @@
       </div>
     }
 
-    <!-- Dual charts: duration distribution (left) + activity frequency (right) -->
+    <!-- Activity Distribution chart -->
     @if (activityTotals().length > 0) {
-      <div class="analytics-section">
-
-        <!-- Duration by activity — proportional share -->
-        <div class="analytics-section__chart">
-          <app-activity-chart [stats]="activityStats()" />
-        </div>
-
-        <!-- Segment count by activity — raw occurrence frequency -->
-        <div class="analytics-section__chart">
-          <div class="seg-chart">
-            <h3 class="seg-chart__title">Activity Frequency</h3>
-            <p class="seg-chart__sub">Number of detected segments per activity</p>
-            @for (item of activityTotals(); track item.activity) {
-              <div class="seg-chart__row">
-                <div class="seg-chart__label" [title]="item.activity">{{ item.activity.replace(/_/g, ' ') }}</div>
-                <div class="seg-chart__track">
-                  <div
-                    class="seg-chart__bar"
-                    [style.width]="segPct(item.segment_count)"
-                    [style.background-color]="item.color"
-                    role="progressbar"
-                    [attr.aria-valuenow]="item.segment_count"
-                    [attr.aria-valuemax]="maxSegmentCount()"
-                  ></div>
+      @if (role() !== 'viewer') {
+        <!-- Admin/supervisor: dual-column layout with frequency chart -->
+        <div class="analytics-section">
+          <div class="analytics-section__chart">
+            <app-activity-chart [stats]="activityStats()" />
+          </div>
+          <div class="analytics-section__chart">
+            <div class="seg-chart">
+              <h3 class="seg-chart__title">Activity Frequency</h3>
+              <p class="seg-chart__sub">Number of detected segments per activity</p>
+              @for (item of activityTotals(); track item.activity) {
+                <div class="seg-chart__row">
+                  <div class="seg-chart__label" [title]="item.activity">{{ item.activity.replace(/_/g, ' ') }}</div>
+                  <div class="seg-chart__track">
+                    <div
+                      class="seg-chart__bar"
+                      [style.width]="segPct(item.segment_count)"
+                      [style.background-color]="item.color"
+                      role="progressbar"
+                      [attr.aria-valuenow]="item.segment_count"
+                      [attr.aria-valuemax]="maxSegmentCount()"
+                    ></div>
+                  </div>
+                  <div class="seg-chart__count">{{ item.segment_count }}</div>
                 </div>
-                <div class="seg-chart__count">{{ item.segment_count }}</div>
-              </div>
-            }
+              }
+            </div>
           </div>
         </div>
-
-      </div>
+      } @else {
+        <!-- Viewer: full-width Activity Distribution only -->
+        <app-activity-chart [stats]="activityStats()" />
+      }
     }
 
-    <!-- Full detailed breakdown table -->
-    @if (activityTotals().length > 0) {
+    <!-- Full detailed breakdown table (admin/supervisor only) -->
+    @if (activityTotals().length > 0 && role() !== 'viewer') {
       <div class="breakdown-card">
         <h3 class="breakdown-card__title">Detailed Activity Breakdown</h3>
         <table class="breakdown-table">
@@ -320,6 +391,7 @@
       <app-replay-modal
         [alertId]="replayAlertId()!"
         [alertLabel]="replayLabel()"
+        [metadata]="replayMeta()"
         (closed)="closeReplay()"
       />
     }
@@ -345,3 +417,21 @@
   }
 
 </div>
+
+<!-- AI Report modal — rendered outside the main layout flow -->
+@if (aiReportOpen()) {
+  <app-ai-report-modal
+    [data]="aiReportData()"
+    [title]="aiReportTitle()"
+    [kpis]="kpiCards()"
+    [activityStats]="activityStats()"
+    [chartPoints]="timeSeriesData()"
+    [chartPolyline]="timeSeriesPolyline()"
+    [chartMaxLabel]="timeSeriesMaxLabel()"
+    [chartUnit]="metricUnit()"
+    [chartLabel]="selectedMetric() === 'focus_score' ? 'Focus Score' : selectedMetric() === 'phone_usage' ? 'Phone Usage' : selectedMetric() === 'inactivity' ? 'Inactivity' : 'Working Time'"
+    [chartFirstDate]="dailyMetrics().length ? formatDateLabel(dailyMetrics()[0].date) : ''"
+    [chartLastDate]="dailyMetrics().length > 1 ? formatDateLabel(dailyMetrics()[dailyMetrics().length - 1].date) : ''"
+    (closed)="onAiReportClosed()"
+  />
+}

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Monitoring;
 use App\Http\Controllers\Controller;
 use App\Models\AlertReplaySource;
 use App\Models\BehaviorAlert;
+use App\Services\Monitoring\ClipMetadataService;
 use App\Services\Monitoring\ReplayService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -124,18 +125,24 @@ class ReplayController extends Controller
         try {
             $clipPath = app(ReplayService::class)->getOrGenerate($source);
         } catch (InvalidArgumentException $e) {
+            // Bad timing configuration — not a clip finalization failure; skip metadata row.
             return response()->json([
                 'message' => 'Replay window is invalid.',
                 'reason'  => $e->getMessage(),
                 'code'    => 'invalid_window',
             ], 422);
         } catch (RuntimeException $e) {
+            // ffmpeg error or missing source file — record failure metadata, then surface the error.
+            app(ClipMetadataService::class)->recordFailure($alert, $source, $e->getMessage());
             return response()->json([
                 'message' => 'Replay clip could not be generated.',
                 'reason'  => $e->getMessage(),
                 'code'    => 'generation_failed',
             ], 422);
         }
+
+        // Persist (or refresh) clip metadata — non-blocking; any failure is logged internally.
+        app(ClipMetadataService::class)->ensureRecorded($alert, $source, $clipPath);
 
         return response()->file($clipPath, [
             'Content-Type'        => 'video/mp4',

@@ -1,0 +1,170 @@
+<div class="cp">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <div class="cp-header">
+    <div class="cp-header__left">
+      <button class="cp-header__back" type="button" (click)="goBack()" aria-label="Go back">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+      </button>
+      <div class="cp-header__brand">
+        <div class="cp-header__icon">MQ</div>
+        <div>
+          <h1 class="cp-header__title">Marqi</h1>
+          <p class="cp-header__sub">AI Analytics Companion</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cp-header__right">
+      <!-- ── Identity selector ──────────────────────────────────────── -->
+      @if (chat.identityNames().length > 0) {
+        <div class="cp-selector">
+          <button class="cp-selector__trigger" type="button" (click)="toggleSelector()" [disabled]="chat.contextLoading()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+            @if (chat.contextLoading()) {
+              <span class="cp-selector__spinner"></span>
+            } @else if (chat.selectedIdentity() === 'global' || !chat.selectedIdentity()) {
+              All Employees
+            } @else {
+              {{ chat.selectedIdentity() }}
+            }
+            <svg class="cp-selector__caret" [class.cp-selector__caret--open]="selectorOpen()" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+
+          @if (selectorOpen()) {
+            <div class="cp-selector__dropdown">
+              <button
+                class="cp-selector__option"
+                [class.cp-selector__option--active]="chat.selectedIdentity() === 'global' || !chat.selectedIdentity()"
+                type="button"
+                (click)="pickIdentity('global')"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                All Employees
+              </button>
+              @for (name of chat.identityNames(); track name) {
+                <button
+                  class="cp-selector__option"
+                  [class.cp-selector__option--active]="chat.selectedIdentity() === name"
+                  type="button"
+                  (click)="pickIdentity(name)"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                  </svg>
+                  {{ name }}
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (chat.hasContext()) {
+        <span class="cp-header__ctx">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+          {{ chat.contextLabel() }}
+        </span>
+      }
+      <button class="cp-header__btn" type="button" (click)="chat.clearChat()" title="Clear conversation">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+        </svg>
+        Clear
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Messages ────────────────────────────────────────────────────────── -->
+  <div class="cp-messages" #messageList>
+    <div class="cp-messages__inner">
+      @for (msg of chat.messages(); track $index) {
+        <div class="cp-msg" [class.cp-msg--user]="msg.role === 'user'" [class.cp-msg--assistant]="msg.role === 'assistant'" [class.cp-msg--error]="msg.error">
+          @if (msg.role === 'assistant') {
+            <div class="cp-msg__avatar">MQ</div>
+          }
+          <div class="cp-msg__body">
+            @if (msg.loading) {
+              <div class="cp-typing">
+                <span></span><span></span><span></span>
+              </div>
+            } @else {
+              @for (seg of chat.splitSegments(msg); track $index) {
+                @if (seg.type === 'html' && seg.html) {
+                  <div class="cp-msg__text" [innerHTML]="seg.html"></div>
+                }
+                @if (seg.type === 'chart' && msg.chartSpecs && msg.chartSpecs[seg.chartIndex!]) {
+                  <div class="cp-chart">
+                    @if (msg.chartSpecs[seg.chartIndex!].title) {
+                      <div class="cp-chart__title">{{ msg.chartSpecs[seg.chartIndex!].title }}</div>
+                    }
+                    @for (label of msg.chartSpecs[seg.chartIndex!].labels; track label; let i = $index) {
+                      <div class="cp-chart__row">
+                        <div class="cp-chart__label">{{ label }}</div>
+                        <div class="cp-chart__bar-wrap">
+                          <div
+                            class="cp-chart__bar"
+                            [style.width]="chat.chartBarWidth(msg.chartSpecs![seg.chartIndex!], i)"
+                            [style.background]="msg.chartSpecs[seg.chartIndex!].colors[i] ?? '#6366f1'"
+                          ></div>
+                        </div>
+                        <div class="cp-chart__value">{{ chat.chartBarLabel(msg.chartSpecs[seg.chartIndex!].values[i]) }}</div>
+                      </div>
+                    }
+                  </div>
+                }
+              }
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ── Input ───────────────────────────────────────────────────────────── -->
+  <div class="cp-input-area">
+    <div class="cp-input-wrap">
+      <textarea
+        class="cp-input"
+        id="marqi-page-input"
+        name="marqi-page-input"
+        [value]="input()"
+        (input)="input.set($any($event.target).value)"
+        (keydown)="onKey($event)"
+        placeholder="Ask Marqi about your employee data…"
+        rows="1"
+        [disabled]="chat.loading()"
+        aria-label="Type your question"
+      ></textarea>
+      <button
+        class="cp-send"
+        type="button"
+        (click)="send()"
+        [disabled]="!input().trim() || chat.loading()"
+        aria-label="Send"
+      >
+        @if (chat.loading()) {
+          <span class="cp-send__spinner"></span>
+        } @else {
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        }
+      </button>
+    </div>
+    <p class="cp-disclaimer">Marqi analyses only the data currently loaded in your dashboard.</p>
+  </div>
+
+</div>

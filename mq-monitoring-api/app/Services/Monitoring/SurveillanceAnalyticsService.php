@@ -3,14 +3,19 @@
 namespace App\Services\Monitoring;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\ConnectionInterface;
 use RuntimeException;
 
 /**
  * SurveillanceAnalyticsService
  *
- * Read-only analytics over the surveillance.surveillance_events PostgreSQL table
+ * Read-only analytics over the surveillance_events PostgreSQL table
  * written by the Python surveillance runtime.
+ *
+ * Connection and table names are configurable via config/surveillance.php
+ * and environment variables for flexibility across environments.
  *
  * All public methods accept string datetimes (any format parseable by
  * PHP's strtotime) and normalise them to 'Y-m-d H:i:s' before querying,
@@ -20,11 +25,147 @@ use RuntimeException;
  *  - Every SQL query uses bound parameters — no interpolated user input.
  *  - The service never writes to or alters the surveillance database.
  *  - Numeric values are explicitly cast so callers receive proper PHP types.
+ *  - Connection and table existence are verified on first access.
  */
 class SurveillanceAnalyticsService
 {
-    private const CONNECTION = 'surveillance';
-    private const TABLE      = 'surveillance_events';
+    private ?string $connectionName = null;
+    private ?string $qualifiedTable = null;
+    private bool $initialized = false;
+    private bool $verificationFailed = false;
+
+    /**
+     * Ensure the surveillance connection and table are configured and accessible.
+     * This is called implicitly on first query; exceptions are logged and thrown.
+     *
+     * @throws RuntimeException if connection is not configured or table doesn't exist
+     */
+    private function ensureInitialized(): void
+    {
+        if ($this->initialized) {
+            return;
+        }
+        if ($this->verificationFailed) {
+            throw new RuntimeException(
+                'Surveillance analytics initialization failed. Check logs for details.'
+            );
+        }
+
+        try {
+            $this->initializeConnection();
+            $this->initializeTable();
+            $this->initialized = true;
+            Log::info('Surveillance analytics service initialized', [
+                'connection' => $this->connectionName,
+                'table'      => $this->qualifiedTable,
+            ]);
+        } catch (RuntimeException $e) {
+            $this->verificationFailed = true;
+            Log::error('Surveillance analytics initialization failed: ' . $e->getMessage(), [
+                'connection' => $this->connectionName ?? 'unknown',
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Resolve and verify the database connection exists.
+     *
+     * @throws RuntimeException if no connection available
+     */
+    private function initializeConnection(): void
+    {
+        $configuredName = Config::get('surveillance.connection', 'surveillance');
+        $defaultName    = config('database.default', 'pgsql');
+
+        // Try the configured connection first.
+        if ($this->connectionExists($configuredName)) {
+            $this->connectionName = $configuredName;
+            return;
+        }
+
+        // Fall back to default connection.
+        if ($configuredName !== $defaultName && $this->connectionExists($defaultName)) {
+            Log::warning("Configured surveillance connection [$configuredName] not found, falling back to [$defaultName]");
+            $this->connectionName = $defaultName;
+            return;
+        }
+
+        throw new RuntimeException(
+            "Surveillance DB connection [$configuredName] is not configured in config/database.php. "
+            . "Verify that the connection exists or set SURVEILLANCE_DB_CONNECTION to a valid connection name."
+        );
+    }
+
+    /**
+     * Verify that a named database connection is registered.
+     */
+    private function connectionExists(string $name): bool
+    {
+        try {
+            DB::connection($name);
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Build and verify the qualified table name exists in the database.
+     *
+     * @throws RuntimeException if table doesn't exist
+     */
+    private function initializeTable(): void
+    {
+        $schema = Config::get('surveillance.schema', 'surveillance');
+        $table  = Config::get('surveillance.table', 'surveillance_events');
+
+        // Build fully-qualified table name.
+        if ($schema && $schema !== 'public') {
+            $this->qualifiedTable = "{$schema}.{$table}";
+        } else {
+            $this->qualifiedTable = $table;
+        }
+
+        // Verify table exists.
+        if (! $this->tableExists($this->qualifiedTable)) {
+            throw new RuntimeException(
+                "Surveillance table [{$this->qualifiedTable}] does not exist. "
+                . "Verify the Python surveillance runtime has written to the database, "
+                . "or check SURVEILLANCE_DB_SCHEMA and SURVEILLANCE_DB_TABLE environment variables."
+            );
+        }
+    }
+
+    /**
+     * Check if a table exists in the database.
+     */
+    private function tableExists(string $qualifiedTable): bool
+    {
+        try {
+            $parts = explode('.', $qualifiedTable);
+            if (count($parts) === 2) {
+                [$schema, $table] = $parts;
+            } else {
+                $schema = null;
+                $table  = $parts[0];
+            }
+
+            // Query information_schema to check table existence.
+            $query = DB::connection($this->connectionName)
+                ->table('information_schema.tables')
+                ->where('table_name', $table);
+
+            if ($schema !== null) {
+                $query->where('table_schema', $schema);
+            }
+
+            return $query->exists();
+        } catch (\Exception $e) {
+            Log::warning("Failed to verify surveillance table exists: " . $e->getMessage());
+            return false;
+        }
+    }
 
     // -----------------------------------------------------------------------
     // Public API
@@ -57,8 +198,10 @@ class SurveillanceAnalyticsService
         array   $includeTriggers   = [],
         ?array  $allowedIdentities = null,
     ): array {
+        $this->ensureInitialized();
+
         $query = $this->db()
-            ->table(self::TABLE)
+            ->table($this->qualifiedTable)
             ->select([
                 'activity',
                 DB::raw('SUM(duration_sec) AS total_sec'),
@@ -139,8 +282,10 @@ class SurveillanceAnalyticsService
         ?string $identity          = null,
         ?array  $allowedIdentities = null,
     ): array {
+        $this->ensureInitialized();
+
         $query = $this->db()
-            ->table(self::TABLE)
+            ->table($this->qualifiedTable)
             ->select([
                 'identity_name',
                 'activity',
@@ -233,8 +378,10 @@ class SurveillanceAnalyticsService
         ?string $end            = null,
         array   $includeTriggers = [],
     ): array {
+        $this->ensureInitialized();
+
         $query = $this->db()
-            ->table(self::TABLE)
+            ->table($this->qualifiedTable)
             ->where('identity_name', $identityName)
             ->orderBy('timestamp_start');
 
@@ -268,13 +415,170 @@ class SurveillanceAnalyticsService
         ];
     }
 
+    /**
+     * Aggregated personal summary for one identity.
+     *
+     * Returns per-activity second totals for the three core activity labels
+     * (Working, Inactive, Using_Phone) plus a derived focus_score integer.
+     *
+     * focus_score = working_sec / (working_sec + inactive_sec + phone_sec)
+     *   - Range 0..100 integer, or null when denominator is 0.
+     *   - No Meeting activity is present in this system.
+     *
+     * @return array{
+     *   working_sec:  float,
+     *   phone_sec:    float,
+     *   inactive_sec: float,
+     *   other_sec:    float,
+     *   total_sec:    float,
+     *   focus_score:  int|null,
+     * }
+     */
+    public function identitySummary(
+        string  $identityName,
+        ?string $start = null,
+        ?string $end   = null,
+    ): array {
+        $this->ensureInitialized();
+
+        $query = $this->db()
+            ->table($this->qualifiedTable)
+            ->where('identity_name', $identityName)
+            ->select([
+                'activity',
+                DB::raw('SUM(duration_sec) AS total_sec'),
+            ]);
+
+        if ($start !== null) {
+            $query->where('timestamp_start', '>=', $this->normalizeDt($start));
+        }
+        if ($end !== null) {
+            $query->where('timestamp_start', '<=', $this->normalizeDt($end));
+        }
+
+        $rows = $query->groupBy('activity')->get();
+
+        $bySec = [];
+        foreach ($rows as $row) {
+            $bySec[$row->activity] = (float) $row->total_sec;
+        }
+
+        $workingSec  = $bySec['Working']      ?? 0.0;
+        $phoneSec    = $bySec['Using_Phone']  ?? 0.0;
+        $inactiveSec = $bySec['Inactive']     ?? 0.0;
+        $total       = array_sum($bySec);
+        $otherSec    = $total - $workingSec - $phoneSec - $inactiveSec;
+
+        $denom       = $workingSec + $phoneSec + $inactiveSec;
+        $focusScore  = $denom > 0
+            ? (int) round(($workingSec / $denom) * 100)
+            : null;
+
+        return [
+            'working_sec'  => round($workingSec,  2),
+            'phone_sec'    => round($phoneSec,    2),
+            'inactive_sec' => round($inactiveSec, 2),
+            'other_sec'    => round(max($otherSec, 0.0), 2),
+            'total_sec'    => round($total,        2),
+            'focus_score'  => $focusScore,
+        ];
+    }
+
+    /**
+     * Per-day aggregated breakdown for one identity.
+     *
+     * Groups segments by calendar date (YYYY-MM-DD derived from timestamp_start)
+     * and computes the same activity buckets + focus_score per day.
+     *
+     * @return array{
+     *   days: list<array{
+     *     date:         string,
+     *     working_sec:  float,
+     *     phone_sec:    float,
+     *     inactive_sec: float,
+     *     other_sec:    float,
+     *     total_sec:    float,
+     *     focus_score:  int|null,
+     *   }>
+     * }
+     */
+    public function identityDaily(
+        string  $identityName,
+        ?string $start = null,
+        ?string $end   = null,
+    ): array {
+        $this->ensureInitialized();
+
+        $query = $this->db()
+            ->table($this->qualifiedTable)
+            ->where('identity_name', $identityName)
+            ->select([
+                DB::raw("DATE(timestamp_start) AS day"),
+                'activity',
+                DB::raw('SUM(duration_sec) AS total_sec'),
+            ]);
+
+        if ($start !== null) {
+            $query->where('timestamp_start', '>=', $this->normalizeDt($start));
+        }
+        if ($end !== null) {
+            $query->where('timestamp_start', '<=', $this->normalizeDt($end));
+        }
+
+        $rows = $query->groupBy('day', 'activity')
+                      ->orderBy('day')
+                      ->get();
+
+        // Aggregate flat rows → keyed by date.
+        $byDay = [];
+        foreach ($rows as $row) {
+            $date = $row->day;
+            if (! isset($byDay[$date])) {
+                $byDay[$date] = [
+                    'Working'     => 0.0,
+                    'Using_Phone' => 0.0,
+                    'Inactive'    => 0.0,
+                    '_total'      => 0.0,
+                ];
+            }
+            $sec = (float) $row->total_sec;
+            $byDay[$date][$row->activity] = ($byDay[$date][$row->activity] ?? 0.0) + $sec;
+            $byDay[$date]['_total'] += $sec;
+        }
+
+        $days = [];
+        foreach ($byDay as $date => $secs) {
+            $workingSec  = $secs['Working']      ?? 0.0;
+            $phoneSec    = $secs['Using_Phone']  ?? 0.0;
+            $inactiveSec = $secs['Inactive']     ?? 0.0;
+            $total       = $secs['_total'];
+            $otherSec    = max($total - $workingSec - $phoneSec - $inactiveSec, 0.0);
+            $denom       = $workingSec + $phoneSec + $inactiveSec;
+            $focusScore  = $denom > 0
+                ? (int) round(($workingSec / $denom) * 100)
+                : null;
+
+            $days[] = [
+                'date'         => $date,
+                'working_sec'  => round($workingSec,  2),
+                'phone_sec'    => round($phoneSec,    2),
+                'inactive_sec' => round($inactiveSec, 2),
+                'other_sec'    => round($otherSec,    2),
+                'total_sec'    => round($total,        2),
+                'focus_score'  => $focusScore,
+            ];
+        }
+
+        return ['days' => $days];
+    }
+
     // -----------------------------------------------------------------------
     // Private helpers
     // -----------------------------------------------------------------------
 
     private function db(): ConnectionInterface
     {
-        return DB::connection(self::CONNECTION);
+        return DB::connection($this->connectionName);
     }
 
     /**

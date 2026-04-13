@@ -1,0 +1,41 @@
+<!-- Personal Stats Cards Template -->
+<div class="stats-grid">
+  @for (card of cards(); track card.title) {
+    <div class="stat-card" [class]="'card-' + card.color">
+      <div class="card-header">
+        <h3 class="card-title">{{ card.title }}</h3>
+        <div class="card-icon" [class]="'icon-' + card.icon">
+          @switch (card.icon) {
+            @case ('clock') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            }
+            @case ('trending-up') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 17"></polyline>
+                <polyline points="17 6 23 6 23 12"></polyline>
+              </svg>
+            }
+            @case ('smartphone') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+              </svg>
+            }
+            @case ('target') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="1"></circle>
+                <circle cx="12" cy="12" r="5"></circle>
+                <circle cx="12" cy="12" r="9"></circle>
+              </svg>
+            }
+          }
+        </div>
+      </div>
+      <div class="card-value">{{ card.value }}</div>
+      <div class="card-subtitle">{{ card.subtitle }}</div>
+    </div>
+  }
+</div>
