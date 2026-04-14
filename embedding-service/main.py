@@ -36,7 +36,7 @@ import os
 from pathlib import Path
 
 import numpy as np
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel, field_validator
 
 from embedder import Embedder
@@ -179,3 +179,115 @@ def gallery_update(req: GalleryUpdateRequest) -> dict:
         "vector_count": len(req.vectors),
         "npy_path": str(npy_path),
     }
+
+
+class ClassifyPoseRequest(BaseModel):
+    photo_id: int
+    image_path: str
+
+    @field_validator("image_path")
+    @classmethod
+    def path_must_exist(cls, v: str) -> str:
+        if not Path(v).is_file():
+            raise ValueError(f"image_path does not exist: {v}")
+        return v
+
+
+@app.post("/classify-pose")
+def classify_pose(req: ClassifyPoseRequest) -> dict:
+    """
+    Detect the face in req.image_path and return only the classified head pose.
+    Does NOT compute or return an embedding — only the face detector runs.
+
+    Used by the backfill artisan command to populate detected_pose for photos
+    that were embedded before pose detection was added.
+
+    Output:
+      photo_id        int
+      detected_pose   str | null   — forward | left | right | up | down | null
+      success         bool
+      face_count      int
+      failure_reason  str | null
+    """
+    log.info("/classify-pose photo_id=%d path=%s", req.photo_id, req.image_path)
+
+    try:
+        _embedder._ensure_loaded()
+    except Exception as exc:
+        return {"photo_id": req.photo_id, "success": False,
+                "detected_pose": None, "face_count": 0,
+                "failure_reason": f"INTERNAL_ERROR: {exc}"}
+
+    try:
+        import cv2 as _cv2
+        import numpy as _np
+        from embedder import _classify_pose, MIN_QUALITY
+
+        img_bgr = _cv2.imread(req.image_path)
+        if img_bgr is None:
+            return {"photo_id": req.photo_id, "success": False,
+                    "detected_pose": None, "face_count": 0,
+                    "failure_reason": "CANNOT_READ_IMAGE"}
+
+        img_rgb = _cv2.cvtColor(img_bgr, _cv2.COLOR_BGR2RGB)
+        faces   = _embedder._app.get(img_rgb)
+        n       = len(faces)
+
+        if n == 0:
+            return {"photo_id": req.photo_id, "success": False,
+                    "detected_pose": None, "face_count": 0,
+                    "failure_reason": "NO_FACE"}
+        if n > 1:
+            return {"photo_id": req.photo_id, "success": False,
+                    "detected_pose": None, "face_count": n,
+                    "failure_reason": "MULTIPLE_FACES"}
+
+        face  = faces[0]
+        pose_angles   = getattr(face, "pose", None)
+        detected_pose = _classify_pose(pose_angles)
+
+        log.info("/classify-pose photo_id=%d → %s", req.photo_id, detected_pose)
+        return {"photo_id": req.photo_id, "success": True,
+                "detected_pose": detected_pose, "face_count": 1,
+                "failure_reason": None}
+
+    except Exception as exc:
+        log.exception("/classify-pose unexpected error")
+        return {"photo_id": req.photo_id, "success": False,
+                "detected_pose": None, "face_count": 0,
+                "failure_reason": f"INTERNAL_ERROR: {exc}"}
+
+
+@app.post("/validate-frame")
+async def validate_frame(
+    image: UploadFile = File(...),
+    expected_pose: str = Form(default="forward"),
+) -> dict:
+    """
+    Lightweight real-time frame check for guided camera capture.
+
+    Detects a face in the uploaded frame, verifies size, centering, sharpness,
+    and head pose. Does NOT compute or return embeddings.
+
+    Input (multipart/form-data):
+      image         — JPEG/PNG frame captured from the browser webcam
+      expected_pose — one of: forward | left | right | up | down | any
+
+    Output:
+      ready            bool    — true when all checks pass
+      message          str     — human-readable status for the UI overlay
+      face_count       int
+      predicted_pose   str|null
+      matches_expected bool
+      yaw / pitch / roll  float  (degrees)
+      quality_score    float
+      face_size_ratio  float
+      sharpness        float
+    """
+    valid_poses = {"forward", "left", "right", "up", "down", "any"}
+    if expected_pose not in valid_poses:
+        raise HTTPException(status_code=422, detail=f"expected_pose must be one of {valid_poses}")
+
+    contents = await image.read()
+    log.debug("/validate-frame expected_pose=%s bytes=%d", expected_pose, len(contents))
+    return _embedder.validate_frame(contents, expected_pose)

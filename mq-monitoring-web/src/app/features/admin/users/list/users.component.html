@@ -271,6 +271,32 @@
             </div>
           }
 
+          <!-- Pose coverage checklist -->
+          @if (enrollmentStatus() !== null && enrollmentStatus()!.pose_coverage) {
+            @let cov = enrollmentStatus()!.pose_coverage;
+            <div class="pose-track">
+              <div class="pose-track__header">
+                <span class="pose-track__title">Pose Coverage</span>
+                <span class="pose-track__count">{{ cov.covered.length }}&thinsp;/&thinsp;{{ REQUIRED_POSES.length }}</span>
+              </div>
+              <div class="pose-track__row">
+                @for (pose of REQUIRED_POSES; track pose.key) {
+                  @let covered = cov.covered.includes(pose.key);
+                  <div class="pose-track__cell" [class.pose-track__cell--done]="covered" [attr.title]="pose.label">
+                    <div class="pose-track__indicator">
+                      @if (covered) {
+                        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M2.5 7l3 3 6-6"/></svg>
+                      } @else {
+                        <span class="pose-track__dash" aria-hidden="true"></span>
+                      }
+                    </div>
+                    <span class="pose-track__label">{{ pose.label }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
           <!-- Error -->
           @if (photosError()) {
             <div class="enrollment-error" role="alert">
@@ -375,6 +401,32 @@
                       <div class="cam-viewfinder__countdown" aria-live="assertive">{{ cameraCountdown() }}</div>
                     }
 
+                    <!-- Live validation feedback bar -->
+                    @if (cameraPoseIdx() < CAMERA_POSES.length) {
+                      <div
+                        class="cam-feedback"
+                        [class.cam-feedback--ready]="frameValidation()?.ready === true"
+                        [class.cam-feedback--warn]="frameValidation() !== null && frameValidation()!.ready === false"
+                        [class.cam-feedback--degraded]="frameValidDegraded()"
+                        [class.cam-feedback--idle]="frameValidation() === null && !frameValidDegraded()"
+                        aria-live="polite"
+                      >
+                        @if (frameValidDegraded()) {
+                          <svg class="cam-feedback__icon cam-feedback__icon--warn" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M6 1a5 5 0 100 10A5 5 0 006 1zm-.5 3a.5.5 0 011 0v3a.5.5 0 01-1 0V4zm.5 5.5a.75.75 0 110-1.5.75.75 0 010 1.5z"/></svg>
+                          <span>Validation offline — capture manually</span>
+                        } @else if (frameValidation() === null) {
+                          <span class="cam-feedback__dot cam-feedback__dot--pulse"></span>
+                          <span>Analyzing…</span>
+                        } @else if (frameValidation()!.ready) {
+                          <svg class="cam-feedback__icon cam-feedback__icon--ok" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M2 6l3 3 5-5"/></svg>
+                          <span>{{ frameValidation()!.message }}</span>
+                        } @else {
+                          <svg class="cam-feedback__icon cam-feedback__icon--warn" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M6 1a5 5 0 100 10A5 5 0 006 1zm-.5 3a.5.5 0 011 0v3a.5.5 0 01-1 0V4zm.5 5.5a.75.75 0 110-1.5.75.75 0 010 1.5z"/></svg>
+                          <span>{{ frameValidation()!.message }}</span>
+                        }
+                      </div>
+                    }
+
                     <!-- Capture controls -->
                     <div class="cam-viewfinder__controls">
                       @if (cameraCountdown() !== null) {
@@ -384,7 +436,7 @@
                           type="button"
                           class="cam-capture-btn cam-capture-btn--auto"
                           title="3-second countdown then capture"
-                          [disabled]="cameraPoseIdx() >= CAMERA_POSES.length"
+                          [disabled]="cameraPoseIdx() >= CAMERA_POSES.length || (frameValidation()?.ready === false && !frameValidDegraded())"
                           (click)="startCountdown()"
                         >
                           <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M8 5v3.5l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
@@ -394,7 +446,7 @@
                           type="button"
                           class="cam-capture-btn cam-capture-btn--now"
                           title="Capture now"
-                          [disabled]="cameraPoseIdx() >= CAMERA_POSES.length"
+                          [disabled]="cameraPoseIdx() >= CAMERA_POSES.length || (frameValidation()?.ready === false && !frameValidDegraded())"
                           (click)="captureFrame()"
                         >
                           <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="8" cy="8" r="4"/></svg>
@@ -420,7 +472,14 @@
 
                       @if (cameraPoseIdx() < CAMERA_POSES.length) {
                         <div class="cam-pose__icon">{{ CAMERA_POSES[cameraPoseIdx()].icon }}</div>
-                        <p class="cam-pose__label">{{ CAMERA_POSES[cameraPoseIdx()].label }}</p>
+                        <p class="cam-pose__label">
+                          {{ CAMERA_POSES[cameraPoseIdx()].label }}
+                          @if (isPoseRequired(cameraPoseIdx())) {
+                            <span class="cam-pose__badge cam-pose__badge--required">Required</span>
+                          } @else {
+                            <span class="cam-pose__badge cam-pose__badge--optional">Optional</span>
+                          }
+                        </p>
                         <p class="cam-pose__hint">{{ CAMERA_POSES[cameraPoseIdx()].hint }}</p>
                       } @else {
                         <div class="cam-pose__icon">✅</div>
@@ -506,6 +565,9 @@
                     />
                     @if (photo.processing_status === 'processing') {
                       <div class="enrollment-photo__shimmer" aria-hidden="true"></div>
+                    }
+                    @if (photo.detected_pose) {
+                      <span class="enrollment-photo__pose-badge">{{ poseIcon(photo.detected_pose) }} {{ photo.detected_pose }}</span>
                     }
                     <div class="enrollment-photo__overlay-badge enrollment-photo__overlay-badge--{{ photo.processing_status }}">
                       @switch (photo.processing_status) {

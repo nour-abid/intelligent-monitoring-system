@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Storage;
  * @property \Carbon\Carbon|null $processed_at
  * @property string      $processing_status   stored|processing|ready|failed
  * @property string|null $processing_error    rejection reason or exception message
+ * @property string|null $detected_pose       forward|left|right|up|down|null
  * @property \Carbon\Carbon      $created_at
  * @property \Carbon\Carbon      $updated_at
  */
@@ -34,6 +35,7 @@ class UserIdentityPhoto extends Model
         'processed_at',
         'processing_status',
         'processing_error',
+        'detected_pose',
     ];
 
     protected function casts(): array

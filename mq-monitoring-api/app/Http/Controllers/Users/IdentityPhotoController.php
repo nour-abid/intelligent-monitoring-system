@@ -223,6 +223,7 @@ class IdentityPhotoController extends Controller
             'size_bytes'        => $photo->size_bytes,
             'processing_status' => $photo->processing_status ?? 'stored',
             'processing_error'  => $photo->processing_error,
+            'detected_pose'     => $photo->detected_pose,
             'processed_at'      => $photo->processed_at?->toIso8601String(),
             'created_at'        => $photo->created_at->toIso8601String(),
             // Image URL routes through our API — no direct disk path exposed.
@@ -238,9 +239,25 @@ class IdentityPhotoController extends Controller
      */
     private function userEnrollmentStatus(User $user): array
     {
+        $required = ['forward', 'left', 'right', 'up', 'down'];
+
+        $covered = $user->identityPhotos()
+            ->where('processing_status', 'ready')
+            ->whereNotNull('detected_pose')
+            ->pluck('detected_pose')
+            ->unique()
+            ->values()
+            ->toArray();
+
+        $missing = array_values(array_diff($required, $covered));
+
         return [
             'surveillance_identity' => $user->surveillance_identity,
             'has_identity_mapping'  => ! empty($user->surveillance_identity),
+            'pose_coverage'         => [
+                'covered' => $covered,
+                'missing' => $missing,
+            ],
         ];
     }
 }

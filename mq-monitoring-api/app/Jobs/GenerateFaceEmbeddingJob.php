@@ -123,7 +123,26 @@ class GenerateFaceEmbeddingJob implements ShouldQueue
         }
 
         // ── Step 5: mark photo ready ──────────────────────────────────────
-        $this->setPhotoStatus($photo, 'ready', now());
+        $detectedPose = $result['detected_pose'] ?? null;
+
+        // ── Step 5b: inline pose fallback ─────────────────────────────────
+        // If the embed response didn't include a pose (e.g. pose angles were
+        // absent), classify immediately rather than waiting for the scheduler.
+        if ($detectedPose === null) {
+            try {
+                $poseResult = $client->classifyPose($photo->id, $photo->absolutePath());
+                $detectedPose = ($poseResult['success'] ?? false)
+                    ? ($poseResult['detected_pose'] ?? null)
+                    : null;
+            } catch (\Throwable $e) {
+                Log::warning('[GenerateFaceEmbeddingJob] Inline pose fallback failed — pose will be null.', [
+                    'photo_id' => $photo->id,
+                    'error'    => $e->getMessage(),
+                ]);
+            }
+        }
+
+        $this->setPhotoStatus($photo, 'ready', now(), null, $detectedPose);
 
         Log::info('[GenerateFaceEmbeddingJob] Embedding generated and photo marked ready.', [
             'photo_id'              => $photo->id,
@@ -197,14 +216,19 @@ class GenerateFaceEmbeddingJob implements ShouldQueue
     private function setPhotoStatus(
         UserIdentityPhoto $photo,
         string            $status,
-        ?\Carbon\Carbon   $processedAt = null,
-        ?string           $error       = null,
+        ?\Carbon\Carbon   $processedAt  = null,
+        ?string           $error        = null,
+        ?string           $detectedPose = null,
     ): void {
-        $photo->forceFill([
+        $data = [
             'processing_status' => $status,
             'processed_at'      => $processedAt,
             'processing_error'  => $error,
-        ])->save();
+        ];
+        if ($detectedPose !== null) {
+            $data['detected_pose'] = $detectedPose;
+        }
+        $photo->forceFill($data)->save();
 
         Log::debug('[GenerateFaceEmbeddingJob] Photo status set.', [
             'photo_id' => $photo->id,

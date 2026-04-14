@@ -23,6 +23,13 @@ return Application::configure(basePath: dirname(__DIR__))
         // Start the scheduler in development with: php artisan schedule:work
         // In production, run: php artisan schedule:run in a * * * * * cron job.
         $schedule->command('alerts:evaluate')->everyThirtySeconds();
+
+        // Safety-net: classify pose for any photo that slipped through
+        // (job should handle it inline now — this is a last-resort sweep).
+        $schedule->command('face:backfill-poses --write')
+            ->weekly()
+            ->withoutOverlapping()
+            ->runInBackground();
     })
     ->withMiddleware(function (Middleware $middleware) {
         // This is a pure JSON API — there is no web login page.

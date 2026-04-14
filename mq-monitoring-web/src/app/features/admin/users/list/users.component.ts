@@ -2,7 +2,7 @@ import { Component, computed, ElementRef, HostListener, inject, OnDestroy, OnIni
 import { FormsModule, NgForm } from '@angular/forms';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { User } from '../../../../core/models/auth.model';
-import { UsersService, UpdateUserPayload, IdentityPhoto, EnrollmentStatus } from '../../../../core/services/users.service';
+import { UsersService, UpdateUserPayload, IdentityPhoto, EnrollmentStatus, FrameValidation } from '../../../../core/services/users.service';
 import { UserStatsModalComponent } from '../popup/user-stats-modal.component';
 type LoadState = 'loading' | 'success' | 'error';
 
@@ -95,9 +95,18 @@ export class UsersComponent implements OnInit, OnDestroy {
   /** Error message inside the camera modal. */
   readonly cameraError = signal<string | null>(null);
 
+  /** Result of the most recent frame-validation poll (null = not yet started). */
+  readonly frameValidation = signal<FrameValidation | null>(null);
+  /** True when the validation service is unreachable (degraded mode). */
+  readonly frameValidDegraded = signal(false);
+
   private cameraStream: MediaStream | null = null;
   private countdownTimer: ReturnType<typeof setInterval> | null = null;
   private captureBlobs: Blob[] = [];
+  /** setInterval handle for frame-validation polling; null when idle. */
+  private frameValidTimer: ReturnType<typeof setInterval> | null = null;
+  /** Guard: skip poll if a previous request is still in-flight. */
+  private frameValidInFlight = false;
 
   /** Guided pose instructions shown in order. */
   readonly CAMERA_POSES: { icon: string; label: string; hint: string }[] = [
@@ -109,6 +118,35 @@ export class UsersComponent implements OnInit, OnDestroy {
     { icon: '🙂', label: 'Soft smile',          hint: 'Keep your face forward and smile naturally.' },
     { icon: '🌓', label: 'Slight side angle',   hint: 'Show a mild three-quarter angle, not a full profile.' },
   ];
+
+  /**
+   * Expected pose key for each CAMERA_POSES entry.
+   * Indices must match 1-to-1.  'any' means pose validation is skipped
+   * (only face presence, size, centering, and sharpness are checked).
+   * The first 5 entries are the required poses; the last 2 are optional.
+   */
+  readonly CAMERA_POSE_KEYS = ['forward', 'left', 'right', 'up', 'down', 'any', 'any'] as const;
+
+  /** True when the current guided pose has a required pose key (not 'any'). */
+  isPoseRequired(poseIdx: number): boolean {
+    return this.CAMERA_POSE_KEYS[poseIdx] !== 'any';
+  }
+
+  /** The five canonical head poses required for complete enrollment. */
+  readonly REQUIRED_POSES: { key: string; icon: string; label: string }[] = [    { key: 'forward', icon: '😐', label: 'Face Forward'  },
+    { key: 'left',    icon: '↖️', label: 'Turn Left'     },
+    { key: 'right',   icon: '↗️', label: 'Turn Right'    },
+    { key: 'up',      icon: '⬆️', label: 'Tilt Up'       },
+    { key: 'down',    icon: '⬇️', label: 'Tilt Down'     },
+  ];
+
+  /** Map a backend detected_pose key to its display icon. */
+  poseIcon(pose: string | null): string {
+    const map: Record<string, string> = {
+      forward: '😐', left: '↖️', right: '↗️', up: '⬆️', down: '⬇️',
+    };
+    return pose ? (map[pose] ?? '?') : '';
+  }
 
   protected formData: FormData = emptyForm();
 
@@ -524,6 +562,8 @@ export class UsersComponent implements OnInit, OnDestroy {
       if (video && this.cameraStream) {
         video.srcObject = this.cameraStream;
         video.play();
+        // Begin live pose/face validation once the stream is live.
+        this.startFrameValidation();
       }
     }, 50);
   }
@@ -540,6 +580,11 @@ export class UsersComponent implements OnInit, OnDestroy {
     if (this.cameraCountdown() !== null) return;
     this.cameraCountdown.set(3);
     this.countdownTimer = setInterval(() => {
+      // Cancel if readiness has been lost since the countdown began.
+      if (this.frameValidation()?.ready === false) {
+        this.stopCountdown();
+        return;
+      }
       const current = this.cameraCountdown();
       if (current === null) { this.stopCountdown(); return; }
       if (current <= 1) {
@@ -575,6 +620,8 @@ export class UsersComponent implements OnInit, OnDestroy {
     const next = this.cameraPoseIdx() + 1;
     if (next < this.CAMERA_POSES.length) {
       this.cameraPoseIdx.set(next);
+      // Reset validation so the feedback bar re-evaluates for the new pose.
+      this.frameValidation.set(null);
     }
   }
 
@@ -634,11 +681,72 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   private stopCamera(): void {
     this.stopCountdown();
+    this.stopFrameValidation();
     if (this.cameraStream) {
       this.cameraStream.getTracks().forEach((t) => t.stop());
       this.cameraStream = null;
     }
     this.cameraOpen.set(false);
+  }
+
+  // ── Frame validation (real-time pose feedback) ────────────────────────────
+
+  /** Start the 400 ms polling loop that validates the live webcam frame. */
+  private startFrameValidation(): void {
+    this.stopFrameValidation();
+    this.frameValidTimer = setInterval(() => this.validateCurrentFrame(), 400);
+  }
+
+  private stopFrameValidation(): void {
+    if (this.frameValidTimer !== null) {
+      clearInterval(this.frameValidTimer);
+      this.frameValidTimer = null;
+    }
+    this.frameValidation.set(null);
+    this.frameValidDegraded.set(false);
+    this.frameValidInFlight = false;
+  }
+
+  /**
+   * Grab the current video frame into an OffscreenCanvas (480×270), encode as
+   * JPEG, and POST it to the validation API.  An in-flight guard prevents
+   * requests from piling up if the service is slower than the poll interval.
+   */
+  private validateCurrentFrame(): void {
+    if (this.frameValidInFlight) return;
+
+    const video   = this.cameraVideoRef?.nativeElement;
+    const poseIdx = this.cameraPoseIdx();
+    if (!video || video.readyState < 2 || poseIdx >= this.CAMERA_POSES.length) return;
+
+    const W = 480, H = 270;
+    const offscreen = new OffscreenCanvas(W, H);
+    offscreen.getContext('2d')!.drawImage(video, 0, 0, W, H);
+
+    const expectedPose = this.CAMERA_POSE_KEYS[poseIdx] ?? 'any';
+    this.frameValidInFlight = true;
+
+    offscreen.convertToBlob({ type: 'image/jpeg', quality: 0.75 }).then((blob) => {
+      this.service.validateFrame(blob, expectedPose).subscribe({
+        next: (result) => {
+          this.frameValidDegraded.set(false);
+          this.frameValidation.set(result);
+          // If a countdown is running and readiness has been lost, abort it.
+          if (!result.ready && this.cameraCountdown() !== null) {
+            this.stopCountdown();
+          }
+          this.frameValidInFlight = false;
+        },
+        error: () => {
+          // Service unreachable — enter degraded mode so the UI unblocks.
+          this.frameValidDegraded.set(true);
+          this.frameValidation.set(null);
+          this.frameValidInFlight = false;
+        },
+      });
+    }).catch(() => {
+      this.frameValidInFlight = false;
+    });
   }
 
   // ── Polling ───────────────────────────────────────────────────────────────

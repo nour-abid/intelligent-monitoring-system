@@ -97,4 +97,26 @@ class FaceEmbeddingApiClient
 
         return $response->json();
     }
+
+    /**
+     * Ask the Python service to detect a face in $imagePath and return its
+     * classified head pose — no embedding computation.
+     *
+     * Used by the backfill command to populate detected_pose for older photos.
+     *
+     * @return array { photo_id, success, detected_pose, face_count, failure_reason }
+     * @throws \Illuminate\Http\Client\RequestException on HTTP-level failure.
+     */
+    public function classifyPose(int $photoId, string $imagePath): array
+    {
+        $response = Http::timeout(30)
+            ->asJson()
+            ->post("{$this->baseUrl}/classify-pose", [
+                'photo_id'   => $photoId,
+                'image_path' => $imagePath,
+            ])
+            ->throw();
+
+        return $response->json();
+    }
 }

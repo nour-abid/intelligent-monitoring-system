@@ -3,6 +3,7 @@
 use App\Http\Controllers\AiController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\Face\ValidateFrameController;
 use App\Http\Controllers\Monitoring\AlertHistoryController;
 use App\Http\Controllers\Monitoring\AnalyticsViewController;
 use App\Http\Controllers\Monitoring\DashboardSummaryController;
@@ -209,6 +210,22 @@ Route::prefix('photos')
             ->name('image')
             ->where('photoId', '[0-9]+');
     });
+
+/*
+|--------------------------------------------------------------------------
+| Face / Frame Validation Routes
+|--------------------------------------------------------------------------
+|
+| Lightweight real-time validation proxy used by the guided camera capture
+| modal. Forwards a single webcam frame to the Python embedding service,
+| which runs only the face detector (no embedding generated).
+|
+*/
+
+// POST /api/face/validate-frame
+Route::post('/face/validate-frame', ValidateFrameController::class)
+    ->middleware(['auth:sanctum', EnsureAdmin::class])
+    ->name('face.validate-frame');
 
 /*
 |--------------------------------------------------------------------------
