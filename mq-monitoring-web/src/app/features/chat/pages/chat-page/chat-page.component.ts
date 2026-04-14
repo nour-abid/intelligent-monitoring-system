@@ -18,7 +18,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 @Component({
   selector: 'app-chat-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './chat-page.component.html',
   styleUrl: './chat-page.component.scss',
 })

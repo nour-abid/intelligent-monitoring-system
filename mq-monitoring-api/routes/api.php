@@ -11,6 +11,7 @@ use App\Http\Controllers\Monitoring\ClipIngestionController;
 use App\Http\Controllers\Monitoring\ExportController;
 use App\Http\Controllers\Monitoring\ReplayController;
 use App\Http\Controllers\Monitoring\SurveillanceAnalyticsController;
+use App\Http\Controllers\Users\IdentityPhotoController;
 use App\Http\Controllers\Users\UserController;
 use App\Http\Middleware\EnsureAdmin;
 use App\Http\Middleware\EnsureInternalToken;
@@ -171,6 +172,42 @@ Route::prefix('users')
         Route::patch('/{id}', [UserController::class, 'update'])
             ->name('update')
             ->where('id', '[0-9]+');
+
+        // POST  /api/users/{userId}/photos   — upload one or many enrollment photos
+        Route::post('/{userId}/photos', [IdentityPhotoController::class, 'store'])
+            ->name('photos.store')
+            ->where('userId', '[0-9]+');
+
+        // GET   /api/users/{userId}/photos   — list enrollment photos for a user
+        Route::get('/{userId}/photos', [IdentityPhotoController::class, 'index'])
+            ->name('photos.index')
+            ->where('userId', '[0-9]+');
+    });
+
+/*
+|--------------------------------------------------------------------------
+| Identity Photo Asset & Delete Routes
+|--------------------------------------------------------------------------
+|
+| Scoped to individual photos — not nested under /users because a photo
+| delete does not need to re-identify the parent user.
+|
+*/
+
+Route::prefix('photos')
+    ->name('photos.')
+    ->middleware(['auth:sanctum', EnsureAdmin::class])
+    ->group(function () {
+
+        // DELETE /api/photos/{photoId} — hard-delete photo record + file on disk
+        Route::delete('/{photoId}', [IdentityPhotoController::class, 'destroy'])
+            ->name('destroy')
+            ->where('photoId', '[0-9]+');
+
+        // GET /api/photos/{photoId}/image — stream the image file through the API
+        Route::get('/{photoId}/image', [IdentityPhotoController::class, 'image'])
+            ->name('image')
+            ->where('photoId', '[0-9]+');
     });
 
 /*

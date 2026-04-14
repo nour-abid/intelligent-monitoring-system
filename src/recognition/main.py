@@ -1,3 +1,17 @@
+# =============================================================================
+# DEPRECATED — DO NOT USE
+# =============================================================================
+# This file is an older runtime superseded by attendance_webcam.py.
+#
+# Known breakages:
+#   - Imports `match_detections_to_tracks` from tracker.py, which was never
+#     defined there.  Running this file raises an ImportError immediately.
+#   - Anti-spoofing, YOLO activity smoothing, DeepSORT, and frozen-frame
+#     detection are all absent or incomplete vs. the active runtime.
+#
+# Canonical runtime: src/recognition/attendance_webcam.py
+# =============================================================================
+
 import os
 import time
 import sys

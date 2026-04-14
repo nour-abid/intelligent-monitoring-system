@@ -1,4 +1,16 @@
 """
+DEPRECATED — DO NOT USE
+=======================
+This script is a duplicate of generate_embeddings_insightface.py with two
+regressions:
+  1. Hard-codes ``OUT_DIR = Path("models/embeddings")`` — ignores config.py,
+     so re-configuring the project path has no effect here.
+  2. Only globs .jpg/.jpeg/.png — misses .webp files supported by the pipeline.
+
+Canonical enrollment script: src/recognition/generate_embeddings_insightface.py
+
+Original docstring (preserved for reference)
+--------------------------------------------
 Re-enroll employees using InsightFace buffalo_l — the SAME model used in the
 attendance pipeline.  Run this script once to regenerate models/embeddings/*.npy
 and fix the embedding-space mismatch.

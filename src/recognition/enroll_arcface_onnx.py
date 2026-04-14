@@ -1,3 +1,14 @@
+# =============================================================================
+# DEPRECATED — DO NOT USE
+# =============================================================================
+# This script uses the old ArcFace-ONNX + MediaPipe enrollment path.
+# It produces embeddings in a different space from the InsightFace buffalo_l
+# model used by the actual attendance pipeline, so .npy files generated here
+# will cause incorrect recognition results at runtime.
+#
+# Canonical enrollment script: src/recognition/generate_embeddings_insightface.py
+# =============================================================================
+
 from pathlib import Path
 import cv2
 import numpy as np

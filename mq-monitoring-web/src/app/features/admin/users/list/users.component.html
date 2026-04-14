@@ -29,6 +29,12 @@
         <p class="user-form__error" role="alert">{{ formError() }}</p>
       }
 
+      @if (createSuccess()) {
+        <div class="user-form__create-success" role="status">
+          ✓ User created successfully. You can now upload identity photos below.
+        </div>
+      }
+
       <form class="user-form__body" #f="ngForm" (ngSubmit)="submitForm(f)" novalidate>
 
         <div class="form-grid">
@@ -198,6 +204,362 @@
         </div>
 
       </form>
+
+      <!-- ── Identity Enrollment Photos ─────────────────────────────────
+           Shown only when editing an existing user (not on Create).
+           The photo section is independent of the main form submit — uploads
+           happen immediately via their own API calls.
+      ────────────────────────────────────────────────────────────────── -->
+      @if (editingId() !== null) {
+        <div class="enrollment-section">
+
+          <!-- Header row -->
+          <div class="enrollment-section__header">
+            <div class="enrollment-section__header-left">
+              <h3 class="enrollment-section__title">
+                <svg class="enrollment-section__title-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <circle cx="10" cy="7" r="3.5" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M3 17c0-3.314 3.134-6 7-6s7 2.686 7 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  <path d="M14.5 3.5L16 2m0 0l1.5 1.5M16 2v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Face Identity Enrollment
+              </h3>
+              <p class="enrollment-section__hint">
+                Upload <strong>{{ minPhotos }}–{{ maxPhotos }} well-lit face photos</strong> for accurate recognition — <strong>{{ idealPhotos }} photos</strong> is the ideal set.
+                JPEG · PNG · WebP · Max 5&nbsp;MB each.
+              </p>
+            </div>
+            @if (photos() !== null && photos()!.length > 0) {
+              <div class="enrollment-stats">
+                <span class="enrollment-stats__count">{{ photos()!.length }}</span>
+                <span class="enrollment-stats__label">photo{{ photos()!.length !== 1 ? 's' : '' }}</span>
+                @if (readyCount() > 0) {
+                  <span class="enrollment-stats__ready">· {{ readyCount() }} embedded</span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Photo count meter (always shown once photos array is loaded) -->
+          @if (photos() !== null) {
+            <div class="enrollment-count-meter enrollment-count-meter--{{ photoCountStatus() }}">
+              <div class="enrollment-count-meter__bar">
+                @for (slot of photoSlots; track $index) {
+                  <div
+                    class="enrollment-count-meter__seg"
+                    [class.enrollment-count-meter__seg--filled]="$index < photoCount()"
+                    [class.enrollment-count-meter__seg--ideal]="$index === idealPhotos - 1"
+                  ></div>
+                }
+              </div>
+              <div class="enrollment-count-meter__legend">
+                @switch (photoCountStatus()) {
+                  @case ('insufficient') {
+                    <span>{{ photoCount() }} / {{ maxPhotos }} photos — <strong>{{ minPhotos }} minimum needed</strong> for embedding</span>
+                  }
+                  @case ('ok') {
+                    <span>{{ photoCount() }} / {{ maxPhotos }} — minimum met, add more for best accuracy</span>
+                  }
+                  @case ('ideal') {
+                    <span>{{ photoCount() }} / {{ maxPhotos }} — <strong>ideal set ✓</strong></span>
+                  }
+                  @case ('full') {
+                    <span>{{ maxPhotos }} / {{ maxPhotos }} — <strong>limit reached</strong></span>
+                  }
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Error -->
+          @if (photosError()) {
+            <div class="enrollment-error" role="alert">
+              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm-.75 4a.75.75 0 011.5 0v3.5a.75.75 0 01-1.5 0V5zm.75 7a1 1 0 110-2 1 1 0 010 2z"/>
+              </svg>
+              {{ photosError() }}
+            </div>
+          }
+
+          <!-- Upload success toast -->
+          @if (uploadSuccess()) {
+            <div class="enrollment-toast" role="status">
+              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm3.28 5.78a.75.75 0 00-1.06-1.06L7 8.94 5.78 7.72a.75.75 0 00-1.06 1.06l1.75 1.75a.75.75 0 001.06 0l3.75-3.75z"/>
+              </svg>
+              Photos uploaded — AI embedding is running in the background.
+            </div>
+          }
+
+          <!-- No identity warning -->
+          @if (enrollmentStatus() !== null && !enrollmentStatus()!.has_identity_mapping) {
+            <div class="enrollment-warning" role="alert">
+              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm-.75 4a.75.75 0 011.5 0v3.5a.75.75 0 01-1.5 0V5zm.75 7a1 1 0 110-2 1 1 0 010 2z"/>
+              </svg>
+              <span>No <strong>Surveillance Identity</strong> set — photos will be stored but won't reach the recognition pipeline until that field is filled in.</span>
+            </div>
+          }
+
+          <!-- Upload zone + camera button row -->
+          <div class="enrollment-input-row">
+            <label class="enrollment-upload" [class.enrollment-upload--busy]="uploadInProgress()">
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                class="enrollment-upload__input"
+                [disabled]="uploadInProgress()"
+                (change)="onPhotoFilesSelected($event)"
+              />
+              @if (uploadInProgress()) {
+                <span class="spinner spinner--sm"></span>
+                <span class="enrollment-upload__text">Uploading…</span>
+              } @else {
+                <svg class="enrollment-upload__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                  <path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="12" cy="13" r="3" stroke-width="1.5"/>
+                </svg>
+                <span class="enrollment-upload__text">
+                  <strong>Click to upload photos</strong>
+                  <span class="enrollment-upload__sub">JPEG · PNG · WebP · 5 MB max · min {{ minPhotos }}, max {{ maxPhotos }}</span>
+                </span>
+              }
+            </label>
+
+            <button
+              type="button"
+              class="enrollment-camera-btn"
+              title="Use guided camera capture"
+              [disabled]="uploadInProgress()"
+              (click)="openCamera()"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M15 10l4.553-2.369A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
+              </svg>
+              Use Camera
+            </button>
+          </div>
+
+          <!-- ── Guided camera modal ─────────────────────────────────────── -->
+          @if (cameraOpen()) {
+            <div class="cam-modal" role="dialog" aria-modal="true" aria-label="Guided camera capture">
+
+              <div class="cam-modal__panel">
+                <!-- Header -->
+                <div class="cam-modal__header">
+                  <span class="cam-modal__title">
+                    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 3.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/><circle cx="8" cy="8" r="2"/></svg>
+                    Guided Face Capture
+                  </span>
+                  <button type="button" class="cam-modal__close" (click)="closeCamera()" title="Close">
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M1 1l10 10M11 1L1 11"/></svg>
+                  </button>
+                </div>
+
+                @if (cameraError()) {
+                  <div class="cam-modal__error" role="alert">{{ cameraError() }}</div>
+                }
+
+                <div class="cam-modal__body">
+                  <!-- Left: video + overlay -->
+                  <div class="cam-viewfinder">
+                    <video #cameraVideo class="cam-viewfinder__video" autoplay muted playsinline></video>
+                    <canvas #cameraCanvas class="cam-viewfinder__canvas" aria-hidden="true"></canvas>
+
+                    <!-- Face guide oval -->
+                    <div class="cam-viewfinder__oval" aria-hidden="true"></div>
+
+                    <!-- Countdown badge -->
+                    @if (cameraCountdown() !== null) {
+                      <div class="cam-viewfinder__countdown" aria-live="assertive">{{ cameraCountdown() }}</div>
+                    }
+
+                    <!-- Capture controls -->
+                    <div class="cam-viewfinder__controls">
+                      @if (cameraCountdown() !== null) {
+                        <span class="cam-capture-hint">Auto-capturing…</span>
+                      } @else {
+                        <button
+                          type="button"
+                          class="cam-capture-btn cam-capture-btn--auto"
+                          title="3-second countdown then capture"
+                          [disabled]="cameraPoseIdx() >= CAMERA_POSES.length"
+                          (click)="startCountdown()"
+                        >
+                          <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M8 5v3.5l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
+                          Auto (3s)
+                        </button>
+                        <button
+                          type="button"
+                          class="cam-capture-btn cam-capture-btn--now"
+                          title="Capture now"
+                          [disabled]="cameraPoseIdx() >= CAMERA_POSES.length"
+                          (click)="captureFrame()"
+                        >
+                          <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="8" cy="8" r="4"/></svg>
+                          Capture
+                        </button>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Right: pose guide + previews -->
+                  <div class="cam-sidebar">
+                    <!-- Current pose instruction -->
+                    <div class="cam-pose">
+                      <div class="cam-pose__progress">
+                        @for (pose of CAMERA_POSES; track $index) {
+                          <div
+                            class="cam-pose__dot"
+                            [class.cam-pose__dot--done]="$index < cameraCaptures().length"
+                            [class.cam-pose__dot--active]="$index === cameraPoseIdx() && $index < CAMERA_POSES.length"
+                          ></div>
+                        }
+                      </div>
+
+                      @if (cameraPoseIdx() < CAMERA_POSES.length) {
+                        <div class="cam-pose__icon">{{ CAMERA_POSES[cameraPoseIdx()].icon }}</div>
+                        <p class="cam-pose__label">{{ CAMERA_POSES[cameraPoseIdx()].label }}</p>
+                        <p class="cam-pose__hint">{{ CAMERA_POSES[cameraPoseIdx()].hint }}</p>
+                      } @else {
+                        <div class="cam-pose__icon">✅</div>
+                        <p class="cam-pose__label">All poses captured!</p>
+                        <p class="cam-pose__hint">Review your shots below, remove any that are blurry, then upload.</p>
+                      }
+                    </div>
+
+                    <!-- Captured thumbnails -->
+                    @if (cameraCaptures().length > 0) {
+                      <div class="cam-previews">
+                        <p class="cam-previews__label">Captured ({{ cameraCaptures().length }}/{{ CAMERA_POSES.length }})</p>
+                        <div class="cam-previews__grid">
+                          @for (src of cameraCaptures(); track $index) {
+                            <div class="cam-preview">
+                              <img [src]="src" alt="Capture {{$index + 1}}" class="cam-preview__img"/>
+                              <button type="button" class="cam-preview__remove" title="Remove" (click)="removeCapture($index)">
+                                <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M1 1l8 8M9 1L1 9"/></svg>
+                              </button>
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    }
+
+                    <!-- Upload action -->
+                    <button
+                      type="button"
+                      class="cam-upload-btn"
+                      [disabled]="cameraCaptures().length < CAMERA_POSES.length || cameraUploading()"
+                      (click)="uploadCameraCaptures()"
+                    >
+                      @if (cameraUploading()) {
+                        <span class="spinner spinner--sm"></span>
+                        Uploading…
+                      } @else if (cameraCaptures().length < CAMERA_POSES.length) {
+                        Capture all {{ CAMERA_POSES.length }} poses to upload
+                      } @else {
+                        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 2a6 6 0 100 12A6 6 0 008 2zm3.28 5.28a.75.75 0 00-1.06-1.06L7 9.44 5.78 8.22a.75.75 0 00-1.06 1.06l1.75 1.75a.75.75 0 001.06 0l3.75-3.75z"/></svg>
+                        Upload {{ cameraCaptures().length }} photos &amp; embed
+                      }
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          }<!-- /.cam-modal -->
+
+          <!-- Gallery -->
+          @if (photosLoading()) {
+            <div class="enrollment-gallery-loading">
+              <span class="spinner spinner--sm"></span>
+              <span>Loading photos…</span>
+            </div>
+          } @else if (photos() !== null && photos()!.length === 0) {
+            <div class="enrollment-empty">
+              <svg class="enrollment-empty__icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" aria-hidden="true">
+                <circle cx="24" cy="18" r="8" stroke-width="2"/>
+                <path d="M8 42c0-8.837 7.163-16 16-16s16 7.163 16 16" stroke-width="2" stroke-linecap="round"/>
+                <path d="M34 7l2-2m0 0l2 2m-2-2v4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <p class="enrollment-empty__title">No photos yet</p>
+              <p class="enrollment-empty__hint">Upload 3–5 clear, front-facing photos<br>for reliable face recognition.</p>
+            </div>
+          } @else if (photos() !== null) {
+            <div class="enrollment-gallery">
+              @for (photo of photos()!; track photo.id) {
+                <div
+                  class="enrollment-photo"
+                  [class.enrollment-photo--deleting]="deletingPhotoId() === photo.id"
+                  [class.enrollment-photo--processing]="photo.processing_status === 'processing'"
+                  [class.enrollment-photo--ready]="photo.processing_status === 'ready'"
+                  [class.enrollment-photo--failed]="photo.processing_status === 'failed'"
+                >
+                  <!-- Image + overlaid status badge -->
+                  <div class="enrollment-photo__visual">
+                    <img
+                      class="enrollment-photo__img"
+                      [src]="photoSrc(photo.id)"
+                      [alt]="photo.original_filename"
+                      loading="lazy"
+                    />
+                    @if (photo.processing_status === 'processing') {
+                      <div class="enrollment-photo__shimmer" aria-hidden="true"></div>
+                    }
+                    <div class="enrollment-photo__overlay-badge enrollment-photo__overlay-badge--{{ photo.processing_status }}">
+                      @switch (photo.processing_status) {
+                        @case ('ready') {
+                          <svg viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M10 3L5 9 2 6"/><path d="M10 3L5 9 2 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+                          Embedded
+                        }
+                        @case ('processing') {
+                          <span class="enrollment-photo__pulse-dot" aria-hidden="true"></span>
+                          Processing…
+                        }
+                        @case ('failed') {
+                          <svg viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>
+                          <span class="enrollment-photo__overlay-badge-reason" [title]="'Error: ' + (photo.processing_error ?? 'Unknown')">
+                            {{ photo.processing_error ?? 'Failed' }}
+                          </span>
+                        }
+                        @default {
+                          Stored
+                        }
+                      }
+                    </div>
+                  </div>
+
+                  <!-- File info -->
+                  <div class="enrollment-photo__meta">
+                    <span class="enrollment-photo__name" [title]="photo.original_filename">{{ photo.original_filename }}</span>
+                    <span class="enrollment-photo__size">{{ formatBytes(photo.size_bytes) }}</span>
+                  </div>
+
+                  <!-- Delete button -->
+                  <button
+                    class="enrollment-photo__delete"
+                    type="button"
+                    title="Delete photo"
+                    [disabled]="deletingPhotoId() === photo.id"
+                    (click)="deletePhoto(photo.id)"
+                  >
+                    @if (deletingPhotoId() === photo.id) {
+                      <span class="spinner spinner--xs"></span>
+                    } @else {
+                      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                        <path d="M2 2l8 8M10 2l-8 8"/>
+                      </svg>
+                    }
+                  </button>
+                </div>
+              }
+            </div>
+          }
+
+        </div><!-- /.enrollment-section -->
+      }
+
     </div><!-- /.user-form -->
       </div><!-- /.modal-dialog -->
     </div><!-- /.modal-overlay -->

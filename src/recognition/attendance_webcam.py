@@ -103,6 +103,7 @@ try:
         is_live_track,
     )
     from tracker import init_tracker, update_tracks, find_closest_detection, get_stable_label
+    from activity_labels import map_activity
     from anti_spoof_predict import AntiSpoofPredict
     from generate_patches import CropImage
 
@@ -122,6 +123,7 @@ except ModuleNotFoundError:
     from src.recognition.tracker import (
         init_tracker, update_tracks, find_closest_detection, get_stable_label,
     )
+    from src.recognition.activity_labels import map_activity
     from anti_spoof_predict import AntiSpoofPredict
     from generate_patches import CropImage
 
@@ -601,7 +603,7 @@ def _draw_track(
 
     # ── Activity label (below check-in) ──────────────────────────────
     if activity_enabled and track_id in activity_per_track:
-        act_name = ACTIVITY_NAMES.get(activity_per_track[track_id], "Unknown")
+        act_name = map_activity(ACTIVITY_NAMES.get(activity_per_track[track_id], "Unknown"))
         cv2.putText(
             frame, f"Activity: {act_name}",
             (x1, y2 + 40),

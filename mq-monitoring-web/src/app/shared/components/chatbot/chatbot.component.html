@@ -146,7 +146,7 @@
                           <div
                             class="cb-chart__bar"
                             [style.width]="chat.chartBarWidth(msg.chartSpecs![seg.chartIndex!], i)"
-                            [style.background]="msg.chartSpecs[seg.chartIndex!].colors[i] ?? '#6366f1'"
+                            [style.background]="msg.chartSpecs[seg.chartIndex!].colors[i]"
                           ></div>
                         </div>
                         <div class="cb-chart__value">{{ chat.chartBarLabel(msg.chartSpecs[seg.chartIndex!].values[i], msg.chartSpecs[seg.chartIndex!].unit) }}</div>

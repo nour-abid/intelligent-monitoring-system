@@ -1,22 +1,42 @@
+"""
+generate_embeddings_insightface.py
+===================================
+Canonical enrollment script for the attendance recognition pipeline.
+
+Generates per-identity mean L2-normalised 512-d embedding vectors using
+InsightFace buffalo_l (the same model the pipeline uses at runtime) and
+saves them as ``<identity>.npy`` files in the configured embeddings
+directory (``config["paths"]["emb_dir"]``, default: ``models/embeddings/``).
+
+Expected folder layout under INPUT_DIR::
+
+    data/employees/
+        Amir/
+            1.jpg
+            2.png
+        Nour/
+            photo.webp
+
+Usage (from project root)::
+
+    python src/recognition/generate_embeddings_insightface.py
+
+Archived alternatives (do not use):
+    - enroll_insightface.py   — duplicate; hard-coded paths, no .webp support
+    - enroll_arcface_onnx.py  — wrong embedding space (ONNX/MediaPipe)
+"""
+
 import cv2
 import numpy as np
 from pathlib import Path
 from insightface.app import FaceAnalysis
-
-# ====== CONFIG ======
-# Folder structure example:
-# data/faces/Amir/1.jpg, 2.jpg
-# data/faces/Nour/1.jpg, 2.jpg
 from config import config
 
-# ====== CONFIG ======
-# Must match runtime config
-INPUT_DIR = Path("data/employees")              # your actual enrollment images folder
-OUTPUT_DIR = config["paths"]["emb_dir"]         # <- IMPORTANT: models/embeddings
-DET_SIZE = (640, 640)
+# ── Configuration ────────────────────────────────────────────────────────────
+INPUT_DIR  = Path("data/employees")         # one sub-folder per identity
+OUTPUT_DIR = config["paths"]["emb_dir"]     # models/embeddings/ (from config.py)
+DET_SIZE   = (640, 640)
 MODEL_NAME = "buffalo_l"
-# ====================
-# ====================
 
 
 def l2_normalize(x, eps=1e-10):
