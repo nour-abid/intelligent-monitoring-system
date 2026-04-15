@@ -41,6 +41,7 @@ class ChartDataService
     private const ALLOWED_METRICS = [
         'working_time', 'phone_usage', 'inactivity',
         'focus_score', 'alerts', 'late_arrivals', 'early_leaves',
+        'activity_distribution',
     ];
     private const ALLOWED_GROUPBY = ['day', 'hour', 'weekday', 'employee', 'activity', 'alert_type'];
     private const ALLOWED_RANGES  = ['7d', '30d', 'today', 'week', 'month'];
@@ -50,13 +51,14 @@ class ChartDataService
      * Combinations not listed are semantically invalid even if enum values are valid.
      */
     private const VALID_COMBINATIONS = [
-        'working_time'  => ['day', 'hour', 'weekday', 'employee'],
-        'phone_usage'   => ['day', 'hour', 'weekday', 'employee'],
-        'inactivity'    => ['day', 'weekday', 'employee'],
-        'focus_score'   => ['day', 'weekday', 'employee'],
-        'alerts'        => ['day', 'weekday', 'employee', 'alert_type'],
-        'late_arrivals' => ['day', 'weekday', 'employee'],
-        'early_leaves'  => ['day', 'weekday', 'employee'],
+        'working_time'         => ['day', 'hour', 'weekday', 'employee'],
+        'phone_usage'          => ['day', 'hour', 'weekday', 'employee'],
+        'inactivity'           => ['day', 'weekday', 'employee'],
+        'focus_score'          => ['day', 'weekday', 'employee'],
+        'alerts'               => ['day', 'weekday', 'employee', 'alert_type'],
+        'late_arrivals'        => ['day', 'weekday', 'employee'],
+        'early_leaves'         => ['day', 'weekday', 'employee'],
+        'activity_distribution'=> ['activity', 'employee'],
     ];
 
     /** Max data points for time-series (day / hour) charts. */
@@ -126,12 +128,14 @@ class ChartDataService
     /**
      * Build the chart dataset from a validated spec.
      *
-     * @param  array       $spec   Already validated spec (chart_type, metric, group_by, time_range?)
-     * @param  array|null  $scope  null = admin; [] = no access; [...] = allowed identities
+     * @param  array       $spec       Already validated spec (chart_type, metric, group_by, time_range?)
+     * @param  array|null  $scope      null = admin; [] = no access; [...] = allowed identities
+     * @param  string|null $dateStart  Custom start date from the active dashboard range (overrides time_range)
+     * @param  string|null $dateEnd    Custom end date from the active dashboard range (overrides time_range)
      * @return array{type:string, title:string, labels:string[], values:float[], colors:string[], unit:string}|null
      *         null when the query returns no data (empty dataset guard)
      */
-    public function build(array $spec, ?array $scope): ?array
+    public function build(array $spec, ?array $scope, ?string $dateStart = null, ?string $dateEnd = null): ?array
     {
         $chartType = $spec['chart_type'] === 'donut' ? 'pie' : $spec['chart_type'];
         $metric    = $spec['metric'];
@@ -143,7 +147,13 @@ class ChartDataService
             return $this->emptyChart($chartType, $metric, $groupBy, $range);
         }
 
-        [$start, $end] = $this->resolveTimeRange($range);
+        // Custom dashboard date range takes priority over the AI-emitted preset.
+        if ($dateStart && $dateEnd) {
+            $start = substr($dateStart, 0, 10); // ensure YYYY-MM-DD
+            $end   = substr($dateEnd,   0, 10);
+        } else {
+            [$start, $end] = $this->resolveTimeRange($range);
+        }
 
         try {
             $rows = $this->queryRows($metric, $groupBy, $start, $end, $scope);
@@ -160,7 +170,15 @@ class ChartDataService
         // Apply result limits to prevent oversized payloads
         $rows = $this->applyLimits($groupBy, $rows);
 
-        $title  = $this->buildTitle($metric, $groupBy, $range);
+        // Build title: use custom date range label when the dashboard range is active
+        if ($dateStart && $dateEnd) {
+            $startLabel = substr($dateStart, 0, 10);
+            $endLabel   = substr($dateEnd,   0, 10);
+            $rangeLabel = $startLabel === $endLabel ? $startLabel : "$startLabel → $endLabel";
+            $title = $this->buildTitle($metric, $groupBy, $range, $rangeLabel);
+        } else {
+            $title = $this->buildTitle($metric, $groupBy, $range);
+        }
         $unit   = $this->unitFor($metric);
         $labels = array_keys($rows);
         $values = array_values($rows);
@@ -213,14 +231,15 @@ class ChartDataService
         ?array $scope
     ): array {
         return match ($metric) {
-            'working_time'  => $this->queryActivityMetric('Working',     $groupBy, $start, $end, $scope),
-            'phone_usage'   => $this->queryActivityMetric('Using_Phone', $groupBy, $start, $end, $scope),
-            'inactivity'    => $this->queryInactivity($groupBy, $start, $end, $scope),
-            'focus_score'   => $this->queryFocusScore($groupBy, $start, $end, $scope),
-            'alerts'        => $this->queryAlerts($groupBy, $start, $end, $scope),
-            'late_arrivals' => $this->queryAlertsByType('late_arrival', $groupBy, $start, $end, $scope),
-            'early_leaves'  => $this->queryAlertsByType('early_leave',  $groupBy, $start, $end, $scope),
-            default         => [],
+            'working_time'         => $this->queryActivityMetric('Working',     $groupBy, $start, $end, $scope),
+            'phone_usage'          => $this->queryActivityMetric('Using_Phone', $groupBy, $start, $end, $scope),
+            'inactivity'           => $this->queryInactivity($groupBy, $start, $end, $scope),
+            'focus_score'          => $this->queryFocusScore($groupBy, $start, $end, $scope),
+            'alerts'               => $this->queryAlerts($groupBy, $start, $end, $scope),
+            'late_arrivals'        => $this->queryAlertsByType('late_arrival', $groupBy, $start, $end, $scope),
+            'early_leaves'         => $this->queryAlertsByType('early_leave',  $groupBy, $start, $end, $scope),
+            'activity_distribution'=> $this->queryActivityDistribution($groupBy, $start, $end, $scope),
+            default                => [],
         };
     }
 
@@ -420,6 +439,54 @@ class ChartDataService
         };
     }
 
+    /**
+     * Activity distribution: total seconds per activity type (or per employee)
+     * from daily_activity_totals_by_employee.
+     *
+     * group_by=activity → ['Working'=>sec, 'Using_Phone'=>sec, ...]
+     * group_by=employee → total time per employee (all activities summed)
+     */
+    private function queryActivityDistribution(
+        string $groupBy,
+        string $start,
+        string $end,
+        ?array $scope
+    ): array {
+        $query = DB::connection(self::ANALYTICS_CONN)
+            ->table('daily_activity_totals_by_employee')
+            ->where('bucket', '>=', $start . ' 00:00:00')
+            ->where('bucket', '<=', $end . ' 23:59:59');
+        if ($scope !== null) {
+            $query->whereIn('identity_name', $scope);
+        }
+        $rows = $query->get();
+
+        if ($groupBy === 'activity') {
+            $out = [];
+            foreach ($rows as $r) {
+                $out[$r->activity] = ($out[$r->activity] ?? 0.0) + (float) $r->total_duration_sec;
+            }
+            // Order by semantic importance: Working first, then descending
+            $preferred = ['Working', 'Using_Phone', 'Inactive', 'Meeting', 'Unknown'];
+            $ordered   = [];
+            foreach ($preferred as $act) {
+                if (isset($out[$act])) {
+                    $ordered[$act] = $out[$act];
+                }
+            }
+            // Any unknown activities appended
+            foreach ($out as $k => $v) {
+                if (!isset($ordered[$k])) {
+                    $ordered[$k] = $v;
+                }
+            }
+            return $ordered;
+        }
+
+        // group_by=employee: total all-activity time per person
+        return $this->aggregateByEmployee($rows, 'total_duration_sec');
+    }
+
     // ── Aggregation helpers ──────────────────────────────────────────────────
 
     private function aggregateByDay($rows, string $col): array
@@ -487,16 +554,17 @@ class ChartDataService
         };
     }
 
-    private function buildTitle(string $metric, string $groupBy, string $range): string
+    private function buildTitle(string $metric, string $groupBy, string $range, ?string $customRangeLabel = null): string
     {
         $metricLabels = [
-            'working_time'  => 'Working Time',
-            'phone_usage'   => 'Phone Usage',
-            'inactivity'    => 'Inactivity',
-            'focus_score'   => 'Focus Score',
-            'alerts'        => 'Alerts',
-            'late_arrivals' => 'Late Arrivals',
-            'early_leaves'  => 'Early Leaves',
+            'working_time'         => 'Working Time',
+            'phone_usage'          => 'Phone Usage',
+            'inactivity'           => 'Inactivity',
+            'focus_score'          => 'Focus Score',
+            'alerts'               => 'Alerts',
+            'late_arrivals'        => 'Late Arrivals',
+            'early_leaves'         => 'Early Leaves',
+            'activity_distribution'=> 'Activity Distribution',
         ];
         $groupLabels = [
             'day'        => 'per Day',
@@ -516,7 +584,7 @@ class ChartDataService
 
         $m = $metricLabels[$metric]  ?? $metric;
         $g = $groupLabels[$groupBy]  ?? $groupBy;
-        $r = $rangeLabels[$range]    ?? $range;
+        $r = $customRangeLabel ?? ($rangeLabels[$range] ?? $range);
 
         return "{$m} {$g} ({$r})";
     }
@@ -527,6 +595,7 @@ class ChartDataService
             'focus_score'                   => '%',
             'alerts', 'late_arrivals',
             'early_leaves'                  => 'count',
+            'activity_distribution'         => 'sec',
             default                         => 'sec',
         };
     }

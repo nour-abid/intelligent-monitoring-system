@@ -33,10 +33,14 @@ productivity. Your replies must read like a professional analytics report:
 concise, data-anchored, and free of filler language.
 
 ═══ CORE RULES ══════════════════════════════════════════════════════════════════
-1. Reference ONLY data explicitly present in the conversation context.
-   If a question falls outside the available data, reply exactly:
-   "I can only analyse the data currently loaded in the system."
-2. Never invent numbers, estimates, or trend extrapolations.
+1. For TEXT answers: reference only data explicitly present in the conversation
+   context. If a purely text question falls entirely outside the available data,
+   reply: "I can only analyse the data currently loaded in the system."
+   EXCEPTION — CHARTS: when the user asks for any chart, graph, trend, or visual,
+   ALWAYS emit a chartspec block using the valid combinations below. Chart data
+   is fetched live from the database; you do NOT need it in the context.
+   Never refuse a chart request — if the user asks for a chart, produce one.
+2. Never invent numbers, estimates, or trend extrapolations in text answers.
 3. Stay on topic: workplace monitoring and productivity analytics only.
 4. When the context contains an INSIGHT FACTS block, anchor every answer on
    those pre-computed, priority-ranked findings. Cite each [CRITICAL] and
@@ -90,28 +94,39 @@ Flag these as [WARNING]:
   • Inactivity 40–60% of core time
 
 ═══ CHART GENERATION ════════════════════════════════════════════════════════════
-Generate a chartspec block ONLY when the user explicitly requests a chart,
-graph, visual, trend, or comparative visualisation. Prefer text otherwise.
+Generate a chartspec block whenever the user asks for a chart, graph, visual,
+trend, comparison, breakdown, or ranking. NEVER refuse a chart request by saying
+data is unavailable — chart data is always fetched live from the database.
+When in doubt, generate the chart.
 
-When a chart is appropriate, output a fenced block tagged `chartspec` containing
-ONLY a JSON intent object (no data values, no SQL, no placeholders):
+Output a fenced block tagged `chartspec` containing ONLY a JSON intent object
+(no data values, no SQL, no placeholders):
   ```chartspec
   {"chart_type":"bar","metric":"phone_usage","group_by":"employee","time_range":"7d"}
   ```
   Strict allowed values — never guess or combine outside these lists:
   chart_type : bar | line | donut
-  metric     : working_time | phone_usage | inactivity | focus_score | alerts | late_arrivals | early_leaves
+  metric     : working_time | phone_usage | inactivity | focus_score | alerts | late_arrivals | early_leaves | activity_distribution
   group_by   : day | hour | weekday | employee | activity | alert_type
   time_range : 7d | 30d | today | week | month
   Valid metric+group_by pairs:
-    working_time  → day | hour | weekday | employee
-    phone_usage   → day | hour | weekday | employee
-    inactivity    → day | weekday | employee
-    focus_score   → day | weekday | employee
-    alerts        → day | weekday | employee | alert_type
-    late_arrivals → day | weekday | employee
-    early_leaves  → day | weekday | employee
-  If the request does not fit a valid pair, answer in text only.
+    working_time         → day | hour | weekday | employee
+    phone_usage          → day | hour | weekday | employee
+    inactivity           → day | weekday | employee
+    focus_score          → day | weekday | employee
+    alerts               → day | weekday | employee | alert_type
+    late_arrivals        → day | weekday | employee
+    early_leaves         → day | weekday | employee
+    activity_distribution→ activity | employee
+  Natural-language → chartspec examples:
+    "show activity breakdown"             → metric:activity_distribution, group_by:activity,  chart_type:donut
+    "compare employees by total time"     → metric:activity_distribution, group_by:employee,  chart_type:bar
+    "compare employees by activity time"  → metric:activity_distribution, group_by:employee,  chart_type:bar
+    "phone usage trend this month"        → metric:phone_usage,           group_by:day,       chart_type:line, time_range:month
+    "alerts by type"                      → metric:alerts,                group_by:alert_type,chart_type:donut
+    "who is most productive"              → metric:focus_score,           group_by:employee,  chart_type:bar
+    "working time by day"                 → metric:working_time,          group_by:day,       chart_type:bar
+    "inactivity per employee"             → metric:inactivity,            group_by:employee,  chart_type:bar
   Always accompany the chartspec block with the structured text format above.
 PROMPT;
 
@@ -166,6 +181,8 @@ PROMPT;
             'history.*.role' => 'required|in:user,assistant',
             'history.*.text' => 'required|string|max:2000',
             'identity'       => 'nullable|string|max:100',
+            'date_start'     => 'nullable|string|max:30',
+            'date_end'       => 'nullable|string|max:30',
         ]);
 
         $message = $validated['message'];
@@ -212,8 +229,10 @@ PROMPT;
                 $errors = $this->chartData->validate($spec);
 
                 if (empty($errors)) {
-                    $scope = $this->resolveScope($request);
-                    $chart = $this->chartData->build($spec, $scope);
+                    $scope     = $this->resolveScope($request);
+                    $dateStart = $validated['date_start'] ?? null;
+                    $dateEnd   = $validated['date_end']   ?? null;
+                    $chart = $this->chartData->build($spec, $scope, $dateStart, $dateEnd);
                     // build() returns null when the query produces no rows
                     if ($chart === null) {
                         Log::info('AI chat: chartspec produced empty dataset', ['spec' => $spec]);
@@ -415,14 +434,19 @@ PROMPT;
             }
 
             // ── Build context text ───────────────────────────────────────────
+            // Build a human-readable date range label from the actual request dates.
+            $startDate = Carbon::parse($start)->format('d M Y');
+            $endDate   = Carbon::parse($end)->format('d M Y');
+            $rangeLabel = $startDate === $endDate ? $startDate : "$startDate → $endDate";
+
             if ($identity && $identity !== 'global') {
                 $contextText = $this->buildIdentityContext($identity, $start, $end);
-                $label       = "$identity — Last 7 days";
+                $label       = "$identity — $rangeLabel";
             } else {
                 $contextText = $this->buildGlobalContext($identitiesData, $start, $end);
                 $label       = $isAdmin
-                    ? 'All employees — Last 7 days'
-                    : ($isSuperviseur ? 'My team — Last 7 days' : 'My data — Last 7 days');
+                    ? "All employees — $rangeLabel"
+                    : ($isSuperviseur ? "My team — $rangeLabel" : "My data — $rangeLabel");
             }
 
             return response()->json([

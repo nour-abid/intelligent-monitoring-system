@@ -14,11 +14,12 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ChatStateService } from '../../../../core/services/chat-state.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ChatChartComponent } from '../../components/chat-chart/chat-chart.component';
 
 @Component({
   selector: 'app-chat-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ChatChartComponent],
   templateUrl: './chat-page.component.html',
   styleUrl: './chat-page.component.scss',
 })

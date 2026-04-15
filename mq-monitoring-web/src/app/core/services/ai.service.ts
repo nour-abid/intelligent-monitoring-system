@@ -59,12 +59,16 @@ export class AiService {
     context: string,
     history: ChatTurn[],
     identity?: string,
+    dateStart?: string,
+    dateEnd?: string,
   ): Observable<ChatResponse> {
     return this.http.post<ChatResponse>(`${this.base}/chat`, {
       message,
       context: context || undefined,
       history: history.length ? history : undefined,
       identity: identity && identity !== '' ? identity : undefined,
+      date_start: dateStart || undefined,
+      date_end:   dateEnd   || undefined,
     });
   }
 

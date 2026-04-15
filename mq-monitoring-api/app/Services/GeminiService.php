@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Thin wrapper around the Gemini REST API.
+ * Thin wrapper around the DeepSeek chat API (OpenAI-compatible).
  *
  * Implements 3-attempt exponential-backoff retry (1 s → 2 s → 4 s) for
  * 429 (rate-limit), 503 (overload) and ConnectionException (DNS/network).
@@ -17,9 +17,8 @@ use Illuminate\Support\Facades\Log;
  */
 class GeminiService
 {
-    private const MODEL      = 'gemini-2.5-flash';
-    private const API_URL    = 'https://generativelanguage.googleapis.com/v1beta/models/'
-                             . self::MODEL . ':generateContent';
+    private const MODEL      = 'deepseek-chat';
+    private const API_URL    = 'https://api.deepseek.com/v1/chat/completions';
     private const MAX_TRIES  = 3;   // 1 initial + 2 retries
     private const BASE_DELAY = 1;   // seconds; doubles each attempt
     private const MAX_TOKENS = 1024; // keep responses tight
@@ -47,25 +46,25 @@ class GeminiService
             throw new \RuntimeException('GEMINI_API_KEY is not configured.');
         }
 
-        $payload    = $this->buildPayload($systemPrompt, $history, $userMessage);
-        $sslVerify  = env('CURL_CA_BUNDLE') ?: true;
-        $lastError  = null;
-        $attempt    = 0;
+        $payload   = $this->buildPayload($systemPrompt, $history, $userMessage);
+        $lastError = null;
+        $attempt   = 0;
 
         while ($attempt < self::MAX_TRIES) {
             $attempt++;
 
             try {
                 $response = Http::timeout(30)
-                    ->withOptions(['verify' => $sslVerify])
-                    ->post(self::API_URL . '?key=' . $this->apiKey, $payload);
+                    ->withOptions(['verify' => false])
+                    ->withToken($this->apiKey)
+                    ->post(self::API_URL, $payload);
 
                 $status = $response->status();
 
                 // ── Success ──────────────────────────────────────────────────
                 if ($response->successful()) {
                     $data = $response->json();
-                    return $data['candidates'][0]['content']['parts'][0]['text']
+                    return $data['choices'][0]['message']['content']
                         ?? '[No response from model]';
                 }
 
@@ -119,32 +118,27 @@ class GeminiService
 
     // ── Private helpers ───────────────────────────────────────────────────────
 
-    /** Build the Gemini request payload from the conversation parts. */
+    /** Build the DeepSeek (OpenAI-compatible) request payload. */
     private function buildPayload(string $systemPrompt, array $history, string $userMessage): array
     {
-        $contents = [];
+        $messages = [
+            ['role' => 'system', 'content' => $systemPrompt],
+        ];
 
         foreach ($history as $msg) {
-            $contents[] = [
-                'role'  => $msg['role'] === 'assistant' ? 'model' : 'user',
-                'parts' => [['text' => $msg['text']]],
+            $messages[] = [
+                'role'    => $msg['role'] === 'assistant' ? 'assistant' : 'user',
+                'content' => $msg['text'],
             ];
         }
 
-        $contents[] = [
-            'role'  => 'user',
-            'parts' => [['text' => $userMessage]],
-        ];
+        $messages[] = ['role' => 'user', 'content' => $userMessage];
 
         return [
-            'system_instruction' => [
-                'parts' => [['text' => $systemPrompt]],
-            ],
-            'contents'         => $contents,
-            'generationConfig' => [
-                'temperature'     => 0.3,
-                'maxOutputTokens' => self::MAX_TOKENS,
-            ],
+            'model'       => self::MODEL,
+            'messages'    => $messages,
+            'temperature' => 0.3,
+            'max_tokens'  => self::MAX_TOKENS,
         ];
     }
 

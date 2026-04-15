@@ -32,6 +32,9 @@ return Application::configure(basePath: dirname(__DIR__))
             ->runInBackground();
     })
     ->withMiddleware(function (Middleware $middleware) {
+        // Register Laravel's HandleCors middleware (reads config/cors.php).
+        $middleware->statefulApi();
+
         // This is a pure JSON API — there is no web login page.
         // For API requests, throw AuthenticationException instead of redirecting.
         $middleware->redirectGuestsTo(function (Request $request) {

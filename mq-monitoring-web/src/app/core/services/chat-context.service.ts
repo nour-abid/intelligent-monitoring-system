@@ -32,6 +32,10 @@ export class ChatContextService {
   /** Currently selected identity: 'global' | identity name | '' (page-driven). */
   readonly selectedIdentity = signal<string>('');
 
+  /** Active dashboard date range forwarded to chart generation. */
+  readonly dateStart = signal<string | undefined>(undefined);
+  readonly dateEnd   = signal<string | undefined>(undefined);
+
   /** Whether the context is currently loading from the API. */
   readonly contextLoading = signal(false);
 
@@ -97,6 +101,9 @@ export class ChatContextService {
     // Selector mode ('global' or named identity) always syncs with the dashboard.
     const currentIdentity = this.selectedIdentity() || 'global';
     console.log('[ChatContext] pushDashboardRange — label:', label, 'identity:', currentIdentity, 'start:', start, 'end:', end);
+    // Store the range so chart generation always uses the full dashboard window.
+    if (start) this.dateStart.set(start);
+    if (end)   this.dateEnd.set(end);
     this.selectIdentity(currentIdentity, start, end);
   }
 

@@ -97,7 +97,7 @@ export class ChatStateService {
       .filter(m => !m.loading)
       .map(m => ({ role: m.role, text: m.text }));
 
-    this.ai.sendMessage(text, this.ctxSvc.context(), history, this.ctxSvc.selectedIdentity() || undefined).subscribe({
+    this.ai.sendMessage(text, this.ctxSvc.context(), history, this.ctxSvc.selectedIdentity() || undefined, this.ctxSvc.dateStart(), this.ctxSvc.dateEnd()).subscribe({
       next: (res) => {
         this.loading.set(false);
         const replyText = res.reply ?? res.error ?? 'No response received.';
