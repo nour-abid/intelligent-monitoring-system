@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Monitoring;
 use App\Http\Controllers\Controller;
 use App\Models\AlertReplaySource;
 use App\Models\BehaviorAlert;
+use App\Models\SurveillanceClip;
 use App\Services\Monitoring\ClipMetadataService;
 use App\Services\Monitoring\ReplayService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -116,10 +118,21 @@ class ReplayController extends Controller
         $source = AlertReplaySource::where('behavior_alert_id', $alertId)->first();
 
         if (!$source) {
-            return response()->json([
-                'message' => 'No replay source registered for this alert.',
-                'code'    => 'no_replay_source',
-            ], 404);
+            // ── Fallback: serve a SurveillanceClip saved by the Python pipeline ──
+            $clipPath = $this->resolveClipFromSurveillance($alert);
+
+            if ($clipPath === null) {
+                return response()->json([
+                    'message' => 'No replay clip available for this alert yet.',
+                    'code'    => 'no_replay_source',
+                ], 404);
+            }
+
+            return response()->file($clipPath, [
+                'Content-Type'        => 'video/mp4',
+                'Content-Disposition' => 'inline; filename="replay_alert_' . $alertId . '.mp4"',
+                'X-Replay-Alert-Id'   => (string) $alertId,
+            ]);
         }
 
         try {
@@ -169,6 +182,79 @@ class ReplayController extends Controller
         return BehaviorAlert::where('id', $alertId)
             ->where('user_id', $user->id)
             ->first();
+    }
+
+    /**
+     * Map BehaviorAlert.alert_type to the event_type stored in SurveillanceClip.
+     */
+    private static array $alertTypeToEventType = [
+        'phone'    => 'Using_Phone',
+        'inactive' => 'Inactive',
+    ];
+
+    /**
+     * Try to find a ready SurveillanceClip that corresponds to the given alert.
+     *
+     * Matching strategy (most-specific first):
+     *   1. Clip already linked via alert_id.
+     *   2. Clip matching identity_name + event_type within ±10 min of fired_at.
+     *   3. Clip matching event_type within ±10 min of fired_at (covers Unknown-identity clips).
+     *
+     * Returns the absolute filesystem path to the clip, or null if none found / file missing.
+     */
+    private function resolveClipFromSurveillance(BehaviorAlert $alert): ?string
+    {
+        $eventType = self::$alertTypeToEventType[$alert->alert_type] ?? null;
+        $projectRoot = dirname(base_path()); // one level above mq-monitoring-api/
+        $windowStart = $alert->fired_at->copy()->subMinutes(10);
+        $windowEnd   = $alert->fired_at->copy()->addMinutes(10);
+
+        // 1. Linked by alert_id
+        $clip = SurveillanceClip::where('alert_id', $alert->id)
+            ->where('clip_status', 'ready')
+            ->latest('started_at')
+            ->first();
+
+        // 2. Match by identity + event_type + time window
+        if (!$clip && $eventType) {
+            $clip = SurveillanceClip::where('identity_name', $alert->identity_name)
+                ->where('event_type', $eventType)
+                ->where('started_at', '>=', $windowStart)
+                ->where('started_at', '<=', $windowEnd)
+                ->where('clip_status', 'ready')
+                ->latest('started_at')
+                ->first();
+        }
+
+        // 3. Relax identity constraint (catches Unknown-labelled clips from same camera/time)
+        if (!$clip && $eventType) {
+            $clip = SurveillanceClip::where('event_type', $eventType)
+                ->where('started_at', '>=', $windowStart)
+                ->where('started_at', '<=', $windowEnd)
+                ->where('clip_status', 'ready')
+                ->latest('started_at')
+                ->first();
+        }
+
+        if (!$clip) {
+            return null;
+        }
+
+        // Resolve relative or absolute path
+        $path = $clip->file_path;
+        if (!str_starts_with($path, '/') && !preg_match('/^[A-Za-z]:[\\\\\/]/', $path)) {
+            $path = $projectRoot . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $path);
+        }
+
+        if (!file_exists($path)) {
+            Log::warning('[replay] SurveillanceClip file not found on disk', [
+                'clip_id'   => $clip->id,
+                'file_path' => $path,
+            ]);
+            return null;
+        }
+
+        return $path;
     }
 
     /**

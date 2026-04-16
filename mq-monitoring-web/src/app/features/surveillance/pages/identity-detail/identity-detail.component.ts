@@ -218,35 +218,47 @@ export class IdentityDetailComponent {
       ];
     }
 
-    // Admin / superviseur — operational view with segment counts
+    // Admin / superviseur — same business-facing KPIs as viewer
+    const summary     = this.personalSummary();
+    const workSec     = summary?.working_sec  ?? totals.find(a => a.activity === 'Working')?.total_sec    ?? 0;
+    const phoneSec    = summary?.phone_sec    ?? totals.find(a => a.activity === 'Using_Phone')?.total_sec ?? 0;
+    const inactiveSec = summary?.inactive_sec ?? totals.find(a => a.activity === 'Inactive')?.total_sec   ?? 0;
+    const total       = summary?.total_sec    ?? this.totalSec();
+    const focusScore  = summary?.focus_score  ?? null;
     return [
       {
-        label: 'Total Tracked Time',
-        value: formatDuration(this.totalSec()),
-        sub:   `${tl.count} segment${tl.count !== 1 ? 's' : ''}`,
-        icon:  'M12 2v20M2 12h20',
+        label: 'Working Time',
+        value: formatDuration(workSec),
+        sub:   total > 0 ? `${((workSec / total) * 100).toFixed(0)}% of tracked time` : '—',
+        icon:  'M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z',
         theme: 'primary',
       },
       {
-        label: 'Segments',
-        value: String(tl.count),
-        sub:   'recorded activity events',
-        icon:  'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 0 2-2h2a2 2 0 0 0 2 2',
-        theme: 'neutral',
+        label: 'Phone Usage',
+        value: formatDuration(phoneSec),
+        sub:   total > 0 ? `${((phoneSec / total) * 100).toFixed(0)}% of tracked time` : 'None detected',
+        icon:  'M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 12a19.79 19.79 0 0 1 3.07-8.63A2 2 0 0 1 9 2h2a2 2 0 0 1 2 1.72c.12.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L12.09 9a16 16 0 0 0 6.91 6.91l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.58 2.81.7A2 2 0 0 1 22 16.92z',
+        theme: phoneSec > 0 && total > 0 && (phoneSec / total) > 0.25 ? 'warning' : 'neutral',
       },
       {
-        label: 'Distinct Activities',
-        value: String(totals.length),
-        sub:   totals.map((a) => a.activity.replace(/_/g, ' ')).join(', ') || '—',
+        label: 'Inactivity',
+        value: formatDuration(inactiveSec),
+        sub:   total > 0 ? `${((inactiveSec / total) * 100).toFixed(0)}% of tracked time` : 'None detected',
+        icon:  'M10 9v6m4-6v6',
+        theme: inactiveSec > 0 && total > 0 && (inactiveSec / total) > 0.40 ? 'warning' : 'neutral',
+      },
+      {
+        label: 'Focus Score',
+        value: focusScore !== null ? `${focusScore}%` : '—',
+        sub:   focusScore === null ? 'No data'
+             : focusScore >= 70    ? 'Strong focus pattern'
+             : focusScore >= 40    ? 'Moderate focus'
+             :                      'Focus needs attention',
         icon:  'M22 12h-4l-3 9L9 3l-3 9H2',
-        theme: 'success',
-      },
-      {
-        label: 'Dominant Activity',
-        value: dominant ? dominant.activity.replace(/_/g, ' ') : '—',
-        sub:   dominant ? `${(dominant.share * 100).toFixed(1)}% of tracked time` : 'No data',
-        icon:  'M18 20V10M12 20V4M6 20v-6',
-        theme: 'warning',
+        theme: focusScore === null ? 'neutral'
+             : focusScore >= 70   ? 'success'
+             : focusScore >= 40   ? 'neutral'
+             :                     'warning',
       },
     ];
   });
@@ -782,12 +794,13 @@ export class IdentityDetailComponent {
       },
     });
 
-    // Viewer: also fetch backend-aggregated summary and daily breakdown.
+    // All roles: fetch backend-aggregated summary (needed for Focus Score, Working Time, etc.)
+    // and daily breakdown (viewer time-series chart).
+    this.service.getPersonalSummary(identityName, params).subscribe({
+      next: (data) => this.personalSummary.set(data),
+      error: ()     => { /* non-critical; KPI cards degrade gracefully */ },
+    });
     if (this.role() === 'viewer') {
-      this.service.getPersonalSummary(identityName, params).subscribe({
-        next: (data) => this.personalSummary.set(data),
-        error: ()     => { /* non-critical; KPI cards degrade gracefully */ },
-      });
       this.service.getPersonalDaily(identityName, params).subscribe({
         next: (data) => this.personalDaily.set(data.days),
         error: ()     => { /* non-critical; time-series degrades gracefully */ },

@@ -1,0 +1,155 @@
+<div class="att-page">
+
+  <!-- ── Page header ────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="page-header__left">
+      <h1 class="page-header__title">Attendance</h1>
+      <p class="page-header__sub">Daily check-in status and punctuality overview for all employees.</p>
+    </div>
+  </div>
+
+  <!-- ── Filter bar ──────────────────────────────────────────────── -->
+  <div class="filter-bar">
+    <div class="filter-bar__presets">
+      <button class="filter-bar__preset-btn" [class.filter-bar__preset-btn--active]="activePreset === 'today'"     (click)="setPreset('today')">Today</button>
+      <button class="filter-bar__preset-btn" [class.filter-bar__preset-btn--active]="activePreset === 'yesterday'" (click)="setPreset('yesterday')">Yesterday</button>
+      <button class="filter-bar__preset-btn" [class.filter-bar__preset-btn--active]="activePreset === 'last7'"     (click)="setPreset('last7')">Last 7 days</button>
+      <button class="filter-bar__preset-btn" [class.filter-bar__preset-btn--active]="activePreset === 'custom'"    (click)="setCustom()">Custom range</button>
+    </div>
+
+    <div class="filter-bar__controls">
+      <div class="filter-bar__group">
+        <label class="filter-bar__label" for="attStart">From</label>
+        <input id="attStart" class="filter-bar__input" type="date"
+          [ngModel]="filterStart" (ngModelChange)="onStartChange($event)" [max]="today" />
+      </div>
+      <div class="filter-bar__group">
+        <label class="filter-bar__label" for="attEnd">To</label>
+        <input id="attEnd" class="filter-bar__input" type="date"
+          [ngModel]="filterEnd" (ngModelChange)="onEndChange($event)" [min]="filterStart" [max]="today" />
+      </div>
+      <div class="filter-bar__actions">
+        <button class="filter-bar__btn" (click)="load()" [disabled]="loadState() === 'loading'">
+          @if (loadState() === 'loading') { <span class="spinner"></span> Loading… } @else { Load }
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Loading / Error states ──────────────────────────────────── -->
+  @if (loadState() === 'loading') {
+    <div class="state-panel">
+      <span class="spinner"></span>
+      <div class="state-panel__title">Loading attendance data…</div>
+    </div>
+  }
+
+  @if (loadState() === 'error') {
+    <div class="state-panel state-panel--error">
+      <div class="state-panel__icon">⚠️</div>
+      <div class="state-panel__title">Unable to load data</div>
+      <div class="state-panel__message">{{ errorMsg() }}</div>
+      <button class="filter-bar__btn" (click)="load()">Retry</button>
+    </div>
+  }
+
+  <!-- ── Success state ───────────────────────────────────────────── -->
+  @if (loadState() === 'success') {
+
+    <!-- KPI Cards -->
+    @if (kpis(); as k) {
+      <div class="kpi-grid">
+
+        <div class="kpi-card kpi-card--green">
+          <div class="kpi-card__value">{{ k.total_on_time }}</div>
+          <div class="kpi-card__label">On Time</div>
+          <div class="kpi-card__pct">{{ k.on_time_pct }}%</div>
+        </div>
+
+        <div class="kpi-card kpi-card--red">
+          <div class="kpi-card__value">{{ k.total_late }}</div>
+          <div class="kpi-card__label">Late Arrivals</div>
+        </div>
+
+        <div class="kpi-card kpi-card--gray">
+          <div class="kpi-card__value">{{ k.total_absent }}</div>
+          <div class="kpi-card__label">Absent</div>
+        </div>
+
+        <div class="kpi-card kpi-card--yellow">
+          <div class="kpi-card__value">{{ k.total_early_leave }}</div>
+          <div class="kpi-card__label">Early Leave</div>
+        </div>
+
+      </div>
+    }
+
+    <!-- Table controls -->
+    <div class="table-controls">
+      <input
+        class="table-controls__search"
+        type="search"
+        placeholder="Search employee…"
+        [ngModel]="searchText()"
+        (ngModelChange)="searchText.set($event)"
+        aria-label="Search employee"
+      />
+
+      <div class="table-controls__filters">
+        <button class="status-chip status-chip--all"
+          [class.status-chip--active]="statusFilter() === 'all'"
+          (click)="statusFilter.set('all')">All</button>
+        <button class="status-chip status-chip--on_time"
+          [class.status-chip--active]="statusFilter() === 'on_time'"
+          (click)="statusFilter.set('on_time')">On Time</button>
+        <button class="status-chip status-chip--late"
+          [class.status-chip--active]="statusFilter() === 'late'"
+          (click)="statusFilter.set('late')">Late</button>
+        <button class="status-chip status-chip--early_leave"
+          [class.status-chip--active]="statusFilter() === 'early_leave'"
+          (click)="statusFilter.set('early_leave')">Early Leave</button>
+        <button class="status-chip status-chip--absent"
+          [class.status-chip--active]="statusFilter() === 'absent'"
+          (click)="statusFilter.set('absent')">Absent</button>
+      </div>
+    </div>
+
+    <!-- Attendance Table -->
+    <div class="att-table-wrap">
+      <table class="att-table">
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Check-in</th>
+            <th>Check-out</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of filteredRows(); track row.identity + row.date) {
+            <tr class="att-table__row">
+              <td class="att-table__name">{{ row.name }}</td>
+              <td class="att-table__date">{{ row.date }}</td>
+              <td>
+                <span class="att-badge att-badge--{{ row.status }}">
+                  {{ statusLabel(row.status) }}
+                </span>
+              </td>
+              <td class="att-table__time">{{ row.checkin_time ?? '—' }}</td>
+              <td class="att-table__time">{{ row.checkout_time ?? '—' }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="att-table__empty">
+                No attendance records for the selected period.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+  }
+
+</div>

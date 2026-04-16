@@ -472,6 +472,10 @@ def main() -> None:
     consecutive_failures = 0
     # Trigger an immediate refresh on the first processed frame.
     _checkedin_last_refresh: float = 0.0
+    # Heartbeat: write in-progress suspicious events to DB periodically so
+    # the alert evaluator can query them without waiting for track_lost.
+    _heartbeat_last: float = 0.0
+    _heartbeat_interval: float = float(cfg.get("alert_flush_interval_sec", 25.0))
 
     try:
         while True:
@@ -766,6 +770,39 @@ def main() -> None:
                     f"Track {state.track_id} ({state.identity_name}) lost --- "
                     f"last: {state.current_activity}"
                 )
+
+            # ------ E2. Heartbeat flush — write in-progress suspicious events -----
+            # Events are normally only committed when a track ends or changes
+            # activity.  For the alert evaluator to detect long-running phone/
+            # inactive sessions, we periodically write a partial row to the DB.
+            if event_logger is not None and (now - _heartbeat_last) >= _heartbeat_interval:
+                _heartbeat_last = now
+                _alertable = {"Using_Phone", "Inactive"}
+                for _tid, _state in state_mgr.get_all().items():
+                    if _state.identity_name == "Unknown":
+                        continue
+                    if _state.current_activity not in _alertable:
+                        continue
+                    _elapsed = now - _state.activity_start_time
+                    if _elapsed < _heartbeat_interval:
+                        continue  # not long enough to be worth flushing yet
+                    try:
+                        event_logger.log_event(
+                            track_id=_state.track_id,
+                            identity_name=_state.identity_name,
+                            activity=_state.current_activity,
+                            start_time=_state.activity_start_time,
+                            end_time=now,
+                            identity_confidence=_state.identity_confidence,
+                            identity_source=_state.identity_source,
+                            event_trigger="heartbeat",
+                        )
+                        log.info(
+                            "[HEARTBEAT] wrote %.0fs of %s for %s",
+                            _elapsed, _state.current_activity, _state.identity_name,
+                        )
+                    except Exception as _hb_exc:
+                        log.warning("[HEARTBEAT] write failed: %s", _hb_exc)
 
             # ------ F. Draw overlays ------------------------------------------------------------------------------------------------------------------------
             _draw_overlays(frame, state_mgr.get_all(), line_thickness, font_scale)

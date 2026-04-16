@@ -1,0 +1,307 @@
+.att-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--sp-5) var(--sp-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+/* ── Page header ────────────────────────────────────────────── */
+.page-header {
+  &__title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--color-text-1);
+  }
+
+  &__sub {
+    font-size: 13px;
+    color: var(--color-text-3);
+    margin-top: 2px;
+  }
+}
+
+/* ── Filter bar ─────────────────────────────────────────────── */
+.filter-bar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  background: var(--color-surface);
+  padding: var(--sp-4) var(--sp-5);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+
+  &__presets {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-1);
+    flex-wrap: wrap;
+  }
+
+  &__controls {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    flex-wrap: wrap;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin-left: auto;
+  }
+
+  &__group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-1);
+  }
+
+  &__preset-btn {
+    height: 28px;
+    padding: 0 var(--sp-3);
+    border: 1px solid var(--color-border);
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-2);
+    background: transparent;
+    white-space: nowrap;
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+
+    &:hover { background: var(--color-surface-2); border-color: var(--color-border-2); }
+
+    &--active {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: #fff;
+    }
+  }
+
+  &__label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text-3);
+  }
+
+  &__input {
+    height: 36px;
+    padding: 0 var(--sp-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-size: 13px;
+    color: var(--color-text-1);
+    background: var(--color-surface);
+    outline: none;
+    transition: border-color 0.15s;
+
+    &:focus { border-color: var(--color-primary-light); }
+  }
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    height: 36px;
+    padding: 0 var(--sp-5);
+    background: var(--color-primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.15s;
+    white-space: nowrap;
+
+    &:hover:not(:disabled) { background: var(--color-primary-hover); }
+    &:disabled { opacity: 0.6; cursor: not-allowed; }
+  }
+}
+
+/* ── KPI grid ───────────────────────────────────────────────── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-4);
+
+  @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 500px) { grid-template-columns: 1fr; }
+}
+
+.kpi-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-5) var(--sp-6);
+  box-shadow: var(--shadow-sm);
+  border-left: 4px solid transparent;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  position: relative;
+
+  &__value {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--color-text-1);
+  }
+
+  &__label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-3);
+  }
+
+  &__pct {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-2);
+  }
+
+  &--green  { border-color: #10b981; .kpi-card__value { color: #10b981; } }
+  &--red    { border-color: #ef4444; .kpi-card__value { color: #ef4444; } }
+  &--yellow { border-color: #f59e0b; .kpi-card__value { color: #f59e0b; } }
+  &--gray   { border-color: #6b7280; .kpi-card__value { color: #6b7280; } }
+}
+
+/* ── Table controls ─────────────────────────────────────────── */
+.table-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+
+  &__search {
+    height: 36px;
+    padding: 0 var(--sp-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-size: 13px;
+    color: var(--color-text-1);
+    background: var(--color-surface);
+    outline: none;
+    min-width: 200px;
+    transition: border-color 0.15s;
+
+    &:focus { border-color: var(--color-primary-light); }
+  }
+
+  &__filters {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-1);
+    flex-wrap: wrap;
+  }
+}
+
+/* ── Status filter chips ────────────────────────────────────── */
+.status-chip {
+  height: 28px;
+  padding: 0 var(--sp-3);
+  border: 1px solid var(--color-border);
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: var(--color-text-2);
+  transition: all 0.12s;
+
+  &:hover { background: var(--color-surface-2); }
+
+  &--active { color: #fff; border-color: transparent; }
+
+  &--all.status-chip--active          { background: var(--color-primary); }
+  &--on_time.status-chip--active      { background: #10b981; }
+  &--late.status-chip--active         { background: #ef4444; }
+  &--early_leave.status-chip--active  { background: #f59e0b; }
+  &--absent.status-chip--active       { background: #6b7280; }
+}
+
+/* ── Attendance table ───────────────────────────────────────── */
+.att-table-wrap {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+.att-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  thead tr {
+    background: var(--color-surface-2);
+  }
+
+  th {
+    padding: var(--sp-3) var(--sp-4);
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-3);
+    white-space: nowrap;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  td {
+    padding: var(--sp-3) var(--sp-4);
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-1);
+  }
+
+  &__row:hover td {
+    background: var(--color-surface-2);
+  }
+
+  &__name {
+    font-weight: 600;
+  }
+
+  &__date {
+    color: var(--color-text-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__time {
+    color: var(--color-text-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__empty {
+    text-align: center;
+    padding: var(--sp-8);
+    color: var(--color-text-3);
+    font-size: 13px;
+  }
+}
+
+/* ── Status badge ───────────────────────────────────────────── */
+.att-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  &--on_time     { background: rgba(16, 185, 129, 0.16); color: #10b981; }
+  &--late        { background: rgba(239,  68,  68, 0.16); color: #ef4444; }
+  &--early_leave { background: rgba(245, 158,  11, 0.16); color: #f59e0b; }
+  &--absent      { background: rgba(107, 114, 128, 0.14); color: #6b7280; }
+}

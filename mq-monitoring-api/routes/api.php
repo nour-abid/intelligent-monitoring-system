@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Face\ValidateFrameController;
 use App\Http\Controllers\Monitoring\AlertHistoryController;
 use App\Http\Controllers\Monitoring\AnalyticsViewController;
+use App\Http\Controllers\Monitoring\AttendanceController;
 use App\Http\Controllers\Monitoring\DashboardSummaryController;
 use App\Http\Controllers\Monitoring\EmployeeHighlightsController;
 use App\Http\Controllers\Monitoring\ClipIngestionController;
@@ -146,6 +147,28 @@ Route::prefix('monitoring/surveillance')
         Route::get('alerts/{alertId}/replay', [ReplayController::class, 'stream'])
             ->name('alert.replay.stream')
             ->where('alertId', '[0-9]+');
+    });
+
+/*
+|--------------------------------------------------------------------------
+| Attendance Routes
+|--------------------------------------------------------------------------
+|
+| GET /api/monitoring/attendance  — per-employee attendance status for a
+| date range.  Derives status (on_time / late / absent / early_leave)
+| from attendance_events and surveillance_events without duplicating the
+| alert evaluation logic.
+|
+*/
+
+Route::prefix('monitoring/attendance')
+    ->name('monitoring.attendance.')
+    ->middleware('auth:sanctum')
+    ->group(function () {
+
+        // GET /api/monitoring/attendance?start=YYYY-MM-DD&end=YYYY-MM-DD
+        Route::get('/', [AttendanceController::class, 'index'])
+            ->name('index');
     });
 
 /*

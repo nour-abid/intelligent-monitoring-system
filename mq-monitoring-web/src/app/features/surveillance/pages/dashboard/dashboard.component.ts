@@ -5,6 +5,8 @@ import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { SurveillanceService } from '../../../../core/services/surveillance.service';
+import { AttendanceService } from '../../../../core/services/attendance.service';
+import { AttendanceKpis } from '../../../attendance/models/attendance.model';
 import { OverviewResponse, OverviewParams } from '../../models/overview.model';
 import { IdentityEntry, IdentityRow } from '../../models/identities.model';
 import { ActivityStat } from '../../models/overview.model';
@@ -53,6 +55,7 @@ interface EmployeeMetric {
 })
 export class DashboardComponent implements OnInit {
   private readonly service     = inject(SurveillanceService);
+  private readonly attSvc      = inject(AttendanceService);
   private readonly router      = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly ctxSvc      = inject(ChatContextService);
@@ -79,7 +82,9 @@ export class DashboardComponent implements OnInit {
 
   // ── Raw data signals ────────────────────────────────────────────────────
   readonly overview    = signal<OverviewResponse | null>(null);
-  readonly identities  = signal<IdentityEntry[]>([]);  readonly summary     = signal<DashboardSummaryResponse | null>(null);
+  readonly identities  = signal<IdentityEntry[]>([]);
+  readonly summary     = signal<DashboardSummaryResponse | null>(null);
+  readonly attKpis     = signal<AttendanceKpis | null>(null);
   // ── Derived / adapted signals ───────────────────────────────────────────
   readonly activityStats = computed<ActivityStat[]>(() => {
     const ov = this.overview();
@@ -126,7 +131,7 @@ export class DashboardComponent implements OnInit {
       {
         label: 'Observed Time',
         value: ov ? formatDuration(ov.total_sec) : '—',
-        sub:   ov ? `${ov.event_count} events recorded` : undefined,
+        sub:   ov ? `across ${activeEmployees} employee${activeEmployees !== 1 ? 's' : ''}` : undefined,
         icon:  'M12 2v20M2 12h20',
         theme: 'primary',
       },
@@ -156,17 +161,15 @@ export class DashboardComponent implements OnInit {
 
   /** Compact secondary stat strip: contextual counts below primary KPIs. */
   readonly secondaryKpis = computed(() => {
-    const ov    = this.overview();
     const rows  = this.identities();
     const sum   = this.summary();
     const ps    = this.productivityScore();
     const named = rows.filter(r => r.identity_name !== 'Unknown').length;
     return [
-      { label: 'Events Recorded', value: ov  ? String(ov.event_count)        : '—' },
-      { label: 'Identified',      value: String(named)                               },
-      { label: 'Late Arrivals',   value: sum ? String(sum.kpis.late_arrivals) : '—' },
-      { label: 'Early Leaves',    value: sum ? String(sum.kpis.early_leaves)  : '—' },
-      { label: 'Productivity',    value: ps  ? `${ps.pct}% · ${ps.label}`    : '—' },
+      { label: 'Identified',    value: String(named)                               },
+      { label: 'Late Arrivals', value: sum ? String(sum.kpis.late_arrivals) : '—' },
+      { label: 'Early Leaves',  value: sum ? String(sum.kpis.early_leaves)  : '—' },
+      { label: 'Productivity',  value: ps  ? `${ps.pct}% · ${ps.label}`    : '—' },
     ];
   });
 
@@ -540,6 +543,13 @@ export class DashboardComponent implements OnInit {
     // Default to today on initial load
     this.setPreset('today');
     this.load();
+    // Load today's attendance summary independently (always today).
+    this.attSvc.getAttendance({ start: toDateInputValue(new Date()), end: toDateInputValue(new Date()) })
+      .subscribe({ next: (res) => this.attKpis.set(res.kpis), error: () => {} });
+  }
+
+  goToAttendance(): void {
+    this.router.navigate(['/attendance']);
   }
 
   openIdentity(name: string): void {

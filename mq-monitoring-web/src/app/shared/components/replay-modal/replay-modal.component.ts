@@ -39,11 +39,25 @@ export class ReplayModalComponent implements OnInit, OnDestroy {
         this.state.set({ status: 'ready', objectUrl });
       },
       error: (err) => {
-        const body = err?.error;
-        if (err?.status === 404 && body?.code === 'no_replay_source') {
-          this.state.set({ status: 'unavailable', reason: 'No replay source has been registered for this alert.' });
+        // When responseType is 'blob', err.error is a Blob — must read it as text first.
+        const rawBody = err?.error;
+        if (err?.status === 404 && rawBody instanceof Blob) {
+          rawBody.text().then(text => {
+            try {
+              const parsed = JSON.parse(text);
+              if (parsed?.code === 'no_replay_source') {
+                this.state.set({ status: 'unavailable', reason: 'The clip is still being recorded. Check back shortly.' });
+              } else {
+                this.state.set({ status: 'error', reason: parsed?.message ?? 'Failed to load the replay clip.' });
+              }
+            } catch {
+              this.state.set({ status: 'error', reason: 'Failed to load the replay clip.' });
+            }
+          });
+        } else if (err?.status === 404 && rawBody?.code === 'no_replay_source') {
+          this.state.set({ status: 'unavailable', reason: 'The clip is still being recorded. Check back shortly.' });
         } else {
-          const reason = body?.message ?? 'Failed to load the replay clip.';
+          const reason = rawBody?.message ?? 'Failed to load the replay clip.';
           this.state.set({ status: 'error', reason });
         }
       },

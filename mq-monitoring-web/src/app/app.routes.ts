@@ -88,6 +88,15 @@ export const routes: Routes = [
         title: 'User Management — MQ Monitoring',
       },
       {
+        path: 'attendance',
+        canActivate: [authGuard, adminSuperviseurGuard],
+        loadComponent: () =>
+          import(
+            './features/attendance/pages/attendance-page/attendance-page.component'
+          ).then((m) => m.AttendancePageComponent),
+        title: 'Attendance — MQ Monitoring',
+      },
+      {
         path: 'chat',
         canActivate: [authGuard],
         loadComponent: () =>

@@ -106,8 +106,30 @@ export class AlertService {
     });
   }
 
-  private connect(userId: number, token: string): void {
-    if (this.echo) return; // already connected
+  /**
+   * Called ~1s after a live alert arrives. Fetches history and matches the
+   * newly-persisted row by type + identity + timestamp proximity (<30s).
+   * Updates the in-memory alert's serverId so the Replay button appears.
+   */
+  private backfillServerId(localId: string, ref: Pick<AlertItem, 'type' | 'identity' | 'timestamp'>): void {
+    this.http.get<{ alerts: AlertHistoryRow[] }>('/api/alerts').subscribe({
+      next: ({ alerts }) => {
+        const refTs = new Date(ref.timestamp).getTime();
+        const matched = alerts.find(h =>
+          h.alert_type    === ref.type &&
+          h.identity_name === ref.identity &&
+          Math.abs(new Date(h.fired_at).getTime() - refTs) < 30_000
+        );
+        if (!matched) return;
+        this.alerts.update(list =>
+          list.map(a => a.id === localId ? { ...a, serverId: matched.id } : a)
+        );
+      },
+      error: () => { /* ignore — serverId simply stays undefined */ },
+    });
+  }
+
+  private connect(userId: number, token: string): void {    if (this.echo) return; // already connected
 
     // Expose Pusher globally — required by laravel-echo's pusher broadcaster.
     (window as unknown as Record<string, unknown>)['Pusher'] = Pusher;
@@ -134,11 +156,13 @@ export class AlertService {
         const alert: AlertItem = {
           ...payload,
           id:       crypto.randomUUID(),
-          serverId: undefined,   // set later if a reload occurs and history includes it
+          serverId: undefined,   // back-filled after history reload below
           read:     false,
         };
         this.alerts.update(list => [alert, ...list].slice(0, MAX_ALERTS));
         this.toastService.show(alert);
+        // Back-fill serverId so the Replay button appears once the alert is persisted.
+        setTimeout(() => this.backfillServerId(alert.id, alert), 1200);
       });
   }
 }

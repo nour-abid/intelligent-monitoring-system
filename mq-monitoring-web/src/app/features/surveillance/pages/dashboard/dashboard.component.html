@@ -179,6 +179,46 @@
       <div class="summary-unavailable">Alert summary unavailable — analytics server may be offline.</div>
     }
 
+    <!-- ── Attendance Summary (Today) ────────────────────────────── -->
+    @if (!isViewer()) {
+      <p class="page-section-label">Attendance — Today</p>
+      <div class="att-summary-card" (click)="goToAttendance()" role="button" tabindex="0"
+           (keydown.enter)="goToAttendance()" aria-label="View full attendance report">
+        @if (attKpis(); as ak) {
+          <div class="att-summary-card__kpis">
+            <div class="att-summary-card__stat att-summary-card__stat--green">
+              <span class="att-summary-card__value">{{ ak.total_on_time }}</span>
+              <span class="att-summary-card__label">On Time</span>
+            </div>
+            <div class="att-summary-card__stat att-summary-card__stat--red">
+              <span class="att-summary-card__value">{{ ak.total_late }}</span>
+              <span class="att-summary-card__label">Late</span>
+            </div>
+            <div class="att-summary-card__stat att-summary-card__stat--gray">
+              <span class="att-summary-card__value">{{ ak.total_absent }}</span>
+              <span class="att-summary-card__label">Absent</span>
+            </div>
+            <div class="att-summary-card__stat att-summary-card__stat--yellow">
+              <span class="att-summary-card__value">{{ ak.total_early_leave }}</span>
+              <span class="att-summary-card__label">Early Leave</span>
+            </div>
+            <div class="att-summary-card__pct">
+              <span class="att-summary-card__pct-value">{{ ak.on_time_pct }}%</span>
+              <span class="att-summary-card__pct-label">On-time rate</span>
+            </div>
+          </div>
+        } @else {
+          <span class="att-summary-card__loading">Loading attendance…</span>
+        }
+        <div class="att-summary-card__cta">
+          View full report
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </div>
+      </div>
+    }
+
     <!-- ── Supervisor: team panel ───────────────────────────────────────── -->
     @if (isSuperviseur()) {
       <div class="team-panel">

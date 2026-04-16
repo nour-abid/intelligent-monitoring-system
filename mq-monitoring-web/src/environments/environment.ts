@@ -5,8 +5,8 @@ export const environment = {
   production: false,
   apiBaseUrl: '',
   reverbKey:          'mq-monitoring-key',
-  reverbHost:         'localhost',
+  reverbHost:         '127.0.0.1',
   reverbPort:         6001,
   reverbScheme:       'http',
-  reverbAuthEndpoint: 'http://localhost:8081/broadcasting/auth',
+  reverbAuthEndpoint: 'http://127.0.0.1:8081/broadcasting/auth',
 };

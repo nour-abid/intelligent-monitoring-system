@@ -36,8 +36,8 @@ class AlertEvaluationService
     private const TABLE             = 'surveillance_events';
     private const ATTENDANCE_TABLE  = 'attendance_events';
 
-    private int    $inactiveThresholdMinutes;
-    private int    $phoneThresholdMinutes;
+    private int    $inactiveThresholdSec;
+    private int    $phoneThresholdSec;
     private int    $cooldownMinutes;
     private string $lateWorkdayStart;
     private int    $lateTolerance;
@@ -46,8 +46,19 @@ class AlertEvaluationService
 
     public function __construct()
     {
-        $this->inactiveThresholdMinutes = (int)    config('alerts.inactive_threshold_minutes', 10);
-        $this->phoneThresholdMinutes    = (int)    config('alerts.phone_threshold_minutes', 5);
+        // Seconds-based override takes priority (> 0) — useful for demos.
+        // Falls back to the minute-based config × 60.
+        $inactiveOverrideSec = (int) config('alerts.inactive_threshold_seconds', 0);
+        $phoneOverrideSec    = (int) config('alerts.phone_threshold_seconds',    0);
+
+        $this->inactiveThresholdSec = $inactiveOverrideSec > 0
+            ? $inactiveOverrideSec
+            : (int) config('alerts.inactive_threshold_minutes', 10) * 60;
+
+        $this->phoneThresholdSec = $phoneOverrideSec > 0
+            ? $phoneOverrideSec
+            : (int) config('alerts.phone_threshold_minutes', 5) * 60;
+
         $this->cooldownMinutes          = (int)    config('alerts.cooldown_minutes', 30);
         $this->lateWorkdayStart         = (string) config('alerts.late_workday_start', '08:00');
         $this->lateTolerance            = (int)    config('alerts.late_tolerance_minutes', 15);
@@ -58,24 +69,22 @@ class AlertEvaluationService
     /**
      * Run all threshold checks.
      *
+     * @param  bool $forceEarlyLeave  Skip the "after workday_end" guard — useful for demos/testing.
      * @return int  Number of alerts broadcast.
      */
-    public function evaluate(): int
+    public function evaluate(bool $forceEarlyLeave = false): int
     {
         $fired = 0;
 
-        // Surveillance-based activity checks — guarded by surveillance DB availability.
-        $survPath = config('database.connections.surveillance.database');
-        if (is_string($survPath) && file_exists($survPath)) {
-            $fired += $this->checkActivity('Inactive',    $this->inactiveThresholdMinutes, 'inactive');
-            $fired += $this->checkActivity('Using_Phone', $this->phoneThresholdMinutes,    'phone');
-        }
+        // Surveillance-based activity checks (PostgreSQL).
+        $fired += $this->checkActivity('Inactive',    $this->inactiveThresholdSec, 'inactive');
+        $fired += $this->checkActivity('Using_Phone', $this->phoneThresholdSec,    'phone');
 
         // Attendance-based checks — guarded independently inside checkLateArrival().
         $fired += $this->checkLateArrival();
 
         // Surveillance-based end-of-day check — guarded independently inside checkEarlyLeave().
-        $fired += $this->checkEarlyLeave();
+        $fired += $this->checkEarlyLeave($forceEarlyLeave);
 
         return $fired;
     }
@@ -87,14 +96,17 @@ class AlertEvaluationService
     /**
      * For each identity: sum activity seconds in the rolling window.
      * If the sum meets the threshold, fire an alert (subject to cooldown).
+     *
+     * @param string $activity      Surveillance activity label (e.g. 'Inactive')
+     * @param int    $thresholdSec  Window size AND required total, in seconds
+     * @param string $alertType     Alert type label ('inactive' | 'phone')
      */
     private function checkActivity(
         string $activity,
-        int    $thresholdMinutes,
+        int    $thresholdSec,
         string $alertType,
     ): int {
-        $thresholdSec = $thresholdMinutes * 60;
-        $windowStart  = now()->subMinutes($thresholdMinutes)->format('Y-m-d H:i:s');
+        $windowStart = now()->subSeconds($thresholdSec)->format('Y-m-d H:i:s');
 
         $rows = DB::connection(self::SURVEILLANCE_CONN)
             ->table(self::TABLE)
@@ -103,10 +115,12 @@ class AlertEvaluationService
                 DB::raw('SUM(duration_sec) AS total_sec'),
             ])
             ->where('activity', $activity)
-            ->where('timestamp_start', '>=', $windowStart)
+            // Match events that OVERLAP the window: they ended after the window opened.
+            // This catches heartbeat rows whose activity_start was before the window.
+            ->where('timestamp_end', '>=', $windowStart)
             ->where('identity_name', '!=', 'Unknown')
             ->groupBy('identity_name')
-            ->havingRaw('total_sec >= ?', [$thresholdSec])
+            ->havingRaw('SUM(duration_sec) >= ?', [$thresholdSec])
             ->get();
 
         $fired = 0;
@@ -127,6 +141,7 @@ class AlertEvaluationService
             }
 
             $durationMinutes = round((float) $row->total_sec / 60, 1);
+            $thresholdMinutes = (int) ceil($thresholdSec / 60);
 
             try {
                 broadcast(new BehaviorAlertEvent(
@@ -344,14 +359,15 @@ class AlertEvaluationService
      * Only runs after the configured workday end time has passed.
      * Fires at most one early_leave alert per person per calendar day.
      */
-    private function checkEarlyLeave(): int
+    private function checkEarlyLeave(bool $force = false): int
     {
         $today = now()->format('Y-m-d');
 
         // Only run this check after the workday end time has passed.
         // Before that, absence of a recent record is expected and not actionable.
+        // Pass $force=true from the demo command to bypass this guard.
         $workdayEndTs = strtotime($today . ' ' . $this->earlyLeaveWorkdayEnd);
-        if (time() < $workdayEndTs) {
+        if (!$force && time() < $workdayEndTs) {
             return 0;
         }
 

@@ -172,11 +172,11 @@ clip_capture_fps: 15
 
 # Seconds of Using_Phone activity required to confirm a clip.
 # Should match the Laravel phone alert threshold (alerts.php: phone_threshold_minutes * 60).
-clip_phone_threshold_sec: 300     # 5 minutes
+clip_phone_threshold_sec: 30      # DEMO: 30 seconds (production: 300)
 
 # Seconds of Inactive activity required to confirm a clip.
 # Should match the Laravel inactive alert threshold (alerts.php: inactive_threshold_minutes * 60).
-clip_inactive_threshold_sec: 600  # 10 minutes
+clip_inactive_threshold_sec: 30   # DEMO: 30 seconds (production: 600)
 
 # ── Clip metadata API (Python → Laravel) ───────────────────────────────────
 # Set to false to disable the metadata POST entirely (clips still saved locally).
@@ -190,7 +190,7 @@ clip_api_url: "http://127.0.0.1:8081/api/internal/clips"
 # MUST match the value of SURVEILLANCE_INTERNAL_TOKEN in mq-monitoring-api/.env exactly.
 # Generate with:  php -r "echo bin2hex(random_bytes(32));"
 # Then set the same value in both files before starting either service.
-clip_api_token: "change-me-in-production"
+clip_api_token: "put_a_long_random_secret_here"
 
 # Seconds to wait for a response before giving up.  Keep low — the pipeline must not block.
 clip_api_timeout_sec: 3

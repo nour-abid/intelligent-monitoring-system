@@ -5,7 +5,7 @@
     <div class="timeline__count">{{ segments().length }} segment{{ segments().length !== 1 ? 's' : '' }}</div>
 
     <div class="timeline__list">
-      @for (seg of segments(); track seg.timestamp_start + seg.track_id; let last = $last) {
+      @for (seg of segments(); track seg.timestamp_start + '_' + seg.track_id + '_' + $index; let last = $last) {
         <div
           class="seg"
           [style.border-left-color]="accentColor(seg.activity)"

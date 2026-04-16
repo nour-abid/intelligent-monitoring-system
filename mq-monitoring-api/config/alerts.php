@@ -21,6 +21,11 @@ return [
     'phone_threshold_minutes'    => (int) env('ALERT_PHONE_THRESHOLD_MINUTES', 5),
     'cooldown_minutes'           => (int) env('ALERT_COOLDOWN_MINUTES', 30),
 
+    // Demo/testing overrides: when set (> 0), these are used instead of the minute-based
+    // thresholds above. Allows sub-minute alert windows for live demos.
+    'inactive_threshold_seconds' => (int) env('ALERT_INACTIVE_THRESHOLD_SECONDS', 0),
+    'phone_threshold_seconds'    => (int) env('ALERT_PHONE_THRESHOLD_SECONDS', 0),
+
     /*
     |--------------------------------------------------------------------------
     | Late Arrival Thresholds

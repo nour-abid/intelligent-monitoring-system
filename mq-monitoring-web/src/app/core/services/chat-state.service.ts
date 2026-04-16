@@ -111,20 +111,24 @@ export class ChatStateService {
             { role: 'assistant', text: replyText, html, chartSpecs, error: true },
           ]);
         } else {
-          // Map server-provided ChartData to the frontend ChartSpec shape.
-          const serverChart: ChartSpec | undefined = res.chart
-            ? {
-                type:   res.chart.type as 'bar' | 'line' | 'pie',
-                title:  res.chart.title,
-                labels: res.chart.labels,
-                values: res.chart.values,
-                colors: res.chart.colors?.length
-                  ? res.chart.colors
-                  : this.defaultColors(res.chart.labels.length),
-                unit: res.chart.unit,
-              }
-            : undefined;
-          this.typeEffect(msgIndex, replyText, serverChart);
+          // Map all server-provided ChartData to ChartSpec shape.
+          // Use res.charts (array) when available, fall back to res.chart (single).
+          const rawCharts = res.charts?.length
+            ? res.charts
+            : (res.chart ? [res.chart] : []);
+
+          const serverCharts: ChartSpec[] = rawCharts.map(c => ({
+            type:   c.type as 'bar' | 'line' | 'pie',
+            title:  c.title,
+            labels: c.labels,
+            values: c.values,
+            colors: c.colors?.length
+              ? c.colors
+              : this.defaultColors(c.labels.length),
+            unit: c.unit,
+          }));
+
+          this.typeEffect(msgIndex, replyText, serverCharts);
         }
       },
       error: () => {
@@ -149,7 +153,7 @@ export class ChatStateService {
 
   // ── Typing animation ───────────────────────────────────────────────────
 
-  private typeEffect(msgIndex: number, fullText: string, serverChart?: ChartSpec): void {
+  private typeEffect(msgIndex: number, fullText: string, serverCharts: ChartSpec[] = []): void {
     this.stopTyping();
 
     // Extract chart blocks first — they will be added at the final step
@@ -183,13 +187,13 @@ export class ChatStateService {
       if (wordPos < words.length) {
         this.typeTimer = setTimeout(step, 22);
       } else {
-        // Final render: merge LLM-embedded chart blocks + server-resolved chart
+        // Final render: merge LLM-embedded chart blocks + all server-resolved charts
         const { html: finalHtml } = this.renderMarkdown(fullText);
         const allSpecs = [...chartSpecs];
         let markerHtml = '';
-        if (serverChart) {
-          markerHtml = `[[CHART_${allSpecs.length}]]`;
-          allSpecs.push(serverChart);
+        for (const sc of serverCharts) {
+          markerHtml += `[[CHART_${allSpecs.length}]]`;
+          allSpecs.push(sc);
         }
         this.messages.update(msgs => {
           const next = [...msgs];

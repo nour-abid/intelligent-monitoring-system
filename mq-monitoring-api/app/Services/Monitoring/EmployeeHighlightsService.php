@@ -213,9 +213,10 @@ class EmployeeHighlightsService
         try {
             $rows = $this->querySurveillanceWindow($identityName, $windowStart, $windowEnd);
             foreach ($rows as $row) {
-                if ($row->activity === 'using_phone') {
+                $act = strtolower((string) $row->activity);
+                if ($act === 'using_phone') {
                     $phoneSec += (float) $row->total_sec;
-                } elseif ($row->activity === 'inactive') {
+                } elseif ($act === 'inactive') {
                     $inactiveSec += (float) $row->total_sec;
                 }
             }
@@ -247,7 +248,7 @@ class EmployeeHighlightsService
         $replayAvailable = false;
 
         foreach ($alertIds as $aid) {
-            if (AlertReplaySource::where('alert_id', $aid)->exists()) {
+            if (AlertReplaySource::where('behavior_alert_id', $aid)->exists()) {
                 $replayAvailable = true;
                 $replayAlertId   = $aid;
                 break;

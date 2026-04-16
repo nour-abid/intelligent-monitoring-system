@@ -17,6 +17,102 @@
   text-align: center;
 }
 
+/* ── Attendance summary mini card ───────────────────────────── */
+.att-summary-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-4) var(--sp-5);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    border-color: var(--color-primary-light);
+    box-shadow: var(--shadow-md);
+  }
+
+  &__kpis {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-6);
+    flex-wrap: wrap;
+    flex: 1;
+  }
+
+  &__stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 56px;
+  }
+
+  &__value {
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  &__label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-3);
+  }
+
+  &__stat--green  .att-summary-card__value { color: #10b981; }
+  &__stat--red    .att-summary-card__value { color: #ef4444; }
+  &__stat--yellow .att-summary-card__value { color: #f59e0b; }
+  &__stat--gray   .att-summary-card__value { color: #6b7280; }
+
+  &__pct {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding-left: var(--sp-4);
+    border-left: 1px solid var(--color-border);
+    min-width: 80px;
+  }
+
+  &__pct-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-text-1);
+  }
+
+  &__pct-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-3);
+  }
+
+  &__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-1);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-primary-light);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  &__loading {
+    font-size: 13px;
+    color: var(--color-text-3);
+  }
+}
+
 /* ── Page section label ─────────────────────────────────────── */
 .page-section-label {
   margin: 0;

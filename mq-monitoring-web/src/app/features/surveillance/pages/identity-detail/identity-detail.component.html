@@ -213,104 +213,34 @@
       <app-smart-guidance [messages]="smartGuidance()" />
     }
 
-    <!-- Activity mix flow card -->
+    <!-- Activity Distribution + Frequency (unified, all roles) -->
     @if (activityTotals().length > 0) {
-      <div class="flow-card">
-        <div class="flow-card__header">
-          <h3 class="flow-card__title">Activity Mix</h3>
-          <span class="flow-card__sub">Proportional time distribution across all activities</span>
+      <div class="analytics-section">
+        <div class="analytics-section__chart">
+          <app-activity-chart [stats]="activityStats()" />
         </div>
-        <div
-          class="flow-strip"
-          role="img"
-          [attr.aria-label]="'Activity distribution for ' + name()"
-        >
-          @for (item of activityTotals(); track item.activity) {
-            <div
-              class="flow-strip__seg"
-              [style.width]="(item.share * 100) + '%'"
-              [style.background-color]="item.color"
-              [title]="item.activity.replace(/_/g, ' ') + ' — ' + item.formatted + ' (' + (item.share * 100).toFixed(1) + '%)'" 
-            ></div>
-          }
-        </div>
-        <div class="flow-legend">
-          @for (item of activityTotals(); track item.activity) {
-            <div class="flow-legend__item">
-              <span class="flow-legend__dot" [style.background-color]="item.color"></span>
-              <span class="flow-legend__name">{{ item.activity.replace(/_/g, ' ') }}</span>
-              <span class="flow-legend__pct">{{ (item.share * 100).toFixed(1) }}%</span>
-              <span class="flow-legend__dur">{{ item.formatted }}</span>
-            </div>
-          }
-        </div>
-      </div>
-    }
-
-    <!-- Activity Distribution chart -->
-    @if (activityTotals().length > 0) {
-      @if (role() !== 'viewer') {
-        <!-- Admin/supervisor: dual-column layout with frequency chart -->
-        <div class="analytics-section">
-          <div class="analytics-section__chart">
-            <app-activity-chart [stats]="activityStats()" />
-          </div>
-          <div class="analytics-section__chart">
-            <div class="seg-chart">
-              <h3 class="seg-chart__title">Activity Frequency</h3>
-              <p class="seg-chart__sub">Number of detected segments per activity</p>
-              @for (item of activityTotals(); track item.activity) {
-                <div class="seg-chart__row">
-                  <div class="seg-chart__label" [title]="item.activity">{{ item.activity.replace(/_/g, ' ') }}</div>
-                  <div class="seg-chart__track">
-                    <div
-                      class="seg-chart__bar"
-                      [style.width]="segPct(item.segment_count)"
-                      [style.background-color]="item.color"
-                      role="progressbar"
-                      [attr.aria-valuenow]="item.segment_count"
-                      [attr.aria-valuemax]="maxSegmentCount()"
-                    ></div>
-                  </div>
-                  <div class="seg-chart__count">{{ item.segment_count }}</div>
-                </div>
-              }
-            </div>
-          </div>
-        </div>
-      } @else {
-        <!-- Viewer: full-width Activity Distribution only -->
-        <app-activity-chart [stats]="activityStats()" />
-      }
-    }
-
-    <!-- Full detailed breakdown table (admin/supervisor only) -->
-    @if (activityTotals().length > 0 && role() !== 'viewer') {
-      <div class="breakdown-card">
-        <h3 class="breakdown-card__title">Detailed Activity Breakdown</h3>
-        <table class="breakdown-table">
-          <thead>
-            <tr>
-              <th class="breakdown-table__th">Activity</th>
-              <th class="breakdown-table__th breakdown-table__th--num">Duration</th>
-              <th class="breakdown-table__th breakdown-table__th--num">Segments</th>
-              <th class="breakdown-table__th breakdown-table__th--num">Share</th>
-            </tr>
-          </thead>
-          <tbody>
+        <div class="analytics-section__chart">
+          <div class="seg-chart">
+            <h3 class="seg-chart__title">Activity Frequency</h3>
+            <p class="seg-chart__sub">Number of detected segments per activity</p>
             @for (item of activityTotals(); track item.activity) {
-              <tr class="breakdown-table__row">
-                <td class="breakdown-table__td breakdown-table__td--activity">
-                  <span class="breakdown-dot" [style.background-color]="item.color"></span>
-                  <span class="badge {{ item.badgeClass }}">{{ item.activity.replace(/_/g, ' ') }}</span>
-                </td>
-                <td class="breakdown-table__td breakdown-table__td--num">{{ item.formatted }}</td>
-                <td class="breakdown-table__td breakdown-table__td--num">{{ item.segment_count }}</td>
-                <td class="breakdown-table__td breakdown-table__td--num">{{ (item.share * 100).toFixed(1) }}%</td>
-              </tr>
+              <div class="seg-chart__row">
+                <div class="seg-chart__label" [title]="item.activity">{{ item.activity.replace(/_/g, ' ') }}</div>
+                <div class="seg-chart__track">
+                  <div
+                    class="seg-chart__bar"
+                    [style.width]="segPct(item.segment_count)"
+                    [style.background-color]="item.color"
+                    role="progressbar"
+                    [attr.aria-valuenow]="item.segment_count"
+                    [attr.aria-valuemax]="maxSegmentCount()"
+                  ></div>
+                </div>
+                <div class="seg-chart__count">{{ item.segment_count }}</div>
+              </div>
             }
-          </tbody>
-        </table>
+          </div>
+        </div>
       </div>
     }
 

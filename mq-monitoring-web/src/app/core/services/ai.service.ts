@@ -23,6 +23,8 @@ export interface ChatResponse {
   error?: string;
   /** Server-resolved chart dataset (null when the reply has no chartspec). */
   chart?: ChartData | null;
+  /** All server-resolved charts — may contain 1–2 entries for executive queries. */
+  charts?: ChartData[];
 }
 
 export interface ReportResponse {

@@ -47,6 +47,8 @@ import json
 import logging
 import re
 import time
+import shutil
+import subprocess
 import urllib.error
 import urllib.request
 from collections import deque
@@ -276,8 +278,11 @@ class _ClipSession:
             self._writer.release()
             self._writer = None
         if self.output_path.exists() and self.output_path.stat().st_size > 0:
-            self._saved_path = str(self.output_path)
-            size_kb = self.output_path.stat().st_size / 1024
+            # Transcode mp4v → H.264 so browsers can play the clip natively.
+            transcoded = self._transcode_to_h264(self.output_path)
+            final_path = transcoded if transcoded else self.output_path
+            self._saved_path = str(final_path)
+            size_kb = final_path.stat().st_size / 1024
             log.info(
                 "[CLIP] Saved confirmed clip: %s (%.1f KB)",
                 self._saved_path, size_kb,
@@ -289,6 +294,59 @@ class _ClipSession:
             )
             self._try_unlink()
         self._state = "done"
+
+    @staticmethod
+    def _transcode_to_h264(src: Path) -> Optional[Path]:
+        """Re-encode *src* (mp4v) to H.264 in a sibling file, then replace src.
+
+        Returns the path to the transcoded file on success, or None on failure
+        (the original mp4v file is kept so the clip is not lost).
+        """
+        ffmpeg = shutil.which("ffmpeg")
+        if not ffmpeg:
+            log.debug("[CLIP] ffmpeg not found — skipping H.264 transcode")
+            return None
+
+        tmp = src.with_suffix(".h264.mp4")
+        cmd = [
+            ffmpeg, "-y",
+            "-i", str(src),
+            "-c:v", "libx264",
+            "-preset", "fast",
+            "-crf", "28",
+            "-movflags", "+faststart",   # moov atom at front for streaming
+            "-an",                        # no audio track
+            str(tmp),
+        ]
+        try:
+            result = subprocess.run(
+                cmd,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                timeout=120,
+            )
+            if result.returncode != 0:
+                log.warning(
+                    "[CLIP] ffmpeg transcode failed (rc=%d): %s",
+                    result.returncode,
+                    result.stderr.decode(errors="replace")[-400:],
+                )
+                tmp.unlink(missing_ok=True)
+                return None
+
+            # Replace the mp4v source with the H.264 version.
+            src.unlink(missing_ok=True)
+            tmp.rename(src)
+            log.info("[CLIP] Transcoded to H.264: %s", src.name)
+            return src
+        except subprocess.TimeoutExpired:
+            log.warning("[CLIP] ffmpeg transcode timed out for %s", src.name)
+            tmp.unlink(missing_ok=True)
+            return None
+        except Exception as exc:
+            log.warning("[CLIP] ffmpeg transcode error: %s", exc)
+            tmp.unlink(missing_ok=True)
+            return None
 
     def _discard(self) -> None:
         if self._writer is not None and self._writer.isOpened():

@@ -27,88 +27,93 @@ class AiController extends Controller
     // ── System prompts ───────────────────────────────────────────────────────
 
     private const CHAT_SYSTEM_PROMPT = <<<'PROMPT'
-You are an AI business-intelligence assistant for MQ Monitoring — a workplace
-activity surveillance platform used by operations managers to analyse employee
-productivity. Your replies must read like a professional analytics report:
-concise, data-anchored, and free of filler language.
+You are Marqi — a decision assistant for MQ Monitoring. Every reply must let
+a manager act immediately. Target: understood in ≤5 seconds. Be direct, not
+descriptive. Never narrate. Never label what you are doing.
 
-═══ CORE RULES ══════════════════════════════════════════════════════════════════
-1. For TEXT answers: reference only data explicitly present in the conversation
-   context. If a purely text question falls entirely outside the available data,
-   reply: "I can only analyse the data currently loaded in the system."
-   EXCEPTION — CHARTS: when the user asks for any chart, graph, trend, or visual,
-   ALWAYS emit a chartspec block using the valid combinations below. Chart data
-   is fetched live from the database; you do NOT need it in the context.
-   Never refuse a chart request — if the user asks for a chart, produce one.
-2. Never invent numbers, estimates, or trend extrapolations in text answers.
-3. Stay on topic: workplace monitoring and productivity analytics only.
-4. When the context contains an INSIGHT FACTS block, anchor every answer on
-   those pre-computed, priority-ranked findings. Cite each [CRITICAL] and
-   [WARNING] by name, exact value, and threshold gap.
-5. Bold every cited number: **38%**, **2h 15m**, **focus score 54**.
-6. BANNED phrases — never use these:
-   "this shows", "we can see", "it appears", "overall", "generally",
-   "as expected", "it is worth noting", "a high percentage", "a low percentage".
-   Instead name the metric directly: "Phone usage at **38%**" not "phone usage is high".
+═══ MANDATORY RESPONSE STRUCTURE ════════════════════════════════════════════════
+Every reply MUST follow this exact order:
 
-═══ CHART RESPONSE FORMAT ═══════════════════════════════════════════════════════
-Whenever your reply includes a chartspec block, the text portion MUST follow
-this exact structure — no prose paragraphs, no deviations:
+**Executive Summary**
+[1–2 lines. Name the single most urgent problem, its exact value, and who or what
+is affected. No scene-setting. One clear statement of risk.]
 
-  **[Descriptive title: metric · scope · time range]**
-  • [Insight 1] — Dominant value: name the top segment/employee/day with
-    exact % or duration. Compare it to the second-ranked value.
-  • [Insight 2] — Comparison: state the gap between top and second. Flag if any
-    non-Working activity exceeds Working time.
-  • [Insight 3] — Anomaly/threshold: flag any [CRITICAL] or [WARNING] with the
-    exact measured value and threshold (e.g., "Phone usage at **41%** vs the
-    **40%** critical threshold").
-  • [Insight 4] — Trend/range: highest and lowest data points with their
-    date/hour and the range (max − min). Include only when data supports it.
+**Priority Findings**
+Critical: [≤2 items. Format: "[CRITICAL] [Name] has [metric] at [value] and requires immediate action"]
+Warning:  [≤2 items. Format: "[WARNING]  [Name/metric] is at [value] — monitor closely"]
+Normal:   [≤2 items. Format: "[OK]       [Name/metric] is within normal range ([value])"]
 
-  > **Recommendation:** One sentence. Include only when a [CRITICAL] or [WARNING]
-  > is present. Name the metric, its value, and the threshold. Omit otherwise.
+**Key Insights**
+• [≤3 bullets. Max 15 words each. Combine related signals into one line.
+  Example: "Nour shows low focus (**18%**) with high inactivity (**46%**)"]
 
-For analytical questions WITHOUT a chart, reply in 2–4 tight sentences using the
-same data-first style: lead with the number, then the interpretation.
+**Recommended Actions**
+1. [≤3 items. Format: "[Action verb] [target]". Max 8 words. No dashes, no context.
+  Examples: "Review Nour's performance immediately"
+            "Enforce phone policy team-wide"
+            "Investigate mid-week productivity drop"]
 
-═══ COMPARISON LOGIC ════════════════════════════════════════════════════════════
-Distribution charts  → rank all segments by share. Name the top 2 and the gap.
-                       Flag if any non-Working activity outweighs Working.
-Over-time charts     → identify peak (highest) and trough (lowest) points with
-                       their date/hour. State the range: max − min. Flag if
-                       values cross a threshold boundary.
-Ranking charts       → name the best and worst entries with exact scores.
-                       Flag critical (< **40%**) and at-risk (**40–69%**).
+[chartspec blocks go here when applicable]
 
-═══ ANOMALY THRESHOLDS ══════════════════════════════════════════════════════════
-Flag these as [CRITICAL] in your bullets:
-  • Focus score < 40%
-  • Phone usage > 40% of core time
-  • Inactivity > 60% of core time
-  • Working time < 10% of core time
+═══ BULLET WRITING RULES ════════════════════════════════════════════════════════
+NEVER use narration labels. Write the statement directly.
 
-Flag these as [WARNING]:
-  • Focus score 40–69%
-  • Phone usage 25–40% of core time
-  • Inactivity 40–60% of core time
+BANNED label prefixes: "Dominant value:", "Comparison:", "Anomaly/threshold:",
+  "Insight N:", "Top value:", "Trend/range:", "Ranking:"
 
-═══ CHART GENERATION ════════════════════════════════════════════════════════════
-Generate a chartspec block whenever the user asks for a chart, graph, visual,
-trend, comparison, breakdown, or ranking. NEVER refuse a chart request by saying
-data is unavailable — chart data is always fetched live from the database.
-When in doubt, generate the chart.
+BANNED stacked qualifiers: "critically low productive output", "minimum threshold
+  breach", "underperforming baseline", "X points below threshold",
+  "limit exceeded", "below critical threshold".
 
-Output a fenced block tagged `chartspec` containing ONLY a JSON intent object
-(no data values, no SQL, no placeholders):
+GOOD bullet examples (max 15 words each — combine related signals):
+  ✓ "Nour shows low focus (**18%**) with high inactivity (**46%**)"
+  ✓ "team phone usage is too high (**43%**) and is reducing focus"
+  ✓ "working time dropped sharply mid-week — productivity is unstable"
+  ✓ "3 of 5 employees need intervention — team focus average is **38%**"
+
+BAD examples:
+  ✗ "bellaaj has focus at 27% which is below the critical threshold of 40%"
+  ✗ "Phone usage at 41% — exceeds the 40% critical limit"
+  ✗ "critically low productive output detected"
+
+Threshold values:
+- Mention ONCE in Priority Findings only.
+- If [CRITICAL] is shown, do NOT add "below threshold" anywhere else.
+- Key Insights and Recommended Actions must NOT restate threshold logic.
+
+Every bullet answers ONE of: what is wrong / who is affected / what to do.
+
+═══ DEDUPLICATION RULES (MANDATORY) ════════════════════════════════════════════
+1. A finding in Priority Findings MUST NOT repeat in Key Insights or Actions.
+2. Threshold values MUST be cited at most ONCE per response.
+3. The same employee name MUST NOT appear in the same section twice.
+4. The same recommendation MUST NOT appear in two sections.
+
+═══ CHART RULES (MANDATORY) ════════════════════════════════════════════════════
+If the user message contains ANY of: chart, graph, plot, visualize, visualise,
+dashboard, trend, compare → emit at least ONE ```chartspec``` block. No exceptions.
+For executive/management queries ("what actions should management take?",
+"show supporting charts") → emit TWO ```chartspec``` blocks:
+  Chart 1 (mandatory): focus_score per employee (bar) — answers "Who is the problem?"
+  Chart 2 (driver-based): pick the metric that explains WHY, in this priority order:
+    1. inactivity per employee (bar)   — if inactivity appears elevated in context
+    2. phone_usage per employee (bar)  — if phone usage is a stated concern
+    3. working_time by day (line)      — if time-based instability is evident
+    4. activity_distribution per employee (bar) — ONLY if no stronger signal exists
+  Do NOT always default to activity_distribution. Pick the driver that explains Chart 1.
+NEVER say "no data available" for chart requests — data is fetched live.
+
+═══ CHART SPEC FORMAT ═══════════════════════════════════════════════════════════
+Output a fenced block tagged `chartspec` with ONLY a JSON intent object:
   ```chartspec
-  {"chart_type":"bar","metric":"phone_usage","group_by":"employee","time_range":"7d"}
+  {"chart_type":"bar","metric":"focus_score","group_by":"employee","time_range":"7d"}
   ```
-  Strict allowed values — never guess or combine outside these lists:
-  chart_type : bar | line | donut
-  metric     : working_time | phone_usage | inactivity | focus_score | alerts | late_arrivals | early_leaves | activity_distribution
-  group_by   : day | hour | weekday | employee | activity | alert_type
-  time_range : 7d | 30d | today | week | month
+  Valid values:
+    chart_type : bar | line | donut
+    metric     : working_time | phone_usage | inactivity | focus_score | alerts
+                 | late_arrivals | early_leaves | activity_distribution
+    group_by   : day | hour | weekday | employee | activity | alert_type
+    time_range : 7d | 30d | today | week | month
   Valid metric+group_by pairs:
     working_time         → day | hour | weekday | employee
     phone_usage          → day | hour | weekday | employee
@@ -118,38 +123,55 @@ Output a fenced block tagged `chartspec` containing ONLY a JSON intent object
     late_arrivals        → day | weekday | employee
     early_leaves         → day | weekday | employee
     activity_distribution→ activity | employee
-  Natural-language → chartspec examples:
-    "show activity breakdown"             → metric:activity_distribution, group_by:activity,  chart_type:donut
-    "compare employees by total time"     → metric:activity_distribution, group_by:employee,  chart_type:bar
-    "compare employees by activity time"  → metric:activity_distribution, group_by:employee,  chart_type:bar
-    "phone usage trend this month"        → metric:phone_usage,           group_by:day,       chart_type:line, time_range:month
-    "alerts by type"                      → metric:alerts,                group_by:alert_type,chart_type:donut
-    "who is most productive"              → metric:focus_score,           group_by:employee,  chart_type:bar
-    "working time by day"                 → metric:working_time,          group_by:day,       chart_type:bar
-    "inactivity per employee"             → metric:inactivity,            group_by:employee,  chart_type:bar
-  Always accompany the chartspec block with the structured text format above.
+  Query → chartspec mapping:
+    "least/most productive employee"    → focus_score,            employee, bar
+    "phone usage per employee"          → phone_usage,            employee, bar
+    "focus score per employee"          → focus_score,            employee, bar
+    "activity trends over time"         → working_time,           day,      line
+    "peak and low productivity periods" → working_time,           day,      line
+    "activity distribution"             → activity_distribution,  activity, donut
+    "working vs inactive breakdown"     → activity_distribution,  employee, bar
+    "phone usage trend"                 → phone_usage,            day,      line
+    "working time by day"               → working_time,           day,      bar
+    "inactivity per employee"           → inactivity,             employee, bar
+    "who is most productive"            → focus_score,            employee, bar
+
+After each chartspec, add exactly 2 bullets using executive phrasing:
+  • [Who leads or lags, with their exact value — and what it means operationally]
+  • [The most actionable gap or risk across the dataset — one sentence]
+
+═══ ANOMALY THRESHOLDS ══════════════════════════════════════════════════════════
+[CRITICAL]: Focus score < 40% | Phone usage > 40% | Inactivity > 60% |
+            Working time < 10%
+[WARNING]:  Focus score 40–69% | Phone usage 25–40% | Inactivity 40–60%
+
+═══ CORE RULES ══════════════════════════════════════════════════════════════════
+1. Reference only data present in context. If no data: "I can only analyse the
+   data currently loaded in the system." — EXCEPTION: always emit chartspecs.
+2. Never invent numbers or estimates.
+3. Bold every cited number: **38%**, **2h 15m**, **54**.
+4. BANNED phrases: "this shows", "we can see", "it appears", "overall",
+   "generally", "as expected", "it is worth noting", "a high percentage".
+5. Stay on topic: workplace monitoring and productivity analytics only.
 PROMPT;
 
     private const REPORT_SYSTEM_PROMPT = <<<'PROMPT'
-You are a professional analyst for MQ Monitoring (workplace activity surveillance).
-Generate a focused report using ONLY the data in the prompt. Never invent or estimate values.
+You are a professional analyst for MQ Monitoring. Generate a concise report
+anchored ONLY on the INSIGHT FACTS block. Never invent or estimate values.
 
-INPUT FORMAT: The prompt starts with a structured INSIGHT FACTS block (pre-computed,
-priority-ranked findings) followed by the raw activity detail for reference.
-
-Use exactly these five markdown headings in order:
-## Executive Summary — 2 sentences citing the highest-priority INSIGHT FACTS.
-## Key Metrics     — up to 5 bullet points with exact numbers from the data.
-## Observations    — 3–4 bullets identifying specific patterns from INSIGHT FACTS.
-## Recommendations — 2–3 numbered actions, each tied to a named [CRITICAL]/[WARNING] finding.
-## Conclusion      — 1 paragraph summarising the overall pattern.
+Use exactly these five headings in order:
+## Executive Summary — 2 sentences. State the top risk and who is affected.
+## Key Metrics      — ≤4 bullets. Format: "[Name]: [metric] at [value]".
+## Observations     — 3 bullets. Each names one pattern and its operational impact.
+## Recommendations  — ≤3 numbered actions. Format: "[Name/team]: [specific action]."
+## Conclusion       — 1 sentence. State the team's overall risk level.
 
 ENFORCED RULES:
-- Every Recommendation must open with the finding it addresses, e.g.
-  "Because phone usage is 38% (threshold 25%)..."
-- Do NOT write generic advice. Name the specific metric, the measured value, and the gap.
+- Each finding appears in ONE section only — no repetition across sections.
 - Bold every cited number.
-- Max 500 words. Output clean markdown only.
+- ≤300 words total. Output clean markdown only.
+- No generic advice, no stacked qualifiers, no threshold restating if severity
+  level already makes urgency clear.
 PROMPT;
 
     public function __construct(
@@ -209,48 +231,258 @@ PROMPT;
             );
         }
 
-        // ── Chart spec extraction ────────────────────────────────────────────
-        // The LLM outputs a ```chartspec block with a typed intent (no data).
-        // Backend validates the spec, enforces RBAC scope, and builds the
-        // real dataset from analytics views.  Text reply is stripped of the
-        // block before being sent to the client.
-        $chart      = null;
+        // ── Multi-chart spec extraction ──────────────────────────────────────
+        // The LLM may output multiple ```chartspec blocks (e.g. for executive
+        // queries that require KPI + distribution charts).  Extract ALL of them,
+        // validate each, build real datasets, and strip the blocks from the text.
+        $allCharts  = [];
         $cleanReply = $reply;
 
-        if (preg_match('/```chartspec\s*([\s\S]*?)```/m', $reply, $m)) {
-            // Strip the block from the text shown to the user.
+        if (preg_match_all('/```chartspec\s*([\s\S]*?)```/m', $reply, $allMatches)) {
             $cleanReply = trim(preg_replace('/```chartspec[\s\S]*?```/m', '', $reply));
 
-            try {
-                $spec   = json_decode(trim($m[1]), true, 5, JSON_THROW_ON_ERROR);
+            $scope     = $this->resolveScope($request);
+            $dateStart = $validated['date_start'] ?? null;
+            $dateEnd   = $validated['date_end']   ?? null;
 
-                Log::info('AI chat: chartspec received', ['spec' => $spec]);
-
-                $errors = $this->chartData->validate($spec);
-
-                if (empty($errors)) {
-                    $scope     = $this->resolveScope($request);
-                    $dateStart = $validated['date_start'] ?? null;
-                    $dateEnd   = $validated['date_end']   ?? null;
-                    $chart = $this->chartData->build($spec, $scope, $dateStart, $dateEnd);
-                    // build() returns null when the query produces no rows
-                    if ($chart === null) {
-                        Log::info('AI chat: chartspec produced empty dataset', ['spec' => $spec]);
+            foreach ($allMatches[1] as $specJson) {
+                try {
+                    $spec   = json_decode(trim($specJson), true, 5, JSON_THROW_ON_ERROR);
+                    Log::info('AI chat: chartspec received', ['spec' => $spec]);
+                    $errors = $this->chartData->validate($spec);
+                    if (empty($errors)) {
+                        $chart = $this->chartData->build($spec, $scope, $dateStart, $dateEnd);
+                        if ($chart !== null) {
+                            $allCharts[] = $chart;
+                        } else {
+                            Log::info('AI chat: chartspec produced empty dataset', ['spec' => $spec]);
+                        }
+                    } else {
+                        Log::warning('AI chat: invalid chartspec from LLM', [
+                            'errors' => $errors, 'spec' => $spec,
+                        ]);
                     }
-                } else {
-                    Log::warning('AI chat: invalid chartspec from LLM', [
-                        'errors' => $errors,
-                        'spec'   => $spec,
+                } catch (\Exception $e) {
+                    Log::warning('AI chat: chartspec processing failed', [
+                        'error' => $e->getMessage(),
                     ]);
                 }
-            } catch (\Exception $e) {
-                Log::warning('AI chat: chartspec processing failed', [
-                    'error' => $e->getMessage(),
-                ]);
             }
         }
 
-        return response()->json(['reply' => $cleanReply, 'chart' => $chart]);
+        // ── Fallback chart selection ─────────────────────────────────────────
+        // If the query contained chart-intent keywords but the LLM produced no
+        // valid charts, auto-select and build the most relevant charts via rule-
+        // based logic (no LLM call required).
+        if (empty($allCharts) && $this->containsChartIntent($message)) {
+            $scope     = $this->resolveScope($request);
+            $dateStart = $validated['date_start'] ?? null;
+            $dateEnd   = $validated['date_end']   ?? null;
+            $fallbackSpecs = $this->selectVisualizationsForQuery($message);
+
+            foreach ($fallbackSpecs as $spec) {
+                try {
+                    $errors = $this->chartData->validate($spec);
+                    if (empty($errors)) {
+                        $chart = $this->chartData->build($spec, $scope, $dateStart, $dateEnd);
+                        if ($chart !== null) {
+                            $allCharts[] = $chart;
+                            Log::info('AI chat: fallback chart added', ['spec' => $spec]);
+                        }
+                    }
+                } catch (\Exception $e) {
+                    Log::warning('AI chat: fallback chart failed', ['error' => $e->getMessage()]);
+                }
+            }
+        }
+
+        return response()->json([
+            'reply'  => $cleanReply,
+            'chart'  => $allCharts[0] ?? null,  // backwards compat: first chart
+            'charts' => $allCharts,              // full array for multi-chart rendering
+        ]);
+    }
+
+    /**
+     * Detect whether the user's message contains chart-intent keywords.
+     * Triggers mandatory chart generation / fallback selection.
+     */
+    private function containsChartIntent(string $query): bool
+    {
+        $keywords = [
+            'chart', 'graph', 'plot', 'visualize', 'visualise',
+            'dashboard', 'trend', 'compare',
+        ];
+        $lower = strtolower($query);
+        foreach ($keywords as $kw) {
+            if (str_contains($lower, $kw)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Rule-based chart selector — returns up to 2 validated spec arrays.
+     *
+     * Chart 1: always answers "Who is the problem?" → focus_score per employee
+     * Chart 2: answers "Why?" → driver-based priority:
+     *   Executive: inactivity → phone_usage → working_time trend → activity_distribution
+     *   Trend query:        working_time by day (line)
+     *   Phone query:        phone_usage by employee or day
+     *   Distribution query: activity_distribution
+     *   Comparison/focus:   focus_score per employee only
+     *
+     * @return array[]  Array of spec arrays ready for ChartDataService::validate()
+     */
+    private function selectVisualizationsForQuery(string $query, string $timeRange = '7d'): array
+    {
+        $specs = [];
+        $q     = strtolower($query);
+
+        $isEmployeeComparison = (bool) preg_match(
+            '/least productive|most productive|phone usage per employee|focus score per employee'
+            . '|per employee|by employee|weakest|strongest|who is|compare employee/i',
+            $query
+        );
+        $isTrend        = (bool) preg_match(
+            '/trend|over time|per day|by day|daily|peak|low period|activity trend'
+            . '|working time per day/i',
+            $query
+        );
+        $isDistribution = (bool) preg_match(
+            '/distribution|breakdown|working vs|inactive vs|activity mix|split|activity type/i',
+            $query
+        );
+        $isInactivityQuery = str_contains($q, 'inactiv');
+        $isPhoneQuery      = str_contains($q, 'phone');
+        $isFocusQuery      = str_contains($q, 'focus');
+        $isExecutive       = (bool) preg_match(
+            '/action|management|should|recommend|supporting chart|visual summary'
+            . '|what should|management take/i',
+            $query
+        );
+
+        // ── Focus score: Chart 1 anchor ──────────────────────────────────────
+        if ($isEmployeeComparison || $isFocusQuery) {
+            $specs[] = [
+                'chart_type' => 'bar',
+                'metric'     => 'focus_score',
+                'group_by'   => 'employee',
+                'time_range' => $timeRange,
+            ];
+        }
+
+        // ── Phone usage ──────────────────────────────────────────────────────
+        if ($isPhoneQuery) {
+            $specs[] = $isTrend
+                ? ['chart_type' => 'line', 'metric' => 'phone_usage', 'group_by' => 'day',      'time_range' => $timeRange]
+                : ['chart_type' => 'bar',  'metric' => 'phone_usage', 'group_by' => 'employee', 'time_range' => $timeRange];
+        }
+
+        // ── Inactivity ───────────────────────────────────────────────────────
+        if ($isInactivityQuery) {
+            $specs[] = [
+                'chart_type' => 'bar',
+                'metric'     => 'inactivity',
+                'group_by'   => 'employee',
+                'time_range' => $timeRange,
+            ];
+        }
+
+        // ── Activity distribution ────────────────────────────────────────────
+        if ($isDistribution) {
+            $specs[] = [
+                'chart_type' => 'bar',
+                'metric'     => 'activity_distribution',
+                'group_by'   => 'employee',
+                'time_range' => $timeRange,
+            ];
+        }
+
+        // ── Working time trend ───────────────────────────────────────────────
+        if ($isTrend && !$isPhoneQuery) {
+            $specs[] = [
+                'chart_type' => 'line',
+                'metric'     => 'working_time',
+                'group_by'   => 'day',
+                'time_range' => $timeRange,
+            ];
+        }
+
+        // ── Executive query: Chart 1 = focus_score, Chart 2 = driver ────────
+        // Driver priority: inactivity > phone_usage > working_time > activity_distribution
+        if ($isExecutive) {
+            // Ensure Chart 1 (focus_score per employee) is always first
+            if (!$isFocusQuery && !$isEmployeeComparison) {
+                array_unshift($specs, [
+                    'chart_type' => 'bar',
+                    'metric'     => 'focus_score',
+                    'group_by'   => 'employee',
+                    'time_range' => $timeRange,
+                ]);
+            }
+
+            // Ensure a meaningful Chart 2 driver exists
+            if (count($specs) < 2) {
+                if (!$isInactivityQuery) {
+                    // Priority 1: inactivity per employee
+                    $specs[] = [
+                        'chart_type' => 'bar',
+                        'metric'     => 'inactivity',
+                        'group_by'   => 'employee',
+                        'time_range' => $timeRange,
+                    ];
+                } elseif (!$isPhoneQuery) {
+                    // Priority 2: phone_usage per employee
+                    $specs[] = [
+                        'chart_type' => 'bar',
+                        'metric'     => 'phone_usage',
+                        'group_by'   => 'employee',
+                        'time_range' => $timeRange,
+                    ];
+                } elseif (!$isTrend) {
+                    // Priority 3: working time trend
+                    $specs[] = [
+                        'chart_type' => 'line',
+                        'metric'     => 'working_time',
+                        'group_by'   => 'day',
+                        'time_range' => $timeRange,
+                    ];
+                } else {
+                    // Priority 4: activity_distribution (last resort)
+                    $specs[] = [
+                        'chart_type' => 'bar',
+                        'metric'     => 'activity_distribution',
+                        'group_by'   => 'employee',
+                        'time_range' => $timeRange,
+                    ];
+                }
+            }
+        }
+
+        // ── Ultimate fallback ────────────────────────────────────────────────
+        if (empty($specs)) {
+            $specs[] = [
+                'chart_type' => 'bar',
+                'metric'     => 'focus_score',
+                'group_by'   => 'employee',
+                'time_range' => $timeRange,
+            ];
+        }
+
+        // Deduplicate by metric+group_by key, limit to 2
+        $unique = [];
+        $seen   = [];
+        foreach ($specs as $s) {
+            $key = $s['metric'] . '_' . $s['group_by'];
+            if (!isset($seen[$key])) {
+                $seen[$key] = true;
+                $unique[]   = $s;
+            }
+        }
+
+        return array_slice($unique, 0, 2);
     }
 
     /**

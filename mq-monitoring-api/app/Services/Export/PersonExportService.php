@@ -57,14 +57,17 @@ class PersonExportService
      * @param array  $highlights    From EmployeeHighlightsService::highlights()['highlights']
      */
     public function build(
-        string $identityName,
-        string $start,
-        string $end,
-        array  $summary,
-        array  $daily,
-        array  $segments,
-        array  $highlights,
+        string  $identityName,
+        ?string $start,
+        ?string $end,
+        array   $summary,
+        array   $daily,
+        array   $segments,
+        array   $highlights,
     ): Spreadsheet {
+        $start ??= now()->startOfDay()->toIso8601String();
+        $end   ??= now()->endOfDay()->toIso8601String();
+
         $ss = new Spreadsheet();
         $ss->getProperties()
             ->setCreator('MQ Monitoring')
@@ -94,11 +97,11 @@ class PersonExportService
         $ws->setTitle('Summary');
 
         $acts     = $summary['activities'] ?? [];
-        $totalSec = (float) ($summary['total_sec'] ?? 0);
-        $working  = (float) ($acts['Working']     ?? 0);
-        $phone    = (float) ($acts['Using_Phone'] ?? 0);
-        $inactive = (float) ($acts['Inactive']    ?? 0);
-        $evtCount = (int)   ($summary['event_count'] ?? 0);
+        $totalSec = (float) ($summary['total_sec']   ?? $summary['total_sec']   ?? 0);
+        $working  = (float) ($acts['Working']          ?? $summary['working_sec']  ?? 0);
+        $phone    = (float) ($acts['Using_Phone']       ?? $summary['phone_sec']    ?? 0);
+        $inactive = (float) ($acts['Inactive']          ?? $summary['inactive_sec'] ?? 0);
+        $evtCount = (int)   ($summary['event_count']   ?? $summary['segment_count'] ?? 0);
         $base     = $working + $phone + $inactive;
         $focus    = $base > 0 ? (int) round($working / $base * 100) : null;
         [$focusBg, $focusFg, $focusLabel] = $this->focusTier($focus);
@@ -227,13 +230,13 @@ class PersonExportService
         foreach ($daily as $i => $day) {
             $date     = $day['date']      ?? '';
             $acts     = $day['activities'] ?? [];
-            $total    = (float) ($day['total_sec'] ?? 0);
-            $working  = (float) ($acts['Working']     ?? 0);
-            $phone    = (float) ($acts['Using_Phone'] ?? 0);
-            $inactive = (float) ($acts['Inactive']    ?? 0);
-            $other    = $total - $working - $phone - $inactive;
+            $total    = (float) ($day['total_sec']   ?? 0);
+            $working  = (float) ($acts['Working']      ?? $day['working_sec']  ?? 0);
+            $phone    = (float) ($acts['Using_Phone']  ?? $day['phone_sec']    ?? 0);
+            $inactive = (float) ($acts['Inactive']     ?? $day['inactive_sec'] ?? 0);
+            $other    = (float) ($day['other_sec']    ?? max(0, $total - $working - $phone - $inactive));
             $base     = $working + $phone + $inactive;
-            $focus    = $base > 0 ? (int) round($working / $base * 100) : null;
+            $focus    = $day['focus_score'] ?? ($base > 0 ? (int) round($working / $base * 100) : null);
             [$focusBg, $focusFg] = array_slice($this->focusTier($focus), 0, 2);
 
             $ws->setCellValue("A{$row}", $date);
@@ -293,8 +296,8 @@ class PersonExportService
         foreach ($segments as $i => $seg) {
             $rawAct   = $seg['activity']  ?? '';
             $act      = $this->cleanName($rawAct);
-            $startTs  = $seg['start_time'] ?? '';
-            $endTs    = $seg['end_time']   ?? '';
+            $startTs  = $seg['start_time']      ?? $seg['timestamp_start'] ?? '';
+            $endTs    = $seg['end_time']         ?? $seg['timestamp_end']   ?? '';
             $dur      = (float) ($seg['duration_sec'] ?? 0);
             $camera   = $seg['camera_id'] ?? $seg['camera'] ?? '—';
 
@@ -352,11 +355,21 @@ class PersonExportService
 
         $row = 3;
         foreach ($highlights as $i => $h) {
-            $severity = strtolower($h['severity'] ?? 'info');
-            $type     = $h['type']    ?? '';
-            $date     = $h['date']    ?? '';
-            $time     = $h['time']    ?? '';
-            $summary  = $h['summary'] ?? $h['description'] ?? '';
+            // Support both old shape (severity/type/date/time) and
+            // EmployeeHighlightsService shape (score/dominant_issue/timestamp/summary).
+            $rawScore  = (int) ($h['score'] ?? 0);
+            $severity  = strtolower(
+                $h['severity'] ?? match(true) {
+                    $rawScore >= 100 => 'high',
+                    $rawScore >= 60  => 'warning',
+                    default          => 'info',
+                }
+            );
+            $type     = $h['type']           ?? $h['dominant_issue'] ?? '';
+            $ts       = $h['timestamp']       ?? '';
+            $date     = $h['date']            ?? (strlen($ts) >= 10 ? substr($ts, 0, 10) : '');
+            $time     = $h['time']            ?? (strlen($ts) >= 16 ? substr($ts, 11, 5) : '');
+            $summary  = $h['summary']         ?? $h['description'] ?? '';
 
             [$bg, $fg] = match ($severity) {
                 'critical', 'high' => [self::CRIT_BG, self::CRIT_FG],
@@ -463,7 +476,7 @@ class PersonExportService
         // ── Group segments by date — keep at most 3 most-recent dates ─────────
         $byDate = [];
         foreach ($segments as $seg) {
-            $start = $seg['start_time'] ?? '';
+            $start = $seg['start_time'] ?? $seg['timestamp_start'] ?? '';
             if ($start === '') continue;
             $date = substr($start, 0, 10);
             $byDate[$date][] = $seg;
@@ -490,8 +503,8 @@ class PersonExportService
             foreach ($segs as $i => $seg) {
                 $rawAct   = $seg['activity']   ?? '';
                 $act      = $this->cleanName($rawAct);
-                $startTs  = $seg['start_time'] ?? '';
-                $endTs    = $seg['end_time']   ?? '';
+                $startTs  = $seg['start_time'] ?? $seg['timestamp_start'] ?? '';
+                $endTs    = $seg['end_time']   ?? $seg['timestamp_end']   ?? '';
                 $dur      = (float) ($seg['duration_sec'] ?? 0);
 
                 // Times as HH:MM
@@ -604,12 +617,12 @@ class PersonExportService
         $dayFocuses = [];
         foreach ($daily as $day) {
             $acts = $day['activities'] ?? [];
-            $w    = (float) ($acts['Working']     ?? 0);
-            $p    = (float) ($acts['Using_Phone'] ?? 0);
-            $inac = (float) ($acts['Inactive']    ?? 0);
+            $w    = (float) ($acts['Working']      ?? $day['working_sec']  ?? 0);
+            $p    = (float) ($acts['Using_Phone']  ?? $day['phone_sec']    ?? 0);
+            $inac = (float) ($acts['Inactive']     ?? $day['inactive_sec'] ?? 0);
             $b    = $w + $p + $inac;
             if ($b > 0) {
-                $dayFocuses[$day['date'] ?? ''] = (int) round($w / $b * 100);
+                $dayFocuses[$day['date'] ?? ''] = $day['focus_score'] ?? (int) round($w / $b * 100);
             }
         }
 

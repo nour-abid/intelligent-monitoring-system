@@ -162,7 +162,7 @@ class ExportController extends Controller
             identityName: $identityName,
             start:        $start,
             end:          $end,
-            summary:      $summary,
+            summary:      array_merge($summary, ['segment_count' => count($timeline['segments'])]),
             daily:        $daily['days'],
             segments:     $timeline['segments'],
             highlights:   $highlights['highlights'],
