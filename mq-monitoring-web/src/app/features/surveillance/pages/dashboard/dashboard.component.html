@@ -279,7 +279,7 @@
     @if (identities().some(r => r.total_sec > 0)) {
       <div class="act-chart-card act-chart-card--full">
         <div class="act-chart-card__title">Activity by Employee</div>
-        <p class="act-chart-card__sub">Top 8 employees — Working · Meeting · Inactive · Phone (minutes)</p>
+        <p class="act-chart-card__sub">Top 8 employees — Working · Inactive · Phone (minutes)</p>
         <app-activity-stacked-bar [rows]="identities()" />
       </div>
     }

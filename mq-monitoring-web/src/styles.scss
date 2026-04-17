@@ -114,7 +114,6 @@ select {
   text-transform: uppercase;
 
   &--working    { background: rgba(16,  185, 129, 0.16); color: #4ade80; }
-  &--meeting    { background: rgba(59,  130, 246, 0.16); color: #60a5fa; }
   &--inactive   { background: rgba(245, 158,  11, 0.16); color: #fbbf24; }
   &--using_phone { background: rgba(239,  68,  68, 0.16); color: #f87171; }
   &--unknown    { background: rgba(107, 114, 128, 0.14); color: #9ca3af; }
@@ -162,7 +161,6 @@ html.light-theme {
   /* Status badges — opaque enough bg, accessible dark text */
   .badge {
     &--working     { background: rgba(16,  185, 129, 0.14); color: #15803d; }
-    &--meeting     { background: rgba(59,  130, 246, 0.13); color: #1d4ed8; }
     &--inactive    { background: rgba(245, 158,  11, 0.14); color: #92400e; }
     &--using_phone { background: rgba(239,  68,  68, 0.13); color: #991b1b; }
     &--unknown     { background: rgba(107, 114, 128, 0.12); color: #374151; }

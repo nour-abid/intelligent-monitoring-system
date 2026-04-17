@@ -21,13 +21,17 @@ function formatValue(value: number, unit?: string): string {
       @if (spec().title) {
         <p class="cc-title">{{ spec().title }}</p>
       }
-      <div class="cc-canvas-wrap" [class.cc-canvas-wrap--pie]="isPie()">
-        <canvas baseChart
-          [type]="chartJsType()"
-          [data]="chartData()"
-          [options]="chartOptions()">
-        </canvas>
-      </div>
+      @if (hasData()) {
+        <div class="cc-canvas-wrap" [class.cc-canvas-wrap--pie]="isPie()">
+          <canvas baseChart
+            [type]="chartJsType()"
+            [data]="chartData()"
+            [options]="chartOptions()">
+          </canvas>
+        </div>
+      } @else {
+        <div class="cc-no-data">No data available for this period</div>
+      }
     </div>
   `,
   styles: [`
@@ -54,10 +58,21 @@ function formatValue(value: number, unit?: string): string {
     .cc-canvas-wrap--pie {
       height: 200px;
     }
+    .cc-no-data {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      color: var(--color-text-3, #4a5568);
+      font-style: italic;
+    }
   `],
 })
 export class ChatChartComponent {
   readonly spec = input.required<ChartSpec>();
+
+  readonly hasData = computed(() => this.spec().values.length > 0);
 
   readonly isPie = computed(() =>
     this.spec().type === 'pie' || this.spec().type === 'line'

@@ -33,7 +33,6 @@ interface EmployeeMetric {
   workingFormatted:  string;
   inactiveFormatted: string;
   phoneFormatted:    string;
-  meetingFormatted:  string;
 }
 
 @Component({
@@ -211,7 +210,7 @@ export class DashboardComponent implements OnInit {
 
     // 3. Activity coverage (flag sparse data)
     if (evol.length > 1) {
-      const active   = evol.filter(p => p.working + p.meeting + p.inactive + p.using_phone > 0).length;
+      const active   = evol.filter(p => p.working + p.inactive + p.using_phone > 0).length;
       const covPct   = Math.round((active / evol.length) * 100);
       const isHourly = evol[0].label.includes(' ');
       const unit     = isHourly ? 'hour' : 'day';
@@ -273,7 +272,7 @@ export class DashboardComponent implements OnInit {
 
     // 3. Sparse tracking — flag when active buckets < 60% of total
     if (evol.length > 1) {
-      const active = evol.filter(p => p.working + p.meeting + p.inactive + p.using_phone > 0).length;
+      const active = evol.filter(p => p.working + p.inactive + p.using_phone > 0).length;
       const covPct = active / evol.length;
       if (covPct < 0.60) {
         const isHourly = evol[0].label.includes(' ');
@@ -299,13 +298,13 @@ export class DashboardComponent implements OnInit {
 
     // 5. Activity drop — compare last 25% of buckets vs first 50%
     if (evol.length >= 4) {
-      const activeBuckets = evol.filter(p => p.working + p.meeting + p.inactive + p.using_phone > 0);
+      const activeBuckets = evol.filter(p => p.working + p.inactive + p.using_phone > 0);
       if (activeBuckets.length >= 3) {
         const half      = Math.floor(activeBuckets.length / 2);
         const early     = activeBuckets.slice(0, half);
         const recent    = activeBuckets.slice(-Math.max(1, Math.floor(activeBuckets.length / 4)));
-        const earlyAvg  = early.reduce((s, p)  => s + p.working + p.meeting + p.inactive + p.using_phone, 0) / early.length;
-        const recentAvg = recent.reduce((s, p) => s + p.working + p.meeting + p.inactive + p.using_phone, 0) / recent.length;
+        const earlyAvg  = early.reduce((s, p)  => s + p.working + p.inactive + p.using_phone, 0) / early.length;
+        const recentAvg = recent.reduce((s, p) => s + p.working + p.inactive + p.using_phone, 0) / recent.length;
         if (earlyAvg > 0 && recentAvg < earlyAvg * 0.40) {
           const lastLabel = recent[recent.length - 1].label;
           result.push({ text: `Activity dropped significantly in recent buckets (around ${lastLabel})`, severity: 'warning' });
@@ -395,7 +394,6 @@ export class DashboardComponent implements OnInit {
         workingFormatted:  formatDuration(r.activities['Working']     ?? 0),
         inactiveFormatted: formatDuration(r.activities['Inactive']    ?? 0),
         phoneFormatted:    formatDuration(r.activities['Using_Phone'] ?? 0),
-        meetingFormatted:  formatDuration(r.activities['Meeting']     ?? 0),
       }))
       .sort((a, b) => b.total_sec - a.total_sec),
   );

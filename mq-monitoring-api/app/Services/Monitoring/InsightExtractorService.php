@@ -73,7 +73,7 @@ class InsightExtractorService
         $phone    = (float) ($activities['Using_Phone'] ?? 0);
         $inactive = (float) ($activities['Inactive']    ?? 0);
 
-        // Base = the three core activities; excludes Meeting / Unknown
+        // Base = the three core activities; excludes Unknown
         // so percentages match the Angular threshold computations.
         $base = $working + $phone + $inactive;
         if ($base <= 0) {

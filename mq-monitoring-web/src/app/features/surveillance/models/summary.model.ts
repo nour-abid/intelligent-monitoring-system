@@ -49,7 +49,6 @@ export interface TopObservedEmployee {
 export interface ActivityEvolutionPoint {
   label:       string;
   working:     number; // seconds
-  meeting:     number;
   inactive:    number;
   using_phone: number;
 }

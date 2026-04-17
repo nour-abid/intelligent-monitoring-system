@@ -140,11 +140,9 @@ export class IdentityDetailComponent {
       }));
   });
 
-  /** ActivityStat[] shape expected by ActivityChartComponent — derived from activityTotals.
-   *  "Meeting" is excluded: that activity no longer exists in the system. */
+  /** ActivityStat[] shape expected by ActivityChartComponent — derived from activityTotals. */
   readonly activityStats = computed<ActivityStat[]>(() =>
     this.activityTotals()
-      .filter((t) => t.activity !== 'Meeting')
       .map((t) => ({
         activity:  t.activity,
         total_sec: t.total_sec,
@@ -289,7 +287,7 @@ export class IdentityDetailComponent {
       }
       const d = byDay[date];
       d.total_sec += seg.duration_sec;
-      if (seg.activity === 'Working' || seg.activity === 'Meeting') {
+      if (seg.activity === 'Working') {
         d.working_sec += seg.duration_sec;
       } else if (seg.activity === 'Using_Phone') {
         d.phone_sec += seg.duration_sec;

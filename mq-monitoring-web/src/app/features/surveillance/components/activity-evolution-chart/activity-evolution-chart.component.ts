@@ -29,7 +29,6 @@ interface Dataset {
 
 const DATASETS: Dataset[] = [
   { key: 'working',     label: 'Working'     },
-  { key: 'meeting',     label: 'Meeting'     },
   { key: 'inactive',    label: 'Inactive'    },
   { key: 'using_phone', label: 'Using Phone' },
 ];
@@ -77,7 +76,6 @@ export class ActivityEvolutionChartComponent {
       datasets: DATASETS.map(ds => {
         const actKey = ds.key === 'using_phone' ? 'Using_Phone'
                      : ds.key === 'working'     ? 'Working'
-                     : ds.key === 'meeting'     ? 'Meeting'
                      : 'Inactive';
         const color = activityColor(actKey);
         return {

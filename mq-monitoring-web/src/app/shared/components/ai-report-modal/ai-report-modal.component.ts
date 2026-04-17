@@ -174,7 +174,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,san
     setTimeout(() => { printWin.print(); printWin.close(); }, 600);
   }
 
-  /** Activity colour map — light theme palette (no Meeting). */
+  /** Activity colour map — light theme palette. */
   private readonly DIST_COLORS: Record<string, string> = {
     Working:     '#10b981',
     Using_Phone: '#ef4444',

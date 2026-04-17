@@ -300,7 +300,7 @@ class DashboardSummaryController extends Controller
      * Per-activity observed seconds grouped per time bucket (hourly or daily).
      * Uses generate_series to produce a complete bucket sequence for the range,
      * LEFT JOINing analytics data so missing buckets are filled with zeros.
-     * Returns [{label, working, meeting, inactive, using_phone}] chronologically.
+     * Returns [{label, working, inactive, using_phone}] chronologically.
      */
     private function activityEvolution(
         ?string $start,
@@ -311,7 +311,7 @@ class DashboardSummaryController extends Controller
         $notUnknown = !($allowedIdentities === null && $includeUnknown);
 
         [$aggWhere, $aggBindings] = $this->seriesAggWhere($start, $end, $notUnknown, $allowedIdentities);
-        $actFilter = "activity IN ('Working','Meeting','Inactive','Using_Phone')";
+        $actFilter = "activity IN ('Working','Inactive','Using_Phone')";
         $aggWhere  = $aggWhere !== '' ? $aggWhere . " AND $actFilter" : "WHERE $actFilter";
 
         if ($this->isHourlyRange($start, $end)) {
@@ -335,7 +335,6 @@ class DashboardSummaryController extends Controller
                 SELECT
                     TO_CHAR(s.bucket, 'YYYY-MM-DD HH24:MI:SS') AS time_label,
                     SUM(CASE WHEN a.activity = 'Working'     THEN a.total_sec ELSE 0 END)::bigint AS working,
-                    SUM(CASE WHEN a.activity = 'Meeting'     THEN a.total_sec ELSE 0 END)::bigint AS meeting,
                     SUM(CASE WHEN a.activity = 'Inactive'    THEN a.total_sec ELSE 0 END)::bigint AS inactive,
                     SUM(CASE WHEN a.activity = 'Using_Phone' THEN a.total_sec ELSE 0 END)::bigint AS using_phone
                 FROM series s
@@ -366,7 +365,6 @@ class DashboardSummaryController extends Controller
                 SELECT
                     TO_CHAR(s.bucket, 'YYYY-MM-DD') AS time_label,
                     SUM(CASE WHEN a.activity = 'Working'     THEN a.total_sec ELSE 0 END)::bigint AS working,
-                    SUM(CASE WHEN a.activity = 'Meeting'     THEN a.total_sec ELSE 0 END)::bigint AS meeting,
                     SUM(CASE WHEN a.activity = 'Inactive'    THEN a.total_sec ELSE 0 END)::bigint AS inactive,
                     SUM(CASE WHEN a.activity = 'Using_Phone' THEN a.total_sec ELSE 0 END)::bigint AS using_phone
                 FROM series s
@@ -382,7 +380,7 @@ class DashboardSummaryController extends Controller
                 ->table('daily_activity_totals_by_employee')
                 ->when($notUnknown,                 fn ($q) => $q->where('identity_name', '!=', 'Unknown'))
                 ->when($allowedIdentities !== null, fn ($q) => $q->whereIn('identity_name', $allowedIdentities))
-                ->whereIn('activity', ['Working', 'Meeting', 'Inactive', 'Using_Phone'])
+                ->whereIn('activity', ['Working', 'Inactive', 'Using_Phone'])
                 ->selectRaw(
                     "TO_CHAR(DATE_TRUNC('day', bucket AT TIME ZONE 'UTC'), 'YYYY-MM-DD') AS time_label,"
                     . ' activity, SUM(total_duration_sec) AS total_sec'
@@ -399,7 +397,6 @@ class DashboardSummaryController extends Controller
             return $labels->map(fn ($label) => [
                 'label'       => (string) $label,
                 'working'     => $index[$label]['Working']     ?? 0,
-                'meeting'     => $index[$label]['Meeting']     ?? 0,
                 'inactive'    => $index[$label]['Inactive']    ?? 0,
                 'using_phone' => $index[$label]['Using_Phone'] ?? 0,
             ])->values()->all();
@@ -408,7 +405,6 @@ class DashboardSummaryController extends Controller
         return array_map(fn ($r) => [
             'label'       => (string) $r->time_label,
             'working'     => (int) $r->working,
-            'meeting'     => (int) $r->meeting,
             'inactive'    => (int) $r->inactive,
             'using_phone' => (int) $r->using_phone,
         ], $rows);

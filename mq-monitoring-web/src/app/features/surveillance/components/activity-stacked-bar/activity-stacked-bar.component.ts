@@ -4,7 +4,7 @@ import type { ChartData, ChartOptions } from 'chart.js';
 import type { IdentityEntry } from '../../models/identities.model';
 import { activityColor } from '../../utils/activity-colors.util';
 
-const ACTIVITY_ORDER = ['Working', 'Meeting', 'Inactive', 'Using_Phone'] as const;
+const ACTIVITY_ORDER = ['Working', 'Inactive', 'Using_Phone'] as const;
 
 @Component({
   selector: 'app-activity-stacked-bar',

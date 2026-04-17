@@ -10,6 +10,7 @@ use App\Models\PasswordResetOtp;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class PasswordResetController extends Controller
@@ -43,9 +44,13 @@ class PasswordResetController extends Controller
                         ->to($user->email, $user->name)
                         ->subject('MQ Monitoring — Password Reset Code')
                 );
-            } catch (\Throwable) {
-                // Mail failure is logged internally; response is unchanged so the
-                // caller cannot distinguish a delivery failure from a missing account.
+            } catch (\Throwable $e) {
+                // Log the real error so it is visible in storage/logs/laravel.log.
+                Log::error('OTP mail delivery failed', [
+                    'email'   => $user->email,
+                    'error'   => $e->getMessage(),
+                    'class'   => get_class($e),
+                ]);
             }
         }
 

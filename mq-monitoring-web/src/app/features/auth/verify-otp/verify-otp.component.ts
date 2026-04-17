@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { TimeoutError } from 'rxjs';
 
 @Component({
   selector: 'app-verify-otp',
@@ -40,8 +41,10 @@ export class VerifyOtpComponent implements OnInit {
       this.router.navigate(['/reset-password'], {
         queryParams: { email: this.email, otp: this.otp },
       });
-    } catch {
-      this.error.set('Invalid or expired code. Please try again.');
+    } catch (err) {
+      this.error.set(err instanceof TimeoutError
+        ? 'Request timed out. Please try again.'
+        : 'Invalid or expired code. Please try again.');
     } finally {
       this.loading.set(false);
     }

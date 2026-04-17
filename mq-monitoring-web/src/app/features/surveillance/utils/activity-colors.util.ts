@@ -5,7 +5,6 @@
  */
 export const ACTIVITY_COLORS: Record<string, string> = {
   Working:     '#10b981', // emerald
-  Meeting:     '#3b82f6', // blue
   Inactive:    '#f59e0b', // amber
   Using_Phone: '#ef4444', // red
   Unknown:     '#94a3b8', // slate
@@ -14,7 +13,6 @@ export const ACTIVITY_COLORS: Record<string, string> = {
 /** CSS badge modifier class (maps to .badge--<modifier> in styles.scss) */
 export const ACTIVITY_BADGE_CLASS: Record<string, string> = {
   Working:     'badge--working',
-  Meeting:     'badge--meeting',
   Inactive:    'badge--inactive',
   Using_Phone: 'badge--using_phone',
   Unknown:     'badge--unknown',

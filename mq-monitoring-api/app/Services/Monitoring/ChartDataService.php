@@ -76,7 +76,6 @@ class ChartDataService
         'Using_Phone' => '#ef4444',
         'Inactive'    => '#f59e0b',
         'Unknown'     => '#94a3b8',
-        'Meeting'     => '#6366f1',
     ];
 
     private const PALETTE = [
@@ -158,8 +157,25 @@ class ChartDataService
         try {
             $rows = $this->queryRows($metric, $groupBy, $start, $end, $scope);
         } catch (\Exception $e) {
-            // Analytics views may not exist yet — return empty rather than crash.
-            return $this->emptyChart($chartType, $metric, $groupBy, $range);
+            // Analytics views may not exist yet — fall through to raw-events fallback.
+            Log::info('ChartDataService: analytics view unavailable, trying surveillance_events fallback', [
+                'metric'  => $metric,
+                'group_by'=> $groupBy,
+                'error'   => $e->getMessage(),
+            ]);
+            $rows = [];
+        }
+
+        // When analytics views return no data, fall back to querying surveillance_events directly.
+        if (empty($rows)) {
+            try {
+                $rows = $this->queryRowsFromSurveillanceEvents($metric, $groupBy, $start, $end, $scope);
+            } catch (\Exception $e) {
+                Log::info('ChartDataService: surveillance_events fallback also failed', [
+                    'metric' => $metric, 'error' => $e->getMessage(),
+                ]);
+                $rows = [];
+            }
         }
 
         // Empty dataset guard: return null signal so controller can drop the chart
@@ -467,7 +483,7 @@ class ChartDataService
                 $out[$r->activity] = ($out[$r->activity] ?? 0.0) + (float) $r->total_duration_sec;
             }
             // Order by semantic importance: Working first, then descending
-            $preferred = ['Working', 'Using_Phone', 'Inactive', 'Meeting', 'Unknown'];
+            $preferred = ['Working', 'Using_Phone', 'Inactive', 'Unknown'];
             $ordered   = [];
             foreach ($preferred as $act) {
                 if (isset($out[$act])) {
@@ -640,5 +656,200 @@ class ChartDataService
             'colors' => [],
             'unit'   => $this->unitFor($metric),
         ];
+    }
+
+    // ── Surveillance-events fallback queries ─────────────────────────────────
+    // Used when TimescaleDB continuous-aggregate views have no data for the
+    // requested window.  Queries surveillance.surveillance_events directly.
+
+    private const SURVEILLANCE_CONN  = 'surveillance';
+    private const SURVEILLANCE_TABLE = 'surveillance_events';
+
+    /**
+     * Dispatch metric+group_by to the appropriate raw-events fallback query.
+     * Alerts / late_arrivals / early_leaves are skipped (different source table).
+     */
+    private function queryRowsFromSurveillanceEvents(
+        string  $metric,
+        string  $groupBy,
+        string  $start,
+        string  $end,
+        ?array  $scope
+    ): array {
+        $from = $start . ' 00:00:00';
+        $to   = $end   . ' 23:59:59';
+
+        return match ($metric) {
+            'working_time'          => $this->fallbackActivityDuration('Working',     $groupBy, $from, $to, $scope),
+            'phone_usage'           => $this->fallbackActivityDuration('Using_Phone', $groupBy, $from, $to, $scope),
+            'inactivity'            => $this->fallbackActivityDuration('Inactive',    $groupBy, $from, $to, $scope),
+            'focus_score'           => $this->fallbackFocusScore($groupBy, $from, $to, $scope),
+            'activity_distribution' => $this->fallbackActivityDistribution($groupBy, $from, $to, $scope),
+            default                 => [],   // alerts / late_arrivals / early_leaves: no fallback
+        };
+    }
+
+    /** Total duration for a single activity type from surveillance_events. */
+    private function fallbackActivityDuration(
+        string $activity,
+        string $groupBy,
+        string $from,
+        string $to,
+        ?array $scope
+    ): array {
+        $db    = DB::connection(self::SURVEILLANCE_CONN);
+        $query = $db->table(self::SURVEILLANCE_TABLE)
+            ->where('activity',          $activity)
+            ->where('timestamp_start', '>=', $from)
+            ->where('timestamp_start', '<=', $to);
+        if ($scope !== null) {
+            $query->whereIn('identity_name', $scope);
+        }
+
+        switch ($groupBy) {
+            case 'employee':
+                $rows = $query->select('identity_name', DB::raw('SUM(duration_sec) as total'))
+                    ->groupBy('identity_name')->get();
+                $out = [];
+                foreach ($rows as $r) {
+                    $out[$r->identity_name] = (float) $r->total;
+                }
+                arsort($out);
+                return $out;
+
+            case 'day':
+                $rows = $query->select(
+                    DB::raw("DATE(timestamp_start) as day"),
+                    DB::raw('SUM(duration_sec) as total')
+                )->groupBy(DB::raw('DATE(timestamp_start)'))->get();
+                $out = [];
+                foreach ($rows as $r) {
+                    $out[(string)$r->day] = (float) $r->total;
+                }
+                ksort($out);
+                return $out;
+
+            case 'weekday':
+                $rows = $query->select(
+                    DB::raw("TO_CHAR(timestamp_start, 'Dy') as weekday"),
+                    DB::raw('SUM(duration_sec) as total')
+                )->groupBy(DB::raw("TO_CHAR(timestamp_start, 'Dy')"))->get();
+                $ordered = ['Mon' => 0.0, 'Tue' => 0.0, 'Wed' => 0.0, 'Thu' => 0.0,
+                            'Fri' => 0.0, 'Sat' => 0.0, 'Sun' => 0.0];
+                foreach ($rows as $r) {
+                    if (isset($ordered[$r->weekday])) {
+                        $ordered[$r->weekday] = (float) $r->total;
+                    }
+                }
+                $hasData = array_filter($ordered, fn($v) => $v > 0);
+                return $hasData ?: $ordered;
+
+            case 'hour':
+                $rows = $query->select(
+                    DB::raw("EXTRACT(HOUR FROM timestamp_start)::int as hr"),
+                    DB::raw('SUM(duration_sec) as total')
+                )->groupBy(DB::raw('EXTRACT(HOUR FROM timestamp_start)::int'))->get();
+                $out = [];
+                foreach ($rows as $r) {
+                    $out[str_pad((string)$r->hr, 2, '0', STR_PAD_LEFT) . ':00'] = (float) $r->total;
+                }
+                ksort($out);
+                return $out;
+
+            default:
+                return [];
+        }
+    }
+
+    /** Focus score per grouping key from surveillance_events. */
+    private function fallbackFocusScore(
+        string $groupBy,
+        string $from,
+        string $to,
+        ?array $scope
+    ): array {
+        $db    = DB::connection(self::SURVEILLANCE_CONN);
+        $query = $db->table(self::SURVEILLANCE_TABLE)
+            ->where('timestamp_start', '>=', $from)
+            ->where('timestamp_start', '<=', $to);
+        if ($scope !== null) {
+            $query->whereIn('identity_name', $scope);
+        }
+
+        $groupExpr = match ($groupBy) {
+            'day'     => 'DATE(timestamp_start)',
+            'weekday' => "TO_CHAR(timestamp_start, 'Dy')",
+            default   => 'identity_name',
+        };
+
+        $rows = $query->select(
+            DB::raw("$groupExpr as grp"),
+            DB::raw("SUM(CASE WHEN activity = 'Working'     THEN duration_sec ELSE 0 END) as working_sec"),
+            DB::raw("SUM(CASE WHEN activity = 'Using_Phone' THEN duration_sec ELSE 0 END) as phone_sec"),
+            DB::raw('SUM(duration_sec) as total_sec')
+        )->groupBy(DB::raw($groupExpr))->get();
+
+        $out = [];
+        foreach ($rows as $r) {
+            $total = (float) $r->total_sec;
+            $out[(string)$r->grp] = $total > 0
+                ? (float) max(0, min(100, round(
+                    ((float)$r->working_sec / $total) * 100
+                    - ((float)$r->phone_sec  / $total) * 50
+                  )))
+                : 0.0;
+        }
+
+        if ($groupBy === 'day' || $groupBy === 'weekday') {
+            ksort($out);
+        } else {
+            arsort($out);
+        }
+
+        return $out;
+    }
+
+    /** Activity distribution from surveillance_events. */
+    private function fallbackActivityDistribution(
+        string $groupBy,
+        string $from,
+        string $to,
+        ?array $scope
+    ): array {
+        $db    = DB::connection(self::SURVEILLANCE_CONN);
+        $query = $db->table(self::SURVEILLANCE_TABLE)
+            ->where('timestamp_start', '>=', $from)
+            ->where('timestamp_start', '<=', $to);
+        if ($scope !== null) {
+            $query->whereIn('identity_name', $scope);
+        }
+
+        if ($groupBy === 'activity') {
+            $rows = $query->select('activity', DB::raw('SUM(duration_sec) as total'))
+                ->groupBy('activity')->get();
+            $out = [];
+            foreach ($rows as $r) {
+                $out[$r->activity] = (float) $r->total;
+            }
+            $preferred = ['Working', 'Using_Phone', 'Inactive', 'Unknown'];
+            $ordered   = [];
+            foreach ($preferred as $act) {
+                if (isset($out[$act])) $ordered[$act] = $out[$act];
+            }
+            foreach ($out as $k => $v) {
+                if (!isset($ordered[$k])) $ordered[$k] = $v;
+            }
+            return $ordered;
+        }
+
+        // group_by=employee: total all-activity time per person
+        $rows = $query->select('identity_name', DB::raw('SUM(duration_sec) as total'))
+            ->groupBy('identity_name')->get();
+        $out = [];
+        foreach ($rows as $r) {
+            $out[$r->identity_name] = (float) $r->total;
+        }
+        arsort($out);
+        return $out;
     }
 }

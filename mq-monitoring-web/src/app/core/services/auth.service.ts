@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timeout } from 'rxjs';
 import { User } from '../models/auth.model';
 
 const TOKEN_KEY = 'mq_auth_token';
@@ -59,13 +59,13 @@ export class AuthService {
   // -----------------------------------------------------------------------
   async forgotPassword(email: string): Promise<void> {
     await firstValueFrom(
-      this.http.post('/api/auth/forgot-password', { email })
+      this.http.post('/api/auth/forgot-password', { email }).pipe(timeout(15000))
     );
   }
 
   async verifyOtp(email: string, otp: string): Promise<void> {
     await firstValueFrom(
-      this.http.post('/api/auth/verify-otp', { email, otp })
+      this.http.post('/api/auth/verify-otp', { email, otp }).pipe(timeout(15000))
     );
   }
 

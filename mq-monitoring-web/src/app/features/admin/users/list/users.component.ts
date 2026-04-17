@@ -74,6 +74,8 @@ export class UsersComponent implements OnInit, OnDestroy {
   private readonly photoSrcMap = signal<Record<number, string>>({});
   /** Shown briefly after a successful upload batch to confirm processing started. */
   readonly uploadSuccess = signal(false);
+  /** setTimeout handle for auto-dismissing the upload success toast. */
+  private uploadSuccessTimer: ReturnType<typeof setTimeout> | null = null;
 
   /** setInterval handle for background embedding-status polling; null when idle. */
   private pollTimer: ReturnType<typeof setInterval> | null = null;
@@ -494,6 +496,7 @@ export class UsersComponent implements OnInit, OnDestroy {
         this.fetchObjectUrls(newPhotos);
         this.uploadInProgress.set(false);
         this.uploadSuccess.set(true);
+        this.scheduleUploadSuccessDismiss();
         // Start polling so the UI reflects embedding progress without a manual refresh.
         this.startPolling();
       },
@@ -660,6 +663,7 @@ export class UsersComponent implements OnInit, OnDestroy {
         this.photos.update((current) => [...(current ?? []), ...newPhotos]);
         this.fetchObjectUrls(newPhotos);
         this.uploadSuccess.set(true);
+        this.scheduleUploadSuccessDismiss();
         this.startPolling();
         this.cameraUploading.set(false);
         this.closeCamera();
@@ -751,6 +755,20 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   // ── Polling ───────────────────────────────────────────────────────────────
 
+  /** Dismiss the upload-success toast after 6 seconds, cancelling any previous timer. */
+  private scheduleUploadSuccessDismiss(): void {
+    if (this.uploadSuccessTimer !== null) clearTimeout(this.uploadSuccessTimer);
+    this.uploadSuccessTimer = setTimeout(() => this.clearUploadSuccess(), 6000);
+  }
+
+  private clearUploadSuccess(): void {
+    this.uploadSuccess.set(false);
+    if (this.uploadSuccessTimer !== null) {
+      clearTimeout(this.uploadSuccessTimer);
+      this.uploadSuccessTimer = null;
+    }
+  }
+
   /**
    * Start a 2.5-second background poll that silently refreshes photo statuses.
    * Calling this when a poll is already running is a no-op.
@@ -793,13 +811,13 @@ export class UsersComponent implements OnInit, OnDestroy {
         // Fetch blob URLs for any new photos that arrived since last poll.
         this.fetchObjectUrls(res.photos);
 
-        // Stop when every photo has a terminal status.
-        const allSettled = res.photos.length > 0 && res.photos.every(
+        // Stop when every photo has a terminal status, or when all photos are deleted.
+        const allSettled = res.photos.length === 0 || res.photos.every(
           (p) => p.processing_status === 'ready' || p.processing_status === 'failed'
         );
         if (allSettled) {
           this.stopPolling();
-          this.uploadSuccess.set(false);
+          this.clearUploadSuccess();
         }
       },
       // Silently swallow poll errors — the user already sees the last known state.

@@ -31,8 +31,33 @@ You are Marqi — a decision assistant for MQ Monitoring. Every reply must let
 a manager act immediately. Target: understood in ≤5 seconds. Be direct, not
 descriptive. Never narrate. Never label what you are doing.
 
-═══ MANDATORY RESPONSE STRUCTURE ════════════════════════════════════════════════
-Every reply MUST follow this exact order:
+═══ DASHBOARD / SUMMARY / OVERVIEW MODE ════════════════════════════════════════
+If the user message contains ANY of: dashboard, summary, overview →
+switch to AGGREGATION MODE. Rules for this mode:
+
+  FORMAT (must follow this exact order):
+    **Executive Summary** — 1–2 lines. State the single most urgent team-level
+      risk with its exact value. No per-employee deep-dive unless asked.
+    **Key Metrics** — ≤4 bullets. Format: "[Metric]: [aggregated value]"
+      e.g. "Team focus average: **23%**" or "Employees below critical: **3/5**"
+    **Insights** — max 3 bullets total. Each max 15 words.
+      Focus on team-level patterns, not individual diagnostics.
+
+  CHARTS (mandatory in aggregation mode):
+    Always emit EXACTLY TWO chartspecs:
+      Chart 1: focus_score per employee (bar) — team-wide focus breakdown
+      Chart 2: activity_distribution by activity (donut) — team time split
+    If data is limited, emit both charts anyway and add ONE brief note about
+    the limitation (e.g. "Data covers the last 2 days only.").
+
+  DO NOT in aggregation mode:
+    - Focus diagnostic detail on a single employee unless explicitly named
+    - Generate Priority Findings or Recommended Actions sections
+    - Repeat the same observation in different sections
+    - Use the standard 4-section structure (Executive/Priority/Insights/Actions)
+
+═══ MANDATORY RESPONSE STRUCTURE (standard mode) ════════════════════════════════
+Use this structure for all queries NOT in aggregation mode:
 
 **Executive Summary**
 [1–2 lines. Name the single most urgent problem, its exact value, and who or what
@@ -311,7 +336,7 @@ PROMPT;
     {
         $keywords = [
             'chart', 'graph', 'plot', 'visualize', 'visualise',
-            'dashboard', 'trend', 'compare',
+            'dashboard', 'summary', 'overview', 'trend', 'compare',
         ];
         $lower = strtolower($query);
         foreach ($keywords as $kw) {
@@ -362,6 +387,25 @@ PROMPT;
             . '|what should|management take/i',
             $query
         );
+        $isDashboardMode   = (bool) preg_match('/dashboard|summary|overview/i', $query);
+
+        // ── Dashboard / Summary / Overview mode — fixed 2-chart set ─────────
+        if ($isDashboardMode) {
+            return [
+                [
+                    'chart_type' => 'bar',
+                    'metric'     => 'focus_score',
+                    'group_by'   => 'employee',
+                    'time_range' => $timeRange,
+                ],
+                [
+                    'chart_type' => 'donut',
+                    'metric'     => 'activity_distribution',
+                    'group_by'   => 'activity',
+                    'time_range' => $timeRange,
+                ],
+            ];
+        }
 
         // ── Focus score: Chart 1 anchor ──────────────────────────────────────
         if ($isEmployeeComparison || $isFocusQuery) {
