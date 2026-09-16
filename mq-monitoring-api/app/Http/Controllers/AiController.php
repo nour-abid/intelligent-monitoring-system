@@ -10,6 +10,7 @@ use App\Services\Monitoring\SurveillanceAnalyticsService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -717,12 +718,18 @@ PROMPT;
 
             if ($identity && $identity !== 'global') {
                 $contextText = $this->buildIdentityContext($identity, $start, $end);
+                $attendanceContext = $this->buildAttendanceContext($request, $start, $end, $identity);
                 $label       = "$identity — $rangeLabel";
             } else {
                 $contextText = $this->buildGlobalContext($identitiesData, $start, $end);
+                $attendanceContext = $this->buildAttendanceContext($request, $start, $end);
                 $label       = $isAdmin
                     ? "All employees — $rangeLabel"
                     : ($isSuperviseur ? "My team — $rangeLabel" : "My data — $rangeLabel");
+            }
+
+            if ($attendanceContext !== '') {
+                $contextText .= "\n\n" . $attendanceContext;
             }
 
             return response()->json([
@@ -893,6 +900,187 @@ PROMPT;
         }
 
         return implode("\n", $lines);
+    }
+
+    private function buildAttendanceContext(
+        Request $request,
+        string $start,
+        string $end,
+        ?string $selectedIdentity = null,
+    ): string {
+        try {
+            $startDate = Carbon::parse($start)->format('Y-m-d');
+            $endDate   = Carbon::parse($end)->format('Y-m-d');
+            if ($endDate < $startDate) {
+                $endDate = $startDate;
+            }
+
+            $dates = [];
+            $cursor = Carbon::parse($startDate);
+            $endCarbon = Carbon::parse($endDate);
+            while ($cursor->lte($endCarbon)) {
+                $dates[] = $cursor->format('Y-m-d');
+                $cursor->addDay();
+            }
+
+            $user = $request->user();
+            $usersQuery = User::whereNotNull('attendance_identity')
+                ->where('attendance_identity', '<>', '')
+                ->where('is_active', true);
+
+            if ($user->role === 'superviseur') {
+                $usersQuery->where('supervisor_id', $user->id);
+            } elseif ($user->role !== 'admin') {
+                $usersQuery->where('id', $user->id);
+            }
+
+            if ($selectedIdentity !== null && $selectedIdentity !== 'global') {
+                $usersQuery->where(function ($q) use ($selectedIdentity) {
+                    $q->where('surveillance_identity', $selectedIdentity)
+                        ->orWhere('attendance_identity', $selectedIdentity)
+                        ->orWhere('name', $selectedIdentity);
+                });
+            }
+
+            $users = $usersQuery->get([
+                'id', 'name', 'attendance_identity', 'surveillance_identity',
+            ]);
+
+            $lines = ["=== ATTENDANCE CONTEXT ==="];
+            $lines[] = "Period: {$startDate} to {$endDate}";
+
+            if ($users->isEmpty()) {
+                $lines[] = "No role-scoped attendance identities are available.";
+                return implode("\n", $lines);
+            }
+
+            $persons = $users->pluck('attendance_identity')->all();
+            $events = DB::connection('attendance')
+                ->table('attendance_events')
+                ->whereIn('person', $persons)
+                ->whereIn('event', ['check_in', 'check_out'])
+                ->whereBetween(DB::raw("DATE(ts_at AT TIME ZONE 'UTC')"), [$startDate, $endDate])
+                ->select(['person', 'event', 'ts_at'])
+                ->orderBy('ts_at')
+                ->get();
+
+            $indexed = [];
+            foreach ($events as $ev) {
+                $date = substr((string) $ev->ts_at, 0, 10);
+                $person = (string) $ev->person;
+                $indexed[$person][$date][$ev->event][] = (string) $ev->ts_at;
+            }
+
+            $today = now()->format('Y-m-d');
+            $lastSeen = [];
+            $survIdentities = $users->whereNotNull('surveillance_identity')
+                ->pluck('surveillance_identity', 'attendance_identity')
+                ->all();
+
+            if (!empty($survIdentities) && in_array($today, $dates, true)) {
+                $survRows = DB::connection('surveillance')
+                    ->table('surveillance_events')
+                    ->selectRaw(
+                        "identity_name,
+                         MAX(timestamp_start + (duration_sec || ' seconds')::INTERVAL) AS last_seen_end"
+                    )
+                    ->whereIn('identity_name', array_values($survIdentities))
+                    ->whereDate('timestamp_start', $today)
+                    ->groupBy('identity_name')
+                    ->get();
+
+                foreach ($survRows as $sr) {
+                    $lastSeen[(string) $sr->identity_name] = (string) $sr->last_seen_end;
+                }
+            }
+
+            $workdayStart = (string) config('alerts.late_workday_start', '08:00');
+            $lateTolerance = (int) config('alerts.late_tolerance_minutes', 15);
+            $workdayEnd = (string) config('alerts.early_leave_workday_end', '18:00');
+            $earlyTolerance = (int) config('alerts.early_leave_tolerance_minutes', 15);
+            $statusCounts = [
+                'on_time' => 0,
+                'late' => 0,
+                'absent' => 0,
+                'early_leave' => 0,
+            ];
+            $detailRows = [];
+
+            foreach ($dates as $date) {
+                $cutoffTs = strtotime($date . ' ' . $workdayStart) + $lateTolerance * 60;
+                $earlyLeaveTs = strtotime($date . ' ' . $workdayEnd) - $earlyTolerance * 60;
+                $dateIsPast = $date < $today;
+
+                foreach ($users as $u) {
+                    $person = (string) $u->attendance_identity;
+                    $survIdent = (string) ($u->surveillance_identity ?? '');
+                    $checkins = $indexed[$person][$date]['check_in'] ?? [];
+                    $checkouts = $indexed[$person][$date]['check_out'] ?? [];
+                    $firstCheckin = !empty($checkins) ? min($checkins) : null;
+                    $lastCheckout = !empty($checkouts) ? max($checkouts) : null;
+
+                    if ($firstCheckin === null) {
+                        $dayStartTs = strtotime($date . ' ' . $workdayStart) + $lateTolerance * 60 + 600;
+                        if (time() < $dayStartTs && !$dateIsPast) {
+                            continue;
+                        }
+                        $status = 'absent';
+                    } else {
+                        $status = strtotime($firstCheckin) > $cutoffTs ? 'late' : 'on_time';
+
+                        if ($date === $today && time() >= $earlyLeaveTs && isset($lastSeen[$survIdent])) {
+                            if (strtotime($lastSeen[$survIdent]) < $earlyLeaveTs) {
+                                $status = 'early_leave';
+                            }
+                        } elseif ($dateIsPast && $lastCheckout !== null) {
+                            if (strtotime($lastCheckout) < $earlyLeaveTs) {
+                                $status = 'early_leave';
+                            }
+                        }
+                    }
+
+                    $statusCounts[$status]++;
+                    $detailRows[] = [
+                        'date' => $date,
+                        'name' => (string) $u->name,
+                        'identity' => $person,
+                        'status' => $status,
+                        'checkin' => $firstCheckin ? $this->fmtTime($firstCheckin) : 'none',
+                        'checkout' => $lastCheckout ? $this->fmtTime($lastCheckout) : 'none',
+                    ];
+                }
+            }
+
+            $totalRows = array_sum($statusCounts);
+            $onTimePct = $totalRows > 0
+                ? round($statusCounts['on_time'] / $totalRows * 100, 1)
+                : 0.0;
+
+            $lines[] = "Employees in scope: " . $users->count();
+            $lines[] = "Attendance rows evaluated: {$totalRows}";
+            $lines[] = "On-time: {$statusCounts['on_time']}; Late: {$statusCounts['late']}; Absent: {$statusCounts['absent']}; Early leave: {$statusCounts['early_leave']}; On-time rate: {$onTimePct}%";
+
+            if (!empty($detailRows)) {
+                $lines[] = "Recent attendance details:";
+                foreach (array_slice($detailRows, 0, 12) as $row) {
+                    $lines[] = "  - {$row['date']} | {$row['name']} ({$row['identity']}): {$row['status']}; check-in={$row['checkin']}; check-out={$row['checkout']}";
+                }
+                if (count($detailRows) > 12) {
+                    $lines[] = "  - " . (count($detailRows) - 12) . " additional attendance row(s) omitted from context.";
+                }
+            }
+
+            return implode("\n", $lines);
+        } catch (\Exception $e) {
+            Log::warning('AI attendance context unavailable', ['error' => $e->getMessage()]);
+            return "=== ATTENDANCE CONTEXT ===\nAttendance data unavailable for this request.";
+        }
+    }
+
+    private function fmtTime(string $tsStr): string
+    {
+        $ts = strtotime($tsStr);
+        return $ts !== false ? date('H:i', $ts) : $tsStr;
     }
 
     private function fmtSec(float $sec): string

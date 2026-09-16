@@ -63,4 +63,28 @@ return [
     'early_leave_workday_end'         => env('ALERT_EARLY_LEAVE_WORKDAY_END', '18:00'),
     'early_leave_tolerance_minutes'   => (int) env('ALERT_EARLY_LEAVE_TOLERANCE_MINUTES', 15),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Planned Absence / Lunch Break
+    |--------------------------------------------------------------------------
+    |
+    | lunch_break_enabled — whether to exclude lunch break from monitoring.
+    |   When enabled, inactive and phone alerts will not fire during lunch.
+    |
+    | lunch_break_start — start of lunch break (HH:MM, 24-hour).
+    |   Default: 12:00
+    |
+    | lunch_break_end — end of lunch break (HH:MM, 24-hour).
+    |   Default: 14:00
+    |
+    | During lunch break:
+    |   - Inactive alerts are suppressed
+    |   - Phone usage alerts are suppressed
+    |   - Early leave checks are paused (no alert if person leaves during lunch)
+    |
+    */
+    'lunch_break_enabled'   => (bool) env('ALERT_LUNCH_BREAK_ENABLED', true),
+    'lunch_break_start'     => env('ALERT_LUNCH_BREAK_START', '12:00'),
+    'lunch_break_end'      => env('ALERT_LUNCH_BREAK_END', '14:00'),
+
 ];

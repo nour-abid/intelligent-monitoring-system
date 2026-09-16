@@ -1,5 +1,5 @@
 camera:
-  rtsp_url: "http://192.168.100.34:8080/video"
+  rtsp_url: "http://192.168.100.46:8080/video"
 
 recognition:
   sim_threshold: 0.55

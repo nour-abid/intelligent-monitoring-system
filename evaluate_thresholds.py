@@ -14,10 +14,10 @@ from sklearn.metrics import roc_curve, auc
 from insightface.app import FaceAnalysis
 
 # Add src to path to import modules
-sys.path.append(str(Path(__file__).parent))
+sys.path.append(str(Path(__file__).parent / "src"))
 
-from config import config
-from recognition import l2_normalize, cosine_sim
+from recognition.config import config
+from recognition.recognition import l2_normalize, cosine_sim
 
 def load_test_embeddings(test_folder):
     """

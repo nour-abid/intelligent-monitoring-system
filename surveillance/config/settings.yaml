@@ -3,8 +3,9 @@
 # ============================================================
 
 # Video source: integer webcam index (e.g. 0) or RTSP URL string
+# Use the live IP camera stream here, such as an Android camera web URL or RTSP stream.
 video_source: "http://192.168.100.46:8080/video"
-
+# rtsp_url: "http://192.168.100.46:8080/video"
 # YOLO activity model path (relative to project root)
 model_path: surveillance/models/best.pt
 

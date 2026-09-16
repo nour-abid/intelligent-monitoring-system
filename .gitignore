@@ -69,6 +69,15 @@ surveillance/data/
 *.db-wal
 
 # ---------------------------------------------------------------------------
+# Generated surveillance artifacts
+# ---------------------------------------------------------------------------
+clips/
+experiments/
+experiments/**
+test_roc/
+mq-monitoring-api/storage/app/private/identity_photos/
+
+# ---------------------------------------------------------------------------
 # Logs & runtime output
 # ---------------------------------------------------------------------------
 logs/

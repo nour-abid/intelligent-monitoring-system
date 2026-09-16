@@ -750,7 +750,7 @@ def main() -> None:
         raise SystemExit(f"Cannot open RTSP stream: {rtsp_url}")
 
     logger.info(
-        "Pipeline active: InsightFace → DeepSORT → MiniFASNet → YOLO → SQLite"
+        "Pipeline active: InsightFace → DeepSORT → MiniFASNet → YOLO → PostgreSQL"
     )
 
     # ── Per-session state ────────────────────────────────────────────
@@ -767,6 +767,9 @@ def main() -> None:
     _last_frame_sig: Optional[tuple] = None
     _same_frame_count = 0
     _MAX_SAME_FRAMES  = 20
+
+    prev_t = time.time()
+    fps = 0.0
 
     # ================================================================
     # Main loop
@@ -851,6 +854,9 @@ def main() -> None:
                 pass
 
             now = time.time()
+            interval = max(1e-6, now - prev_t)
+            fps = 0.9 * fps + 0.1 * (1.0 / interval)
+            prev_t = now
             frame_count += 1
 
             # ════════════════════════════════════════════════
@@ -1160,6 +1166,7 @@ def main() -> None:
             cv2.putText(
                 frame,
                 (f"Tracks: {len(my_tracks)}  |  Frame: {frame_count}  |  "
+                 f"FPS: {fps:.1f}  |  "
                  f"Present: {', '.join(sorted(present_set)) or 'None'}"),
                 (20, 30),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2,
