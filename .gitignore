@@ -130,3 +130,7 @@ desktop.ini
 # ---------------------------------------------------------------------------
 _test_*.db
 *.cache
+
+# Temporary Claude workspace markers
+tmpclaude-*
+tmpclaude*
